@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>검색하기 — 애배력</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   애배력 — 검색하기 (PRD 6.1 ~ 6.4)
+   색:   DESIGN2.md
+   타이포·칩: PRD-1st.md 7장
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --canvas:#F4F2F7; --surface:#FFFFFF;
+  --ink:#1C1826; --ink-soft:#6B6478; --ink-faint:#9A93AC; --hairline:#E0DCE8;
+
+  --cat-1:#6B3FA0; --cat-1-soft:#E4DBF2;
+  --cat-2:#B34E14; --cat-2-soft:#F7E2D4;
+  --cat-3:#16697A; --cat-3-soft:#D7E9ED;
+  --cat-4:#B02D6E; --cat-4-soft:#F6DAE8;
+  --cat-5:#6B7028; --cat-5-soft:#E6E8D4;
+  --cat-6:#2C5BB5; --cat-6-soft:#DBE3F6;
+  --cat-7:#7A4A28; --cat-7-soft:#EBDFD6;
+  --cat-8:#736A87; --cat-8-soft:#E5E2EB;
+
+  --unverified:#B37A14; --unverified-bg:#FAF0DC;
+  --success:#2F6B45;
+  --danger:#A62B32;  --danger-bg:#FAE3E4;
+
+  --serif:"Gowun Batang", serif;
+  --sans:"Noto Sans KR", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+
+  --r-card:12px; --r-ui:8px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background:var(--canvas); font-family:var(--sans);
+  font-size:14px; line-height:1.6; color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+time, .num, .mono { font-family:var(--mono); font-feature-settings:"tnum"; }
+h1,h2,h3 { font-family:var(--serif); font-weight:700; line-height:1.35; }
+a { color:inherit; }
+
+.card { background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-card); }
+.shell { max-width:1080px; margin:0 auto; padding:0 24px; }
+
+/* ═══ 상단바 · 탭 ═══ */
+.topbar { background:var(--surface); border-bottom:1px solid var(--hairline); position:sticky; top:0; z-index:20; }
+.topbar-inner { display:flex; align-items:center; gap:20px; padding:14px 24px; }
+.wordmark { font-family:var(--serif); font-size:24px; font-weight:700; letter-spacing:-.02em; text-decoration:none; flex:none; }
+.topbar-actions { margin-left:auto; display:flex; gap:8px; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  height:40px; padding:0 16px;
+  font-family:var(--sans); font-size:14px; font-weight:500;
+  border-radius:var(--r-ui); cursor:pointer; white-space:nowrap;
+  border:1px solid transparent; text-decoration:none; background:none;
+}
+.btn-primary { background:var(--ink); color:var(--surface); }
+.btn-primary:hover { background:#322c40; }
+.btn-ghost { background:var(--surface); color:var(--ink); border-color:var(--hairline); }
+.btn-ghost:hover { border-color:var(--ink-soft); }
+.btn-sm { height:34px; padding:0 12px; font-size:13px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn:disabled:hover { background:var(--surface); border-color:var(--hairline); }
+
+.tabs { background:var(--surface); border-bottom:1px solid var(--hairline); }
+.tabs-inner { display:flex; gap:4px; }
+.tab {
+  padding:13px 16px; font-size:14px; font-weight:500; color:var(--ink-soft);
+  text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.tab:hover { color:var(--ink); }
+.tab[aria-current="page"] { color:var(--ink); border-bottom-color:var(--ink); }
+.tab .lock { font-size:11px; color:var(--ink-faint); }
+
+/* ═══ 검색 ═══ */
+.searchwrap { padding:32px 0 0; }
+.searchbox { position:relative; max-width:560px; margin:0 auto; }
+.searchbox input {
+  width:100%; height:52px; padding:0 16px 0 44px;
+  font-family:var(--sans); font-size:16px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-ui);
+}
+.searchbox input::placeholder { color:var(--ink-faint); }
+.searchbox input:focus {
+  outline:none; border-color:var(--ink-soft);
+  box-shadow:0 0 0 3px rgba(107,100,120,.12);
+}
+.searchbox .icon {
+  position:absolute; left:16px; top:50%; transform:translateY(-50%);
+  color:var(--ink-faint); font-size:16px; pointer-events:none;
+}
+.search-hint { text-align:center; font-size:13px; color:var(--ink-faint); margin-top:12px; }
+
+/* 자동완성 */
+.suggest {
+  position:absolute; left:0; right:0; top:58px; z-index:30;
+  background:var(--surface); border:1px solid var(--hairline);
+  border-radius:var(--r-ui); overflow:hidden;
+  box-shadow:0 8px 24px rgba(28,24,38,.10);
+}
+.suggest[hidden] { display:none; }
+.suggest-group { padding:6px 0; }
+.suggest-group + .suggest-group { border-top:1px solid var(--hairline); }
+.suggest-label {
+  padding:6px 14px 4px; font-size:11px; font-weight:700; color:var(--ink-faint);
+  letter-spacing:.04em;
+}
+.suggest-item {
+  display:flex; align-items:center; gap:10px;
+  width:100%; padding:9px 14px; text-align:left;
+  font-family:var(--sans); font-size:14px; color:var(--ink);
+  background:none; border:0; cursor:pointer;
+}
+.suggest-item:hover, .suggest-item.active { background:var(--canvas); }
+.suggest-item .sub { margin-left:auto; font-size:12px; color:var(--ink-faint); }
+.suggest-empty { padding:16px 14px; font-size:13px; color:var(--ink-faint); text-align:center; }
+
+/* ═══ 결과 ═══ */
+.result { padding:24px 0 56px; display:flex; flex-direction:column; gap:16px; }
+.result[hidden] { display:none; }
+
+.subject { padding:20px 22px; display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.subject-kind {
+  font-size:11px; font-weight:700; color:var(--ink-soft);
+  border:1px solid var(--hairline); background:var(--canvas);
+  border-radius:999px; padding:2px 10px;
+}
+.subject h1 { font-size:26px; letter-spacing:-.01em; }
+.subject .sub { font-size:13px; color:var(--ink-soft); margin-top:4px; }
+.subject-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+
+/* ── 필터 ── */
+.filters { padding:18px 22px; }
+.filters h2 { font-size:15px; margin-bottom:4px; }
+.filter-rule { font-size:12px; color:var(--ink-faint); line-height:1.7; margin-bottom:14px; }
+.role-row { display:flex; align-items:baseline; gap:12px; padding:7px 0; flex-wrap:wrap; }
+.role-row + .role-row { border-top:1px dashed var(--hairline); }
+.role-name {
+  flex:none; width:74px; font-size:13px; font-weight:500; color:var(--ink-soft);
+}
+.role-name .order { font-size:10px; color:var(--ink-faint); display:block; font-weight:400; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+
+/* 칩: 원형 pill (PRD 7장) */
+.chip {
+  display:inline-flex; align-items:center; gap:7px;
+  height:34px; padding:0 14px;
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  border-radius:999px; cursor:pointer;
+  background:var(--surface); color:var(--ink); border:1px solid var(--hairline);
+}
+.chip::before {
+  content:""; width:7px; height:7px; border-radius:999px;
+  background:var(--wc, var(--ink-faint)); flex:none;
+}
+.chip:hover { border-color:var(--ink-faint); }
+.chip[aria-pressed="true"] { background:var(--wc, var(--ink)); color:var(--surface); border-color:var(--wc, var(--ink)); }
+.chip[aria-pressed="true"]::before { background:var(--surface); }
+
+.filter-foot {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--hairline);
+  font-size:13px; color:var(--ink-soft);
+}
+.filter-foot .count strong { font-family:var(--mono); color:var(--ink); }
+.filter-foot .reset { margin-left:auto; }
+
+/* ── 범례 ── */
+.legend {
+  display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
+  padding:12px 22px; border-top:1px solid var(--hairline);
+  font-size:12px; color:var(--ink-soft);
+}
+.legend .lbl { font-weight:500; color:var(--ink-faint); }
+.legend span.item { display:inline-flex; align-items:center; gap:7px; }
+.legend i { width:10px; height:10px; border-radius:3px; background:var(--wc); flex:none; }
+
+/* ── 달력 ── */
+.cal-head { display:flex; align-items:center; gap:12px; padding:18px 22px 12px; }
+.cal-head h2 { font-size:17px; }
+.cal-nav { margin-left:auto; display:flex; gap:6px; }
+.cal-nav button {
+  width:34px; height:34px; border-radius:var(--r-ui);
+  border:1px solid var(--hairline); background:var(--surface);
+  color:var(--ink-soft); cursor:pointer; font-size:14px;
+}
+.cal-nav button:hover { border-color:var(--ink-soft); color:var(--ink); }
+
+.cal { padding:0 14px 14px; }
+.cal-dow {
+  display:grid; grid-template-columns:repeat(7,1fr);
+  font-size:12px; font-weight:500; color:var(--ink-faint);
+  padding-bottom:6px;
+}
+.cal-dow div { text-align:center; padding:4px 0; }
+.cal-dow .sun { color:var(--danger); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-cell {
+  min-height:96px; padding:6px;
+  border:1px solid var(--hairline); border-radius:var(--r-ui);
+  background:var(--surface);
+  display:flex; flex-direction:column; gap:3px;
+}
+.cal-cell.pad { background:transparent; border-color:transparent; }
+.cal-cell .d {
+  font-family:var(--mono); font-size:12px; color:var(--ink-soft);
+  display:flex; align-items:center; gap:5px;
+}
+.cal-cell.sun .d { color:var(--danger); }
+.cal-cell.today .d { color:var(--ink); font-weight:600; }
+.cal-cell.today { box-shadow:inset 0 0 0 1.5px var(--ink); }
+
+/* 회차 — 색 + 텍스트를 항상 같이 (DESIGN2.md) */
+.perf {
+  display:flex; align-items:center; gap:6px;
+  width:100%; padding:3px 5px; border-radius:5px;
+  border:0; border-left:3px solid var(--wc);
+  background:var(--wc-soft); color:var(--ink);
+  font-family:var(--sans); font-size:11px; text-align:left; cursor:pointer;
+}
+.perf:hover { filter:brightness(.96); }
+.perf.selected { box-shadow:0 0 0 1.5px var(--wc); }
+.perf .t { font-family:var(--mono); font-size:11px; font-weight:500; flex:none; }
+.perf .n { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.perf .ev { margin-left:auto; flex:none; font-size:9px; color:var(--ink-soft); }
+.more { font-size:10px; color:var(--ink-faint); padding-left:5px; }
+
+/* ── 0건 안내 (PRD 6.3) ── */
+.empty { padding:44px 24px; text-align:center; }
+.empty h3 { font-size:17px; margin-bottom:8px; }
+.empty p { font-size:13px; color:var(--ink-soft); max-width:44ch; margin:0 auto; }
+.empty .btn { margin-top:18px; }
+
+/* ── 회차 상세 (PRD 6.4) ── */
+.detail { padding:20px 22px; overflow:hidden; }   /* overflow — 열고 닫을 때 높이를 깎기 위해 */
+.detail[hidden] { display:none; }
+.detail-head { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+.detail-head h2 { font-size:19px; }
+.detail-when { font-size:13px; color:var(--ink-soft); margin-top:3px; }
+.detail-head .btn { margin-left:auto; }
+.cast-table { width:100%; border-collapse:collapse; font-size:14px; }
+.cast-table th, .cast-table td { text-align:left; padding:8px 0; border-bottom:1px solid var(--hairline); }
+.cast-table th { width:90px; font-weight:500; color:var(--ink-soft); font-size:13px; }
+.cast-table .fav { font-weight:500; }
+.cast-table .fav::after {
+  content:"애배"; margin-left:6px; font-size:10px; font-weight:700;
+  color:var(--ink-soft); border:1px solid var(--hairline);
+  background:var(--canvas); border-radius:999px; padding:1px 6px;
+}
+.ev-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.ev-badge {
+  font-size:12px; font-weight:500; border-radius:999px; padding:3px 11px;
+  border:1px solid var(--hairline); background:var(--canvas); color:var(--ink-soft);
+}
+.ev-badge.unverified { color:var(--unverified); background:var(--unverified-bg); border-color:#EFDFBC; }
+.ev-none {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-top:14px; padding:12px 14px;
+  background:var(--canvas); border-radius:var(--r-ui);
+  font-size:13px; color:var(--ink-soft);
+}
+.history {
+  margin-top:14px; padding:12px 14px;
+  background:var(--danger-bg); border-radius:var(--r-ui);
+  font-size:13px; color:var(--ink);
+}
+.history b { color:var(--danger); }
+.history .when { font-size:11px; color:var(--ink-soft); display:block; margin-top:3px; }
+
+/* ═══ 반응형 ═══ */
+@media (max-width:900px) {
+  .cal-cell { min-height:78px; }
+  .perf .n { display:none; }        /* 셀에는 시간만 (PRD 5장) */
+  .role-name { width:100%; }
+}
+@media (max-width:640px) {
+  .shell { padding:0 16px; }
+  .topbar-inner { padding:12px 16px; gap:12px; }
+  .wordmark { font-size:20px; }
+  .tabs-inner { overflow-x:auto; scrollbar-width:none; }
+  .tabs-inner::-webkit-scrollbar { display:none; }
+  .tab { padding:12px; white-space:nowrap; }
+  .cal { padding:0 8px 10px; }
+  .cal-grid { gap:2px; }
+  .cal-cell { min-height:62px; padding:4px 3px; border-radius:6px; }
+  .perf { padding:2px 3px; border-left-width:3px; justify-content:center; }
+  .subject h1 { font-size:22px; }
+  .chip { height:40px; }
+  .btn { height:44px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" href="index.html">애배력</a>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">제보하기</button>
+      <button class="btn btn-primary btn-sm">로그인</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="주 메뉴">
+  <div class="shell tabs-inner">
+    <a class="tab" href="index.html">홈</a>
+    <a class="tab" href="search.html" aria-current="page">검색하기</a>
+    <a class="tab" href="#">내 달력 <span class="lock" aria-hidden="true">잠김</span></a>
+    <a class="tab" href="#">애배 달력 <span class="lock" aria-hidden="true">잠김</span></a>
+  </div>
+</nav>
+
+<div class="shell searchwrap">
+  <div class="searchbox">
+    <span class="icon" aria-hidden="true">⌕</span>
+    <input id="q" type="search" autocomplete="off" autofocus
+           role="combobox" aria-expanded="false" aria-controls="suggest"
+           placeholder="배우 이름 또는 작품명">
+    <div class="suggest" id="suggest" role="listbox" hidden></div>
+  </div>
+  <p class="search-hint" id="hint">작품은 약칭으로도 찾을 수 있습니다 — 붉편, 달항, 검숲</p>
+</div>
+
+<div class="shell result" id="result" hidden></div>
+
+<!-- easeReverse는 GSAP 3.15.0부터. 그 아래 버전에서는 조용히 무시된다. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   데이터 — 전부 가상. 실존 작품·배우가 아닙니다.
+   ═══════════════════════════════════════════════════════════ */
+const ACTORS = {
+  a1:'유하람', a2:'백지운', a3:'강태윤', a4:'서도현',
+  a5:'민재희', a6:'정하윤', a7:'노경',   a8:'임세아', a9:'차유리'
+};
+
+const WORKS = {
+  w1: { name:'붉은 편지', alias:['붉편'], venue:'충무 파랑새', tier:'full',
+        roles:[ {id:'r1', name:'윤서', actors:['a1','a2']},
+                {id:'r2', name:'해강', actors:['a3','a4']},
+                {id:'r3', name:'도경', actors:['a5','a6']} ] },
+  w2: { name:'달의 항구', alias:['달항'], venue:'대학로 목련', tier:'full',
+        roles:[ {id:'r4', name:'선우', actors:['a1','a7']},
+                {id:'r5', name:'유월', actors:['a8']} ] },
+  w3: { name:'검은 숲', alias:['검숲'], venue:'세종 M', tier:'full',
+        roles:[ {id:'r6', name:'이든', actors:['a3','a2']},
+                {id:'r7', name:'라온', actors:['a9']} ] }
+};
+
+/* 2026년 8월. cast = { 배역id: 배우id } */
+const PERFS = [
+  // 붉은 편지
+  {w:'w1',d:4, t:'19:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:5, t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:6, t:'19:30', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:7, t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:8, t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:8, t:'18:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:9, t:'14:00', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:11,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:12,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'},
+   history:{role:'윤서', from:'유하람', to:'백지운', when:'08.12 08:05'}},
+  {w:'w1',d:13,t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:14,t:'19:30', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:15,t:'14:00', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:15,t:'18:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:16,t:'14:00', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:18,t:'19:30', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:19,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:20,t:'19:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:21,t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:22,t:'14:00', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:22,t:'18:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:23,t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'}, events:[{label:'포토타임', verified:true}]},
+  {w:'w1',d:25,t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:26,t:'19:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:28,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:29,t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:29,t:'18:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:30,t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'},
+   events:[{label:'커튼콜 촬영', verified:true}]},
+
+  // 달의 항구
+  {w:'w2',d:2, t:'15:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:5, t:'20:00', cast:{r4:'a7',r5:'a8'}},
+  {w:'w2',d:9, t:'15:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:12,t:'20:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:16,t:'15:00', cast:{r4:'a1',r5:'a8'},
+   events:[{label:'커튼콜 촬영', verified:false}]},
+  {w:'w2',d:19,t:'20:00', cast:{r4:'a7',r5:'a8'}},
+  {w:'w2',d:22,t:'15:00', cast:{r4:'a7',r5:'a8'}},
+  {w:'w2',d:26,t:'20:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:30,t:'15:00', cast:{r4:'a1',r5:'a8'}},
+
+  // 검은 숲
+  {w:'w3',d:1, t:'19:00', cast:{r6:'a3',r7:'a9'}},
+  {w:'w3',d:8, t:'20:00', cast:{r6:'a2',r7:'a9'}},
+  {w:'w3',d:15,t:'20:00', cast:{r6:'a3',r7:'a9'}},
+  {w:'w3',d:23,t:'18:00', cast:{r6:'a3',r7:'a9'},
+   events:[{label:'막공', verified:true},{label:'종연 커튼콜', verified:false}]}
+];
+
+/* 위 회차에는 y·m이 없다 = 2026년 8월. 아래에서 채운다. */
+PERFS.forEach(p => { p.y = p.y || 2026; p.m = p.m || 8; });
+
+/* ── 7월(지난 달)과 9월(캐스팅표 공개분)을 규칙으로 채운다 ── */
+(function seedOtherMonths () {
+  const rotation = [
+    {r1:'a1',r2:'a3',r3:'a5'}, {r1:'a2',r2:'a4',r3:'a6'},
+    {r1:'a1',r2:'a4',r3:'a5'}, {r1:'a2',r2:'a3',r3:'a5'}
+  ];
+  let i = 0;
+  const run = (y, m, days) => {
+    for (let d = 1; d <= days; d++) {
+      const w = new Date(y, m - 1, d).getDay();      // 0=일
+      if (w === 1) continue;                          // 월요일 공연 없음
+      const times = w === 6 ? ['14:00','18:30'] : w === 0 ? ['14:00'] : ['19:30'];
+      times.forEach(t => PERFS.push({ w:'w1', y, m, d, t, cast:rotation[i++ % 4] }));
+    }
+  };
+  run(2026, 7, 31);   // 지난 달
+  run(2026, 9, 30);   // 9월 캐스팅표 공개분
+
+  // 9월 마지막 회차가 막공
+  const sep = PERFS.filter(p => p.y===2026 && p.m===9 && p.w==='w1');
+  const last = sep[sep.length - 1];
+  if (last) last.events = [{label:'막공', verified:true},{label:'커튼콜 촬영', verified:true}];
+
+  // 달의 항구는 9월에도 이어진다
+  [ [2,'15:00','a1'], [6,'20:00','a7'], [9,'15:00','a1'],
+    [13,'20:00','a7'], [16,'15:00','a1'], [20,'20:00','a1'],
+    [23,'15:00','a7'], [27,'20:00','a1'] ]
+    .forEach(([d,t,a]) => PERFS.push({ w:'w2', y:2026, m:9, d, t, cast:{r4:a, r5:'a8'} }));
+})();
+
+const TODAY = { y:2026, m:8, d:12 };
+const RANGE = { min:{y:2026,m:7}, max:{y:2026,m:9} };
+const FAVORITES = ['a1','a3'];   // 등록된 애배 (최대 4)
+
+/* ═══ 상태 ═══ */
+let view = null;          // {kind:'actor'|'work', id}
+let filters = {};         // actor뷰: {work:Set} / work뷰: {roleId:Set}
+let selectedPerf = null;
+let ym = { y:2026, m:8 };  // 보고 있는 달
+
+const daysIn  = (y,m) => new Date(y, m, 0).getDate();
+const firstDow = (y,m) => new Date(y, m-1, 1).getDay();
+const idx = o => o.y * 12 + o.m;
+const inMonth = p => p.y === ym.y && p.m === ym.m;
+
+const $ = s => document.querySelector(s);
+const el = (h) => { const t=document.createElement('template'); t.innerHTML=h.trim(); return t.content.firstChild; };
+const catVar = i => `--cat-${(i % 8) + 1}`;
+
+/* ═══ 검색 ═══ */
+const input = $('#q'), suggestBox = $('#suggest'), hint = $('#hint');
+
+/* ═══════════════════════════════════════════════════════════
+   모션 — GSAP 3.15 easeReverse
+   ───────────────────────────────────────────────────────────
+   reverse()는 값뿐 아니라 이징까지 되감는다. out 이징으로 연 패널을
+   그대로 되감으면 닫힘이 in 이징이 되어, 열 때는 경쾌한데 닫을 때는
+   굼뜨게 출발하는 어색함이 생긴다.
+
+   easeReverse는 "되감을 때 쓸 이징"을 따로 지정해 이걸 없앤다.
+   재생 헤드가 방향을 바꾼 지점부터 남은 거리에 대해 이징을 다시
+   계산하므로, 애니메이션 도중에 끊고 되감아도 튀지 않는다 —
+   타이핑하는 동안 열렸다 닫혔다 하는 자동완성처럼 사용자가 언제든
+   방향을 바꾸는 UI가 정확히 이 경우다.
+
+   여는 이징 / 닫는 이징을 짝으로 묶어 아래 EASE에 모아 둔다.
+   ═══════════════════════════════════════════════════════════ */
+const reduced = () => !!(window.matchMedia
+              && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* GSAP이 못 뜨거나(오프라인·CDN 차단) 모션 축소 설정이면 MOTION은 false가 되고,
+   아래 함수들은 전부 hidden 토글만 하던 원래 동작으로 돌아간다. */
+const MOTION = typeof gsap !== 'undefined' && !reduced();
+
+/* 조용히 꺼지면 "왜 아무 일도 안 일어나지"를 알 길이 없다. 이유를 남긴다. */
+if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
+  ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
+  : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
+
+/* 닫는 이징도 out 계열이다 — 공식 데모와 같은 방식.
+   in 계열(power3.in 등)을 쓰면 되감기 초반이 3차 곡선이라 거의 움직이지 않아,
+   "닫아도 아무 일이 없다가 끝에 훅 사라지는" 느낌이 된다. */
+const EASE = {
+  out:   'expo.out',        // 열림 — 빠르게 튀어나와 부드럽게 안착
+  in:    'power2.out',      // 닫힘 — 곧바로 반응해서 부드럽게 마무리
+  pop:   'back.out(1.5)',   // 항목 — 살짝 넘어갔다 제자리
+  popIn: 'power3.out'       // 항목 닫힘 — 튕기지 않고 곧장 빠져나감
+};
+
+if (MOTION) gsap.defaults({ ease:EASE.out, easeReverse:EASE.in, duration:.36 });
+
+/* 타임라인 defaults에도 같이 실어 자식 트윈까지 내려보낸다 */
+const TL_DEFAULTS = { ease:EASE.out, easeReverse:EASE.in };
+
+/* 항목 수가 늘어도 전체 시간이 길어지지 않게 stagger 총량을 묶는다 */
+const spread = (n, per, cap) => ({ amount: Math.min(n * per, cap) });
+
+let suggestTl = null;    // 자동완성 — 열림 타임라인. 닫을 때 reverse()
+let detailTl  = null;    // 회차 상세 — 같은 방식
+let gridFrom  = 'start'; // 달 이동 방향에 따라 회차 칩이 퍼지는 쪽
+let skipGrid  = false;   // 결과 전체가 새로 들어올 땐 칩 스태거를 생략
+
+/* ── 자동완성 드롭다운 ── */
+function openSuggest () {
+  input.setAttribute('aria-expanded', 'true');
+  if (!MOTION) { suggestBox.hidden = false; return; }
+
+  /* 목록이 바뀌면 예전 항목을 가리키던 타임라인은 버리고 다시 만든다.
+     단 진행도는 물려받아, 열려 있던 패널이 0으로 접혔다 다시 열리지 않게 한다. */
+  const p = suggestTl ? suggestTl.progress() : 0;
+  if (suggestTl) suggestTl.kill();
+  gsap.set(suggestBox, { clearProps:'height,opacity,y' });
+  suggestBox.hidden = false;
+
+  const labels = suggestBox.querySelectorAll('.suggest-label');
+  const items  = suggestBox.querySelectorAll('.suggest-item, .suggest-empty');
+
+  suggestTl = gsap.timeline({ paused:true, defaults:TL_DEFAULTS })
+    .fromTo(suggestBox,
+      { height:0, opacity:0, y:-4 },
+      { height:'auto', opacity:1, y:0, duration:.34 })
+    .fromTo(labels,
+      { opacity:0 }, { opacity:1, duration:.22, stagger:.05 }, .08)
+    .fromTo(items,
+      { opacity:0, y:-10 },
+      { opacity:1, y:0, duration:.34,
+        ease:EASE.pop, easeReverse:EASE.popIn,
+        stagger:spread(items.length, .045, .3) }, .06);
+
+  suggestTl.progress(p).timeScale(1).play();
+
+  /* 이미 열린 채로 검색어만 바뀐 경우 — 패널은 그대로 두고 항목만 다시 세운다 */
+  if (p >= 1 && items.length) {
+    gsap.from(items, { opacity:0, y:-6, duration:.28, ease:EASE.pop,
+                       stagger:spread(items.length, .035, .22) });
+  }
+}
+
+function closeSuggest () {
+  input.setAttribute('aria-expanded', 'false');
+  if (!MOTION || !suggestTl || suggestBox.hidden) {
+    suggestBox.hidden = true; suggestTl = null; return;
+  }
+  suggestTl.eventCallback('onReverseComplete', () => {
+    suggestBox.hidden = true;
+    gsap.set(suggestBox, { clearProps:'height,opacity,y' });
+    suggestTl = null;
+  });
+  suggestTl.timeScale(1.4).reverse();   // 닫힘은 열림보다 조금 빠르게
+}
+
+/* ── 회차 상세 ── */
+function openDetail (box) {
+  if (!MOTION) return;
+  const head   = box.querySelectorAll('.detail-head > *');
+  const rows   = box.querySelectorAll('.cast-table tr');
+  const badges = box.querySelectorAll('.ev-badge, .ev-none, .history');
+
+  /* 여백·테두리는 CSS 값을 읽어 쓴다. 여기에 숫자를 적어 두면 CSS와 어긋난다. */
+  const padT = gsap.getProperty(box, 'paddingTop');
+  const padB = gsap.getProperty(box, 'paddingBottom');
+  const brdT = gsap.getProperty(box, 'borderTopWidth');
+  const brdB = gsap.getProperty(box, 'borderBottomWidth');
+
+  detailTl = gsap.timeline({ defaults:TL_DEFAULTS })
+    .fromTo(box,
+      { height:0, opacity:0, paddingTop:0, paddingBottom:0,
+        borderTopWidth:0, borderBottomWidth:0 },
+      { height:'auto', opacity:1, paddingTop:padT, paddingBottom:padB,
+        borderTopWidth:brdT, borderBottomWidth:brdB, duration:.44 })
+    .fromTo(head,
+      { opacity:0, y:10 }, { opacity:1, y:0, stagger:.07 }, .12)
+    .fromTo(rows,
+      { opacity:0, x:-14 },
+      { opacity:1, x:0, ease:EASE.pop, easeReverse:EASE.popIn,
+        stagger:spread(rows.length, .07, .3) }, .18)
+    .fromTo(badges,
+      { opacity:0, scale:.9 },
+      { opacity:1, scale:1, duration:.3, ease:EASE.pop, easeReverse:EASE.popIn,
+        stagger:.06 }, .3);
+}
+
+/* 열린 회차를 다시 누르면 닫는다. 이 되감기가 easeReverse가 일하는 자리 —
+   배역 줄이 들어온 순서의 역순으로, 들어올 때와는 다른 이징으로 빠져나간다. */
+function closeDetail () {
+  const done = () => { selectedPerf = null; detailTl = null; skipGrid = true; render(); };
+  if (!MOTION || !detailTl) return done();
+  detailTl.eventCallback('onReverseComplete', done);
+  detailTl.timeScale(1.5).reverse();
+}
+
+/* ── 달력 회차 칩 ── */
+function animateGrid () {
+  const from = gridFrom;
+  gridFrom = 'start';                       // 방향은 한 번만 쓰고 되돌린다
+  if (!MOTION || skipGrid) { skipGrid = false; return; }
+  const pills = $('#result').querySelectorAll('.perf');
+  if (!pills.length) return;
+  gsap.from(pills, {
+    opacity:0, y:-5, scale:.96, duration:.3,
+    stagger:{ ...spread(pills.length, .01, .35), from }
+  });
+}
+
+/* ── 새 대상을 골랐을 때 결과 카드 전체 ──
+   #detail은 뺀다. 카드가 들어오는 동안 회차를 누르면 clearProps가
+   상세 패널이 쓰고 있던 인라인 높이를 도중에 지워 버린다. */
+function animateResultIn () {
+  if (!MOTION) return;
+  gsap.from(document.querySelectorAll('#result > *:not(#detail)'), {
+    opacity:0, y:16, duration:.5, stagger:.08, clearProps:'all'
+  });
+}
+
+function search (term) {
+  const q = term.trim().toLowerCase();
+  if (!q) return null;
+  const actors = Object.entries(ACTORS)
+    .filter(([, n]) => n.toLowerCase().includes(q))
+    .map(([id, n]) => ({ kind:'actor', id, name:n, sub:worksOf(id).length + '개 작품' }));
+  const works = Object.entries(WORKS)
+    .filter(([, w]) => w.name.toLowerCase().includes(q)
+                    || w.alias.some(a => a.toLowerCase().includes(q)))
+    .map(([id, w]) => ({ kind:'work', id, name:w.name, sub:w.venue }));
+  return { actors, works };
+}
+
+function worksOf (actorId) {
+  return Object.entries(WORKS)
+    .filter(([, w]) => w.roles.some(r => r.actors.includes(actorId)))
+    .map(([id]) => id);
+}
+
+function renderSuggest (term) {
+  const res = search(term);
+  if (!res) { closeSuggest(); return; }
+
+  const parts = [];
+  if (res.actors.length) {
+    parts.push(`<div class="suggest-group"><div class="suggest-label">배우</div>` +
+      res.actors.map(r =>
+        `<button class="suggest-item" data-kind="actor" data-id="${r.id}">
+           ${r.name}<span class="sub">${r.sub}</span></button>`).join('') + `</div>`);
+  }
+  if (res.works.length) {
+    parts.push(`<div class="suggest-group"><div class="suggest-label">작품</div>` +
+      res.works.map(r =>
+        `<button class="suggest-item" data-kind="work" data-id="${r.id}">
+           ${r.name}<span class="sub">${r.sub}</span></button>`).join('') + `</div>`);
+  }
+  suggestBox.innerHTML = parts.length ? parts.join('')
+    : `<div class="suggest-empty">일치하는 배우나 작품이 없습니다</div>`;
+  openSuggest();
+}
+
+input.addEventListener('input', e => renderSuggest(e.target.value));
+input.addEventListener('focus', e => { if (e.target.value) renderSuggest(e.target.value); });
+document.addEventListener('click', e => {
+  if (!e.target.closest('.searchbox') && !suggestBox.hidden) closeSuggest();
+});
+suggestBox.addEventListener('click', e => {
+  const item = e.target.closest('.suggest-item');
+  if (!item) return;
+  select(item.dataset.kind, item.dataset.id);
+});
+
+function select (kind, id) {
+  view = { kind, id };
+  filters = {};
+  selectedPerf = null;
+  ym = { y:TODAY.y, m:TODAY.m };   // 새 대상은 이번 달부터
+  closeSuggest();
+  input.value = kind === 'actor' ? ACTORS[id] : WORKS[id].name;
+  hint.hidden = true;
+  skipGrid = true;                 // 카드 전체가 들어오므로 칩 스태거는 겹치지 않게
+  render();
+  animateResultIn();
+  $('#result').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* ═══ 필터 적용 ═══ */
+
+/* 배우 뷰 — 작품 칩. 여러 개 고르면 합집합 */
+function actorPerfs (actorId, useFilters = true) {
+  const picked = filters.works;
+  return PERFS.filter(p => {
+    if (!inMonth(p)) return false;
+    if (!Object.values(p.cast).includes(actorId)) return false;
+    if (useFilters && picked && picked.size) return picked.has(p.w);
+    return true;
+  });
+}
+
+/* 작품 뷰 — 배역이 다르면 교집합, 같은 배역 안에서는 합집합 (PRD 6.3) */
+function workPerfs (workId, useFilters = true) {
+  return PERFS.filter(p => {
+    if (!inMonth(p)) return false;
+    if (p.w !== workId) return false;
+    if (!useFilters) return true;
+    return WORKS[workId].roles.every(role => {
+      const picked = filters[role.id];
+      if (!picked || !picked.size) return true;      // 안 고른 배역은 조건 없음
+      return picked.has(p.cast[role.id]);            // 고른 배역은 그 중 하나여야
+    });
+  });
+}
+
+const subjectPerfs = (useFilters = true) =>
+  view.kind === 'actor' ? actorPerfs(view.id, useFilters)
+                        : workPerfs(view.id, useFilters);
+
+/* 셀 색을 정하는 기준 (PRD 6.3)
+   작품 뷰: 처음으로 필터가 걸린 배역. 없으면 첫 배역(주연)
+   배우 뷰: 작품 */
+function colorKeyOf (perf) {
+  if (view.kind === 'actor') return perf.w;
+  const roles = WORKS[view.id].roles;
+  const governing = roles.find(r => filters[r.id] && filters[r.id].size) || roles[0];
+  return perf.cast[governing.id];
+}
+
+function colorMap () {
+  const map = new Map();
+  if (view.kind === 'actor') {
+    worksOf(view.id).forEach((w, i) => map.set(w, { name:WORKS[w].name, v:catVar(i) }));
+  } else {
+    const roles = WORKS[view.id].roles;
+    const governing = roles.find(r => filters[r.id] && filters[r.id].size) || roles[0];
+    governing.actors.forEach((a, i) => map.set(a, { name:ACTORS[a], v:catVar(i), role:governing.name }));
+  }
+  return map;
+}
+
+/* ═══ 렌더 ═══ */
+function render () {
+  const box = $('#result');
+  box.hidden = false;
+  const perfs  = subjectPerfs(true);
+  const inRaw  = subjectPerfs(false);   // 필터를 걷어낸 그 달의 회차
+  const colors = colorMap();
+
+  const body = perfs.length ? calendarHTML(perfs, colors)
+             : inRaw.length ? emptyByFilterHTML()   // 조합이 없다
+             : emptyByMonthHTML();                  // 그 달에 회차 자체가 없다
+
+  box.innerHTML = subjectHTML() + filtersHTML(perfs.length) + body +
+                  `<section class="card detail" id="detail" hidden></section>`;
+
+  bind();
+  animateGrid();
+  if (selectedPerf) renderDetail(selectedPerf);
+}
+
+function subjectHTML () {
+  if (view.kind === 'actor') {
+    const full = FAVORITES.length >= 4;
+    const already = FAVORITES.includes(view.id);
+    return `<section class="card subject">
+      <div>
+        <span class="subject-kind">배우</span>
+        <h1>${ACTORS[view.id]}</h1>
+        <p class="sub">출연 중인 작품 <span class="num">${worksOf(view.id).length}</span>개</p>
+      </div>
+      <div class="subject-actions">
+        <button class="btn btn-primary" ${already||full?'disabled':''}>
+          ${already ? '이미 애배입니다' : full ? '애배 자리 없음' : '+ 애배로 추가하기'}
+        </button>
+      </div>
+    </section>`;
+  }
+  const w = WORKS[view.id];
+  return `<section class="card subject">
+    <div>
+      <span class="subject-kind">작품</span>
+      <h1>${w.name}</h1>
+      <p class="sub">${w.venue} · 별칭 ${w.alias.join(', ')}</p>
+    </div>
+  </section>`;
+}
+
+function filtersHTML (count) {
+  const c = colorMap();
+  let rows, rule;
+
+  if (view.kind === 'actor') {
+    rule = '작품을 여러 개 고르면 <b>합집합</b>으로 보입니다. 한 회차는 한 작품에만 속하기 때문입니다.';
+    const picked = filters.works || new Set();
+    rows = `<div class="role-row">
+      <span class="role-name">작품</span>
+      <div class="chips">${worksOf(view.id).map(w =>
+        `<button class="chip" aria-pressed="${picked.has(w)}"
+                 data-scope="works" data-val="${w}"
+                 style="--wc:var(${c.get(w).v})">${WORKS[w].name}</button>`).join('')}
+      </div></div>`;
+  } else {
+    rule = '<b>배역이 다른 칩끼리는 교집합</b>입니다 — 고른 배우가 모두 함께 오르는 회차만 남습니다. ' +
+           '<b>같은 배역 안에서는 합집합</b>이라 둘 중 누가 나와도 보입니다.';
+    rows = WORKS[view.id].roles.map((r, ri) => {
+      const picked = filters[r.id] || new Set();
+      return `<div class="role-row">
+        <span class="role-name">${r.name}<span class="order">${ri===0?'주연':'배역'}</span></span>
+        <div class="chips">${r.actors.map(a => {
+          const col = c.has(a) ? `style="--wc:var(${c.get(a).v})"` : '';
+          return `<button class="chip" aria-pressed="${picked.has(a)}"
+                    data-scope="${r.id}" data-val="${a}" ${col}>${ACTORS[a]}</button>`;
+        }).join('')}</div></div>`;
+    }).join('');
+  }
+
+  const active = Object.values(filters).some(s => s && s.size);
+  return `<section class="card filters">
+    <h2>${view.kind === 'actor' ? '작품으로 좁히기' : '캐스팅으로 좁히기'}</h2>
+    <p class="filter-rule">${rule}</p>
+    ${rows}
+    <div class="filter-foot">
+      <span class="count"><strong>${count}</strong>개 회차</span>
+      ${active ? '' : '<span style="color:var(--ink-faint)">아무것도 고르지 않으면 전체가 보입니다</span>'}
+      ${active ? '<button class="btn btn-ghost btn-sm reset js-reset">필터 지우기</button>' : ''}
+    </div>
+    ${legendHTML()}
+  </section>`;
+}
+
+function legendHTML () {
+  const c = colorMap();
+  const items = [...c.entries()].map(([, v]) =>
+    `<span class="item"><i style="--wc:var(${v.v})"></i>${v.name}</span>`).join('');
+  const basis = view.kind === 'actor' ? '작품' :
+    (() => { const r = WORKS[view.id].roles.find(r => filters[r.id] && filters[r.id].size)
+                    || WORKS[view.id].roles[0]; return `${r.name} 역`; })();
+  return `<div class="legend"><span class="lbl">색 기준 · ${basis}</span>${items}</div>`;
+}
+
+function calendarHTML (perfs, colors) {
+  const byDay = {};
+  perfs.forEach(p => (byDay[p.d] = byDay[p.d] || []).push(p));
+
+  const first = firstDow(ym.y, ym.m), days = daysIn(ym.y, ym.m);
+  let cells = '';
+  for (let i = 0; i < first; i++) cells += `<div class="cal-cell pad"></div>`;
+
+  for (let d = 1; d <= days; d++) {
+    const dow = (first + d - 1) % 7;
+    const list = (byDay[d] || []).sort((a,b) => a.t.localeCompare(b.t));
+    const shown = list.slice(0, 3);
+    const isToday = ym.y===TODAY.y && ym.m===TODAY.m && d===TODAY.d;
+    const cls = ['cal-cell', dow===0?'sun':'', isToday?'today':''].join(' ');
+
+    cells += `<div class="${cls}">
+      <span class="d">${d}</span>
+      ${shown.map(p => {
+        const key = colorKeyOf(p), col = colors.get(key);
+        const v = col ? col.v : '--cat-8';
+        const name = view.kind === 'actor' ? WORKS[p.w].name : ACTORS[p.cast[governingRole().id]];
+        const ev = (p.events||[]).length ? '●' : '';
+        const sel = selectedPerf && sameP(selectedPerf, p) ? ' selected' : '';
+        return `<button class="perf${sel}" data-w="${p.w}" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}" data-t="${p.t}"
+                  style="--wc:var(${v}); --wc-soft:var(${v}-soft)"
+                  aria-label="${p.d}일 ${p.t} ${name}">
+                  <span class="t">${p.t}</span><span class="n">${name}</span>
+                  <span class="ev">${ev}</span></button>`;
+      }).join('')}
+      ${list.length > 3 ? `<span class="more">+${list.length-3}</span>` : ''}
+    </div>`;
+  }
+
+  return `<section class="card">
+    <div class="cal-head">
+      <h2>${monthLabel()}</h2>
+      ${calNavHTML()}
+    </div>
+    <div class="cal">
+      <div class="cal-dow">
+        <div class="sun">일</div><div>월</div><div>화</div><div>수</div>
+        <div>목</div><div>금</div><div>토</div>
+      </div>
+      <div class="cal-grid">${cells}</div>
+    </div>
+  </section>`;
+}
+
+function governingRole () {
+  const roles = WORKS[view.id].roles;
+  return roles.find(r => filters[r.id] && filters[r.id].size) || roles[0];
+}
+
+/* ── 달 이동 ── */
+const monthLabel = () => `${ym.y}년 ${ym.m}월`;
+
+function calNavHTML () {
+  const canPrev = idx(ym) > idx(RANGE.min);
+  const canNext = idx(ym) < idx(RANGE.max);
+  return `<div class="cal-nav">
+    <button class="js-month" data-step="-1" aria-label="이전 달" ${canPrev?'':'disabled'}>‹</button>
+    <button class="js-month" data-step="1"  aria-label="다음 달" ${canNext?'':'disabled'}>›</button>
+  </div>`;
+}
+
+function moveMonth (step) {
+  const n = { y:ym.y, m:ym.m + step };
+  if (n.m > 12) { n.m = 1;  n.y++; }
+  if (n.m < 1)  { n.m = 12; n.y--; }
+  if (idx(n) < idx(RANGE.min) || idx(n) > idx(RANGE.max)) return;
+  ym = n;
+  selectedPerf = null;   // 다른 달의 회차는 선택을 유지하지 않는다
+  detailTl = null;
+  gridFrom = step < 0 ? 'end' : 'start';   // 뒤로 가면 회차도 뒤에서부터 선다
+  render();
+}
+
+/* 0건 ① 필터 때문에 비었다 — 빈 달력 대신 안내 (PRD 6.3) */
+function emptyByFilterHTML () {
+  let head, body;
+
+  if (view.kind === 'work') {
+    // 배역이 다른 칩끼리는 교집합이므로 "함께 오르는 회차가 없다"가 맞다
+    const picked = [];
+    WORKS[view.id].roles.forEach(r => {
+      const s = filters[r.id];
+      if (s && s.size) picked.push(`${r.name} ${[...s].map(a => ACTORS[a]).join('·')}`);
+    });
+    head = '고정한 배우가 모두 함께 오르는 회차가 없습니다';
+    body = (picked.length ? picked.join(' + ') + ` 조합은 ${ym.m}월에 없습니다. ` : '') +
+           '배역을 하나 풀거나 다른 달을 보면 가까운 조합을 찾을 수 있습니다.';
+  } else {
+    // 배우 뷰에서 고정한 것은 배우가 아니라 작품이다
+    const names = [...(filters.works || [])].map(w => WORKS[w].name);
+    head = `${ACTORS[view.id]} 님의 ${ym.m}월 회차가 없습니다`;
+    body = `고른 작품(${names.join(', ')})에는 ${ym.m}월 회차가 없습니다. ` +
+           '작품 선택을 풀면 다른 작품의 회차를 볼 수 있습니다.';
+  }
+
+  return `<section class="card">
+    <div class="cal-head"><h2>${monthLabel()}</h2>${calNavHTML()}</div>
+    <div class="empty">
+      <h3>${head}</h3>
+      <p>${body}</p>
+      <button class="btn btn-ghost js-reset">필터 지우기</button>
+    </div>
+  </section>`;
+}
+
+/* 0건 ② 그 달에 회차 자체가 없다 — 필터 문제가 아니다 */
+function emptyByMonthHTML () {
+  const who = view.kind === 'actor' ? ACTORS[view.id] : WORKS[view.id].name;
+  return `<section class="card">
+    <div class="cal-head"><h2>${monthLabel()}</h2>${calNavHTML()}</div>
+    <div class="empty">
+      <h3>${ym.m}월에는 등록된 회차가 없습니다</h3>
+      <p>${who}의 ${ym.m}월 일정이 아직 공개되지 않았거나, 애배력이 아직 확보하지 못했습니다.
+         캐스팅표가 공개되면 홈의 제보·공지에 올라옵니다.</p>
+    </div>
+  </section>`;
+}
+
+/* ── 회차 상세 (PRD 6.4) ── */
+const sameP = (a,b) => a.w===b.w && a.y===b.y && a.m===b.m && a.d===b.d && a.t===b.t;
+
+function renderDetail (p) {
+  const box = $('#detail');
+  const w = WORKS[p.w];
+  const rows = w.roles.map(r => {
+    const a = p.cast[r.id];
+    const fav = FAVORITES.includes(a) ? ' class="fav"' : '';
+    return `<tr><th>${r.name}</th><td><span${fav}>${ACTORS[a]}</span></td></tr>`;
+  }).join('');
+
+  const events = p.events || [];
+  const evHTML = events.length
+    ? `<div class="ev-row">${events.map(e =>
+        `<span class="ev-badge${e.verified ? '' : ' unverified'}">${e.label}${e.verified ? '' : ' · 미검증'}</span>`
+      ).join('')}</div>`
+    : `<div class="ev-none">이벤트 정보 없음
+        <button class="btn btn-ghost btn-sm">제보하기</button></div>`;
+
+  const hist = p.history
+    ? `<div class="history">
+         <b>캐스팅 변경</b> — ${p.history.role} 역 ${p.history.from} → ${p.history.to}
+         <span class="when">${p.history.when} 반영 · 예정 캐스팅은 이력에 보관됩니다</span>
+       </div>` : '';
+
+  box.innerHTML = `
+    <div class="detail-head">
+      <div>
+        <h2>${w.name}</h2>
+        <p class="detail-when"><time>${p.m}월 ${p.d}일</time> ${dow(p)} <time>${p.t}</time> · ${w.venue}</p>
+      </div>
+      <button class="btn btn-primary">+ 내 달력에 담기</button>
+    </div>
+    <table class="cast-table"><tbody>${rows}</tbody></table>
+    ${evHTML}${hist}`;
+  box.hidden = false;
+  openDetail(box);
+}
+
+const dow = p => ['일','월','화','수','목','금','토'][new Date(p.y, p.m-1, p.d).getDay()] + '요일';
+
+/* ═══ 이벤트 바인딩 ═══ */
+function bind () {
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const { scope, val } = chip.dataset;
+      const set = filters[scope] || (filters[scope] = new Set());
+      set.has(val) ? set.delete(val) : set.add(val);
+      if (!set.size) delete filters[scope];
+      selectedPerf = null;
+      detailTl = null;
+      render();
+    });
+  });
+
+  document.querySelectorAll('.js-reset').forEach(b =>
+    b.addEventListener('click', () => {
+      filters = {}; selectedPerf = null; detailTl = null; render();
+    }));
+
+  document.querySelectorAll('.perf').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { w, y, m, d, t } = btn.dataset;
+      const p = PERFS.find(q =>
+        q.w===w && q.y===+y && q.m===+m && q.d===+d && q.t===t);
+      if (selectedPerf && sameP(selectedPerf, p)) { closeDetail(); return; }  // 다시 누르면 접는다
+      selectedPerf = p;
+      skipGrid = true;               // 상세만 열리면 되지, 달력이 다시 설 이유는 없다
+      render();
+      $('#detail').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    });
+  });
+
+  document.querySelectorAll('.js-month').forEach(b =>
+    b.addEventListener('click', () => moveMonth(+b.dataset.step)));
+}
+
+/* ═══ 홈에서 넘어온 검색어 (index.html → search.html?q=…) ═══ */
+(function initFromQuery () {
+  const q = new URLSearchParams(location.search).get('q');
+  if (!q) return;
+  input.value = q;
+  const res = search(q);
+  const hits = [...res.actors, ...res.works];
+  // 정확히 하나면 바로 열고, 여럿이면 후보를 펼쳐 고르게 한다
+  if (hits.length === 1) select(hits[0].kind, hits[0].id);
+  else { renderSuggest(q); input.focus(); }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>애배력 — 애배 캐스팅 달력</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   애배력 — 홈 (제보·공지)
+   색:   DESIGN2.md
+   타이포·칩: PRD-1st.md 7장 (DESIGN2.md의 출처 문서)
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── 기반색 (DESIGN2.md) ── */
+  --canvas:     #F4F2F7;
+  --surface:    #FFFFFF;
+  --ink:        #1C1826;
+  --ink-soft:   #6B6478;
+  --ink-faint:  #9A93AC;
+  --hairline:   #E0DCE8;
+
+  /* ── 구분색 팔레트 · 배정 순서 고정 ── */
+  --cat-1: #6B3FA0;  --cat-1-soft: #E4DBF2;  /* 보라   */
+  --cat-2: #B34E14;  --cat-2-soft: #F7E2D4;  /* 주황   */
+  --cat-3: #16697A;  --cat-3-soft: #D7E9ED;  /* 청록   */
+  --cat-4: #B02D6E;  --cat-4-soft: #F6DAE8;  /* 자홍   */
+  --cat-5: #6B7028;  --cat-5-soft: #E6E8D4;  /* 올리브 */
+  --cat-6: #2C5BB5;  --cat-6-soft: #DBE3F6;  /* 파랑   */
+  --cat-7: #7A4A28;  --cat-7-soft: #EBDFD6;  /* 갈색   */
+  --cat-8: #736A87;  --cat-8-soft: #E5E2EB;  /* 회보라 */
+
+  /* ── 상태색 ── */
+  --unverified:    #B37A14;  --unverified-bg: #FAF0DC;
+  --success:       #2F6B45;
+  --danger:        #A62B32;  --danger-bg:     #FAE3E4;
+
+  /* ── 타이포 (PRD 7장) ── */
+  --serif: "Gowun Batang", serif;                    /* 제목 */
+  --sans:  "Noto Sans KR", system-ui, sans-serif;    /* 본문 */
+  --mono:  "IBM Plex Mono", ui-monospace, monospace; /* 날짜·시간·숫자 */
+
+  /* ── 파생값: 두 문서 어디에도 없어 이 파일에서 정함 ── */
+  --r-card: 12px;
+  --r-ui:   8px;
+  --gap:    16px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--canvas);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 숫자·날짜·시간은 고정폭 — 달력에서 세로 정렬되어야 한다 */
+time, .num, .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.35; }
+
+a { color: inherit; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-card);
+}
+
+.shell { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ═══ 상단바 ═══ */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  position: sticky; top: 0; z-index: 20;
+}
+.topbar-inner {
+  display: flex; align-items: center; gap: 20px;
+  padding-top: 14px; padding-bottom: 14px;
+}
+.wordmark {
+  font-family: var(--serif); font-size: 24px; font-weight: 700;
+  letter-spacing: -.02em; text-decoration: none; flex: none;
+}
+
+/* 검색 (PRD 5장 — 홈 최상단)
+   접힌 상태는 돋보기 하나가 든 원. 누르면 입력란으로 늘어난다.
+   늘어나는 모션은 ref/orchestrated-easereverse.html 의 알약과 같은 방식이다.
+   폭은 JS가 잡으므로 여기서는 접힌 크기만 정한다. */
+.search {
+  position: relative; flex: none;
+  width: 42px; height: 42px;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  overflow: hidden;               /* 접혔을 때 입력란·버튼을 잘라낸다 */
+}
+.search.is-open { background: var(--surface); border-color: var(--ink-soft); }
+
+/* 돋보기 = 여는 버튼. 접혀 있을 땐 원 전체가 이 버튼이다. */
+.search-toggle {
+  position: absolute; left: 0; top: 0; z-index: 2;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--ink-faint);
+}
+.search-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; border-radius: 999px; }
+.search-toggle svg { display: block; }
+
+.search input {
+  width: 100%; height: 40px;
+  padding: 0 60px 0 40px;
+  font-family: var(--sans); font-size: 14px; color: var(--ink);
+  background: transparent; border: 0; border-radius: 999px;
+}
+.search input::placeholder { color: var(--ink-faint); }
+.search input:focus { outline: none; }
+
+.search-go {
+  position: absolute; right: 4px; top: 4px;
+  height: 32px; padding: 0 12px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  color: var(--surface); background: var(--ink);
+  border: 0; border-radius: 999px; cursor: pointer;
+}
+/* GSAP이 없을 때 — 애니메이션 없이 즉시 펼쳐진다 */
+.search:not(.is-open) input,
+.search:not(.is-open) .search-go { opacity: 0; pointer-events: none; }
+
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ── 버튼: 구분색은 쓰지 않는다 (DESIGN2.md) ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 40px; padding: 0 16px;
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  border-radius: var(--r-ui); cursor: pointer; white-space: nowrap;
+  border: 1px solid transparent; text-decoration: none;
+}
+.btn-primary { background: var(--ink); color: var(--surface); }
+.btn-primary:hover { background: #322c40; }
+.btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--hairline); }
+.btn-ghost:hover { border-color: var(--ink-soft); }
+.btn-sm { height: 34px; padding: 0 12px; font-size: 13px; }
+
+/* ═══ 탭 내비 ═══ */
+.tabs {
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+}
+.tabs-inner { display: flex; gap: 4px; }
+.tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 13px 16px;
+  font-size: 14px; font-weight: 500; color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tab .lock { font-size: 11px; color: var(--ink-faint); }
+
+/* ═══ 본문 ═══ */
+.layout { padding: 28px 0 56px; }
+.col-main { display: flex; flex-direction: column; gap: var(--gap); }
+
+/* ── 인트로 ── */
+.intro { padding: 28px; }
+.intro h1 { font-size: 30px; letter-spacing: -.01em; }
+.intro p { color: var(--ink-soft); margin-top: 10px; max-width: 46ch; }
+.intro-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+
+/* ── 섹션 ── */
+.section-head {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 18px 20px 12px;
+}
+.section-head h2 { font-size: 18px; }
+.section-head .meta { margin-left: auto; font-size: 12px; color: var(--ink-faint); }
+
+/* ── 피드 ── */
+.feed { padding: 0 8px 8px; }
+.feed-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 12px;
+  border-radius: var(--r-ui);
+  text-decoration: none;
+}
+.feed-item + .feed-item { border-top: 1px solid var(--hairline); border-radius: 0; }
+.feed-item:hover { background: var(--canvas); border-radius: var(--r-ui); }
+
+/* 유형 태그 — 상태색은 항상 글자를 동반한다 */
+.type-tag {
+  flex: none; min-width: 62px; text-align: center;
+  padding: 3px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; line-height: 1.5;
+  border: 1px solid;
+}
+.type-tag.t-open   { color: var(--ink-soft);   border-color: var(--hairline);    background: var(--canvas); }
+.type-tag.t-change { color: var(--danger);     border-color: var(--danger-bg);   background: var(--danger-bg); }
+.type-tag.t-report { color: var(--success);    border-color: #DCEBE2;            background: #ECF5F0; }
+.type-tag.t-fix    { color: var(--danger);     border-color: var(--danger-bg);   background: var(--danger-bg); }
+
+.feed-body { flex: 1; min-width: 0; }
+.feed-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+.feed-item:hover .feed-title { text-decoration: underline; text-underline-offset: 3px; }
+.feed-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 5px; font-size: 12px; color: var(--ink-faint);
+}
+.feed-meta time { font-size: 11px; }
+
+/* 작품 표식 — 색 + 이름을 항상 같이 (DESIGN2.md) */
+.work-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ink-soft); font-weight: 500;
+}
+.work-tag::before {
+  content: ""; width: 3px; height: 12px; border-radius: 2px;
+  background: var(--wc); flex: none;
+}
+.badge-unverified {
+  color: var(--unverified); background: var(--unverified-bg);
+  border: 1px solid #EFDFBC; border-radius: 999px;
+  padding: 1px 8px; font-size: 11px; font-weight: 700;
+}
+
+/* ═══ 푸터 ═══ */
+.footer {
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+  padding: 24px 0 40px;
+}
+.footer-inner { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.footer p { font-size: 12px; color: var(--ink-faint); flex: 1; min-width: 260px; line-height: 1.7; }
+.footer a { font-size: 12px; color: var(--ink-soft); }
+
+/* ═══ 등장 애니메이션 대기 상태 ═══
+   GSAP이 뜨고 모션 축소도 아닐 때만 <html>에 .pre-anim이 붙는다.
+   본문 스크립트가 이 클래스를 걷어내며 타임라인을 시작한다.
+   스크립트가 못 돌아도 head의 failsafe가 1.2초 뒤 무조건 걷어내므로,
+   이 클래스 때문에 화면이 비어 있는 채로 남는 경우는 없다. */
+.pre-anim .topbar-inner > *,
+.pre-anim .tabs-inner > *,
+.pre-anim .col-main > .card,
+.pre-anim .feed-item,
+.pre-anim .footer-inner > * { opacity: 0; }
+
+/* ═══ 반응형 — PC 우선 (PRD 5장) ═══ */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .shell { padding: 0 16px; }
+  .topbar-inner { flex-wrap: wrap; gap: 12px; }
+  .wordmark { font-size: 20px; }
+  .search { order: 3; max-width: none; flex-basis: 100%; }
+  .topbar-actions { margin-left: auto; }
+  .tabs-inner { overflow-x: auto; scrollbar-width: none; }
+  .tabs-inner::-webkit-scrollbar { display: none; }
+  .tab { padding: 12px; white-space: nowrap; }
+  .intro { padding: 20px; }
+  .intro h1 { font-size: 24px; }
+  .feed-item { padding: 12px 8px; }
+  .btn { height: 44px; }  /* 터치 타깃 */
+}
+</style>
+
+<!-- easeReverse는 GSAP 3.15.0부터. 본문보다 먼저 받아 두어야 등장 애니메이션이 깜빡이지 않는다. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script>
+/* 등장 애니메이션을 쓸 조건이면 본문을 미리 감춘다. failsafe 포함 — 아래 주석은 CSS의 .pre-anim 참고 */
+(function () {
+  var reduced = window.matchMedia
+             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof gsap === 'undefined' || reduced) return;
+  var html = document.documentElement;
+  html.classList.add('pre-anim');
+  setTimeout(function () { html.classList.remove('pre-anim'); }, 1200);
+})();
+</script>
+</head>
+<body>
+
+<!-- ══ 상단바 ══ -->
+<header class="topbar">
+  <div class="shell topbar-inner">
+    <a class="wordmark" href="index.html">애배력</a>
+
+    <!-- 검색어를 입력하면 검색 페이지로 이동한다 (PRD 5장)
+         접힌 상태 = 돋보기 원. 누르면 입력란으로 늘어난다. -->
+    <form class="search" role="search" action="search.html" method="get">
+      <button type="button" class="search-toggle" id="searchToggle"
+              aria-expanded="false" aria-controls="q" aria-label="검색창 열기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.75" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="10.6" y1="10.6" x2="14" y2="14"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <label class="visually-hidden" for="q" hidden>배우 또는 작품 검색</label>
+      <input id="q" name="q" type="search" autocomplete="off" tabindex="-1"
+             placeholder="배우 이름 또는 작품명 (붉편, 달항…)">
+      <button type="submit" class="search-go" tabindex="-1">검색</button>
+    </form>
+
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">제보하기</button>
+      <button class="btn btn-primary btn-sm">로그인</button>
+    </div>
+  </div>
+</header>
+
+<!-- ══ 탭 ══ -->
+<nav class="tabs" aria-label="주 메뉴">
+  <div class="shell tabs-inner">
+    <a class="tab" href="index.html" aria-current="page">홈</a>
+    <a class="tab" href="search.html">검색하기</a>
+    <a class="tab" href="#">내 달력 <span class="lock" aria-hidden="true">잠김</span></a>
+    <a class="tab" href="#">애배 달력 <span class="lock" aria-hidden="true">잠김</span></a>
+  </div>
+</nav>
+
+<div class="shell layout">
+
+  <!-- ─────────── 본문 ─────────── -->
+  <main class="col-main">
+
+    <!-- 인트로 -->
+    <section class="card intro">
+      <h1>애배 넷의 회차와 이벤트를,<br>달력 하나에서</h1>
+      <p>
+        커튼콜 촬영·포토타임·막공 같은 <b>회차별 이벤트 정보</b>는 어느 예매처에도 정리되어 있지 않습니다.
+        애배력은 그 자리를 채웁니다.
+      </p>
+      <div class="intro-actions">
+        <button class="btn btn-primary">애배 등록하고 시작하기</button>
+      </div>
+    </section>
+
+    <!-- 제보·공지 -->
+    <section class="card">
+      <div class="section-head">
+        <h2>제보 · 공지</h2>
+        <span class="meta"><time>2026.08.12</time> 기준</span>
+      </div>
+      <div class="feed">
+
+        <a class="feed-item" href="#">
+          <span class="type-tag t-open">캐스팅표</span>
+          <div class="feed-body">
+            <div class="feed-title">「붉은 편지」 9월 캐스팅표 공개 · 30회차 반영 완료</div>
+            <div class="feed-meta">
+              <span class="work-tag" style="--wc:var(--cat-1)">붉은 편지</span>
+              <time>08.12 09:20</time>
+            </div>
+          </div>
+        </a>
+
+        <a class="feed-item" href="#">
+          <span class="type-tag t-change">변경</span>
+          <div class="feed-body">
+            <div class="feed-title">8/12 19:30 윤서 역 유하람 → 백지운 대체 출연</div>
+            <div class="feed-meta">
+              <span class="work-tag" style="--wc:var(--cat-1)">붉은 편지</span>
+              <time>08.12 08:05</time>
+              <span>· 변경 이력 보관됨</span>
+            </div>
+          </div>
+        </a>
+
+        <a class="feed-item" href="#">
+          <span class="type-tag t-report">제보</span>
+          <div class="feed-body">
+            <div class="feed-title">8/16 15:00 커튼콜 촬영 허용 — 이벤트 정보 반영</div>
+            <div class="feed-meta">
+              <span class="work-tag" style="--wc:var(--cat-3)">달의 항구</span>
+              <time>08.11 22:47</time>
+              <span class="badge-unverified">미검증</span>
+            </div>
+          </div>
+        </a>
+
+        <a class="feed-item" href="#">
+          <span class="type-tag t-report">제보</span>
+          <div class="feed-body">
+            <div class="feed-title">8/23 18:00 막공 · 종연 커튼콜 예정 — 이벤트 정보 반영</div>
+            <div class="feed-meta">
+              <span class="work-tag" style="--wc:var(--cat-5)">검은 숲</span>
+              <time>08.11 19:10</time>
+              <span>· 검수 완료</span>
+            </div>
+          </div>
+        </a>
+
+        <a class="feed-item" href="#">
+          <span class="type-tag t-fix">정정</span>
+          <div class="feed-body">
+            <div class="feed-title">8/09 14:00 해강 역 표기 오류 정정 (강태윤 → 서도현)</div>
+            <div class="feed-meta">
+              <span class="work-tag" style="--wc:var(--cat-1)">붉은 편지</span>
+              <time>08.10 11:32</time>
+              <span>· 관리자 승인 후 반영</span>
+            </div>
+          </div>
+        </a>
+
+        <a class="feed-item" href="#">
+          <span class="type-tag t-open">캐스팅표</span>
+          <div class="feed-body">
+            <div class="feed-title">「그믐」 커버리지 추가 — 회차별 캐스팅 정식 지원 시작</div>
+            <div class="feed-meta">
+              <span class="work-tag" style="--wc:var(--cat-7)">그믐</span>
+              <time>08.09 16:00</time>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ 푸터 ══ -->
+<footer class="footer">
+  <div class="shell footer-inner">
+    <p>
+      © <span class="num">2026</span> 애배력 — 회차별 캐스팅과 이벤트 정보는 제작사 공식 공지를 1차 출처로 하며,
+      공연 일정 기초 데이터는 KOPIS 오픈 API를 따릅니다.
+    </p>
+    <a href="#">이용 안내</a>
+    <a href="#">제보 규칙</a>
+    <a href="#">개인정보</a>
+    <a href="#">문의</a>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   모션 — GSAP 3.15 easeReverse
+   ───────────────────────────────────────────────────────────
+   reverse()는 값뿐 아니라 이징까지 되감는다. out 이징으로 연 것을
+   그대로 되감으면 in 이징이 되어, 열 때와 닫을 때의 성격이 뒤집힌다.
+   easeReverse는 되감을 때 쓸 이징을 따로 지정하고, 재생 헤드가
+   방향을 바꾼 지점부터 남은 거리에 대해 다시 계산한다.
+
+   이 페이지에서 방향이 실제로 바뀌는 곳은 두 군데다 —
+   검색창 focus/blur, 피드 항목 hover/focus. 둘 다 사용자가 중간에
+   마음을 바꾸는 것이 정상인 자리라 easeReverse가 일할 값이 있다.
+
+   ※ 이징 토큰은 search.html과 같은 값이다. 두 파일이 각자 자족적인
+     구조라 값을 함께 두었다 — 셋 이상으로 늘어나면 motion.js로 뺀다.
+   ═══════════════════════════════════════════════════════════ */
+/* matchMedia가 없는 환경에서도 터지지 않게 한 겹 감싼다.
+   질의에 답할 수 없으면 false — 즉 모션을 붙이지 않는 쪽으로 기운다. */
+const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
+
+/* GSAP이 못 뜨거나 모션 축소 설정이면 MOTION은 false가 되고,
+   아래 함수들은 전부 조용히 아무것도 하지 않는다. */
+const MOTION = typeof gsap !== 'undefined' && !mq('(prefers-reduced-motion: reduce)');
+
+/* 조용히 꺼지면 "왜 아무 일도 안 일어나지"를 알 길이 없다. 이유를 남긴다. */
+if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
+  ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
+  : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
+
+/* 닫는 이징도 out 계열이다 — 공식 데모와 같은 방식.
+   in 계열(power3.in 등)을 쓰면 되감기 초반이 3차 곡선이라 거의 움직이지 않아,
+   "닫아도 아무 일이 없다가 끝에 훅 사라지는" 느낌이 된다. */
+const EASE = {
+  out:   'expo.out',        // 나타남 — 빠르게 나와 부드럽게 안착
+  in:    'power2.out',      // 사라짐 — 곧바로 반응해서 부드럽게 마무리
+  pop:   'back.out(1.5)',   // 항목 — 살짝 넘어갔다 제자리
+  popIn: 'power3.out'       // 항목 되감기 — 튕기지 않고 곧장 빠져나감
+};
+
+const TL_DEFAULTS = { ease:EASE.out, easeReverse:EASE.in };
+const cssVar = n => getComputedStyle(document.documentElement)
+                      .getPropertyValue(n).trim();
+
+if (MOTION) gsap.defaults({ ease:EASE.out, easeReverse:EASE.in, duration:.36 });
+
+/* ── 1. 등장 오케스트레이션 (한 방향) ──
+   위에서 아래로 — 상단바 → 탭 → 카드 → 피드 줄 → 푸터 */
+function enter () {
+  document.documentElement.classList.remove('pre-anim');
+  if (!MOTION) return;
+  gsap.timeline({ defaults:TL_DEFAULTS })
+    .from('.topbar-inner > *', { opacity:0, y:-10, duration:.5,  stagger:.08 })
+    .from('.tab',              { opacity:0, y:-8,  duration:.4,  stagger:.05 }, .14)
+    .from('.col-main > .card', { opacity:0, y:20,  duration:.6,  stagger:.12 }, .22)
+    .from('.feed-item',        { opacity:0, y:12,  duration:.45, stagger:{ amount:.35 },
+                                 ease:EASE.pop, clearProps:'all' }, .5)
+    .from('.footer-inner > *', { opacity:0, y:8,   duration:.4,  stagger:.05 }, .66);
+}
+
+/* ── 2. 검색창 펼치기 / 접기 — ref/orchestrated-easereverse.html 의 알약 모션 ──
+   접힌 상태는 돋보기 하나가 든 원. 누르면 입력란으로 늘어난다.
+
+   이징 값은 원본 데모 그대로다. 핵심은 여는 이징과 닫는 이징이 둘 다
+   out 계열이라는 점 — back.out(2)로 튕겨 나오고 power2.out으로 곧장 접힌다.
+   easeReverse가 없으면 back.out이 거꾸로 재생되면서, 접히기 전에 원래 폭보다
+   더 넓어졌다가 사라진다. 그게 이 기능이 없애는 현상이다. */
+function searchExpand () {
+  const form   = document.querySelector('.search');
+  const toggle = document.querySelector('#searchToggle');
+  const input  = document.querySelector('#q');
+  const go     = document.querySelector('.search-go');
+  if (!form || !toggle || !input || !go) return;
+
+  const COLLAPSED = 42;
+  const expanded = () => mq('(max-width:640px)')
+    ? Math.max(window.innerWidth - 32, 200)   /* 모바일 — 제 줄을 다 쓴다 */
+    : 420;
+
+  let isOpen = false, tl = null;
+
+  function build () {
+    if (tl) tl.revert();
+    if (!MOTION) return null;
+    return gsap.timeline({ paused:true })
+      .to(form,   { width:expanded(), duration:.8,
+                    ease:'back.out(2)', easeReverse:'power2.out' }, 0)
+      .to(toggle, { color:cssVar('--ink'), duration:.5,
+                    ease:'back.out', easeReverse:'power4.out' }, .1)
+      .from(input,{ opacity:0, x:-10, duration:.45,
+                    ease:'power2.out', easeReverse:true }, .16)
+      .from(go,   { opacity:0, scale:.7, duration:.5, transformOrigin:'right center',
+                    ease:'back.out(2)', easeReverse:'power3.out' }, .22);
+  }
+  tl = build();
+
+  function setOpen (open) {
+    if (open === isOpen) return;
+    isOpen = open;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? '검색창 닫기' : '검색창 열기');
+    input.tabIndex = go.tabIndex = open ? 0 : -1;
+    form.classList.toggle('is-open', open);   /* GSAP 없을 때는 이 클래스가 전부다 */
+    if (tl) { if (open) tl.timeScale(1).play(); else tl.reverse(); }
+    if (open) input.focus();
+  }
+
+  toggle.addEventListener('click', () => {
+    /* 열려 있고 입력한 게 있으면 검색을 실행한다 — 돋보기를 두 번 눌러 지워지면 곤란하다 */
+    if (isOpen && input.value.trim()) { form.submit(); return; }
+    setOpen(!isOpen);
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { setOpen(false); toggle.focus(); }
+  });
+
+  /* 바깥을 누르면 접는다. 단 입력한 내용이 있으면 열어 둔다. */
+  document.addEventListener('click', e => {
+    if (!isOpen || form.contains(e.target) || input.value.trim()) return;
+    setOpen(false);
+  });
+
+  /* 확장 폭이 화면 폭에서 나오므로, 접혀 있을 때만 다시 만든다 */
+  let rt;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { if (!isOpen) tl = build(); }, 150);
+  });
+
+  /* 접힌 폭은 CSS가 정하지만, 되돌아갈 값을 GSAP도 알아야 한다 */
+  if (!MOTION) form.style.width = COLLAPSED + 'px';
+}
+
+/* ── 3. 피드 항목 hover / focus — 되감기 ②
+   hover는 가장 자주 중간에 뒤집히는 상호작용이다.
+   태그가 먼저, 본문이 뒤따라 나가고, 되감을 땐 그 역순으로 돌아온다. */
+function feedHover () {
+  if (!MOTION || !mq('(hover: hover)')) return;
+
+  document.querySelectorAll('.feed-item').forEach(item => {
+    const tag  = item.querySelector('.type-tag');
+    const body = item.querySelector('.feed-body');
+    const tl = gsap.timeline({ paused:true, defaults:TL_DEFAULTS })
+      .to(tag,  { x:3, scale:1.04, duration:.3,
+                  ease:EASE.pop, easeReverse:EASE.popIn })
+      .to(body, { x:3, duration:.3 }, .04);
+
+    const on  = () => tl.timeScale(1).play();
+    const off = () => tl.timeScale(1.35).reverse();
+    item.addEventListener('mouseenter', on);
+    item.addEventListener('mouseleave', off);
+    item.addEventListener('focus', on);    // 키보드도 같은 반응
+    item.addEventListener('blur',  off);
+  });
+}
+
+enter();
+searchExpand();
+feedHover();
+</script>
+
+</body>
+</html>
