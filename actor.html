@@ -342,19 +342,22 @@ body.logged-in .gate-cta { display:none; }
 }
 .record-row:first-child { border-top:0; }
 .record-row .when { font-family:var(--mono); color:var(--ink); flex:none; }
-.record-row .seat { color:var(--ink-soft); flex:none; }
+.record-row .seatinfo { color:var(--ink-soft); flex:none; }
 .record-row .pair { color:var(--ink); font-size:13px; font-weight:500; }
 .record-row .num { margin-left:auto; font-family:var(--mono); color:var(--ink-soft); flex:none; }
 .record-empty { font-size:13px; color:var(--ink-faint); padding:8px 0; }
 
-/* ── 페어 섹션 (PRD_v2 7.3) — 좌석배치도 바로 아래, 정산판 이미지의 마지막 블록.
-   정산 자체는 페어 집계가 아니지만(7.1), 이 섹션 자체는 표시 여부를 유저가
-   토글할 수 있다 — 요약 이미지 크기를 유지하려는 목적. 더블캐스팅 배역이
-   많으면 조합이 기하급수로 늘어나므로, 배우를 최대 4명까지만 골라 그
-   조합의 관람 횟수만 계산한다. */
+/* ── 페어 즐겨찾기 (PRD_v2 7.3) — 좌석배치도 바로 아래, 정산판 이미지에
+   실제로 포함되는 블록. 정산 자체는 페어 집계가 아니지만(7.1), 유저가
+   원하면 아래 관극 기록에서 배역별로 고정한 조합을 최대 3개까지
+   "즐겨찾기"에 담아 이미지에 넣을 수 있다. */
 .pair-section { margin-top:20px; padding-top:16px; border-top:1px solid var(--hairline); }
-.pair-picker { display:flex; flex-direction:column; gap:4px; margin:2px 0 8px; }
-.pair-cap { font-size:12px; color:var(--ink-faint); margin-bottom:12px; }
+
+/* ── 관극 기록 안의 페어 고정 — 배역별로 배우를 하나씩 고정해 그 조합의
+   관극 기록만 걸러본다. 위 즐겨찾기에 담아야만 정산판 이미지에 들어간다. */
+.pair-fix { padding-bottom:14px; border-bottom:1px dashed var(--hairline); margin-bottom:10px; }
+.pair-picker { display:flex; flex-direction:column; gap:4px; margin:8px 0; }
+.pair-fix-foot { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
 
 /* ═══ 반응형 ═══ */
 @media (max-width:900px) {
@@ -553,7 +556,8 @@ let MY_RECORDS = [
   { key:'w2|2026|8|26|20:00', workId:'w2', seat:'라-6' }
 ];
 let seatColorByWork = {};   // { workId: colorId } — 정산판에서 유저가 고른 색
-let pairSelectedByWork = {};   // { workId: Set<actorId> } — 페어 조합에 포함할 배우, 최대 4명 (PRD_v2 7.3)
+let pairFixByWork = {};        // { workId: { roleId: actorId } } — 배역별로 고정한 배우 (관극 기록 필터용, PRD_v2 7.3)
+let favoritePairsByWork = {};  // { workId: [{roleId:actorId,...}] } — 정산판 이미지에 넣을 즐겨찾기 조합, 최대 3개
 
 const $ = s => document.querySelector(s);
 const el = (h) => { const t=document.createElement('template'); t.innerHTML=h.trim(); return t.content.firstChild; };
@@ -582,7 +586,6 @@ let ym = { y:TODAY.y, m:TODAY.m };
 let loggedIn = false;
 let settlementWork = actorExists ? (worksOf(actorId)[0] || null) : null;
 let page = 'calendar';   // 'calendar' | 'settlement' — 같은 URL 안에서 보기만 전환
-let showPairs = false;   // 정산판 관극 기록의 페어 조합 표시 — 기본은 숨김, 유저가 토글 (PRD_v2 7.3)
 
 const inMonth = p => p.y === ym.y && p.m === ym.m;
 
@@ -1112,92 +1115,93 @@ function liveSettlementHTML (works) {
         <button class="btn btn-ghost btn-sm save-shot" disabled title="추후 지원 예정 (PRD_v2 7.3)">이미지로 저장</button>
       </div>
     </div>
-    ${pairSectionHTML(active)}
+    ${favoritePairsHTML(active)}
     ${recordsHTML(active)}`;
 }
 
-function recordsHTML (workId) {
-  const records = recordsForWork(workId);
-  const rows = records.length
-    ? records.map(({ rec, perf }) => `<div class="record-row">
-        <span class="when">${perf.m}월 ${perf.d}일 ${perf.t}</span>
-        <span class="seat">${rec.seat ? `좌석 ${rec.seat}` : '좌석 미정'}</span>
-      </div>`).join('')
-    : `<div class="record-empty">아직 담은 회차가 없습니다. 캘린더에서 "이 회차 봤어요"를 눌러보세요.</div>`;
+/* 배역별 고정 조합 → 라벨/키/매칭 헬퍼 (PRD_v2 7.3) */
+function pairLabel (workId, fix) {
+  return WORKS[workId].roles
+    .filter(r => fix[r.id])
+    .map(r => ACTORS[fix[r.id]])
+    .join(' · ');
+}
+function pairFixKey (fix) {
+  return Object.entries(fix).sort(([a], [b]) => a.localeCompare(b)).map(([r, a]) => `${r}:${a}`).join(',');
+}
+function recordsMatchingFix (workId, fix) {
+  const roleIds = Object.keys(fix);
+  return recordsForWork(workId).filter(({ perf }) => roleIds.every(rid => perf.cast[rid] === fix[rid]));
+}
 
-  return `<div class="records">
-    <div class="records-head">
-      <h3>관극 기록 <span class="num" style="color:var(--ink-faint);font-size:12px;">${records.length}건</span></h3>
-    </div>
-    <div class="record-list">${rows}</div>
+/* ═══ 페어 즐겨찾기 — 좌석배치도 바로 아래, 정산판 이미지에 실제로 포함되는
+   블록 (PRD_v2 7.3). 정산판 이미지 자체는 배우별 관람 횟수 + 좌석배치도로
+   기본 완성되고, 페어는 여기 담긴 것(최대 3개)만 이미지에 합류한다. */
+const FAVORITE_MAX = 3;
+
+function favoritePairsHTML (workId) {
+  const favs = favoritePairsByWork[workId] || [];
+  const body = favs.length
+    ? favs.map((fix, i) => `<div class="record-row">
+        <span class="pair">${pairLabel(workId, fix)}</span>
+        <span class="num">${recordsMatchingFix(workId, fix).length}회</span>
+        <button type="button" class="btn btn-ghost btn-sm js-fav-remove" data-i="${i}">빼기</button>
+      </div>`).join('')
+    : `<p class="record-empty">담은 조합이 없습니다. 아래 관극 기록에서 배역별로 배우를 고정하고 즐겨찾기에 담아보세요 (최대 ${FAVORITE_MAX}개) — 담은 조합만 정산판 이미지에 들어갑니다.</p>`;
+
+  return `<div class="pair-section">
+    <div class="records-head"><h3>페어 조합 즐겨찾기 <span class="num" style="color:var(--ink-faint);font-size:12px;">${favs.length}/${FAVORITE_MAX}</span></h3></div>
+    ${body}
   </div>`;
 }
 
-/* ═══ 페어 섹션 — 좌석배치도 바로 아래, 표시 여부는 유저 토글 (PRD_v2 7.3) ═══
-   더블캐스팅 배역이 많으면 조합 수가 기하급수로 늘어나므로, 배우를
-   최대 4명까지만 골라 "그 배우들이 낀 조합을 몇 번 봤는지"만 집계한다. */
-const PAIR_MAX = 4;
-
-function pairSectionHTML (workId) {
+/* ═══ 관극 기록 — 배역별로 배우를 하나씩 고정해 그 페어의 기록만 걸러본다 ═══ */
+function recordsHTML (workId) {
+  const fix = pairFixByWork[workId] || (pairFixByWork[workId] = {});
+  const hasFix = Object.keys(fix).length > 0;
   const doubleRoles = WORKS[workId].roles.filter(r => r.actors.length > 1);
-  const selected = pairSelectedByWork[workId] || (pairSelectedByWork[workId] = new Set());
-
-  const toggle = `<button type="button" class="btn btn-ghost btn-sm js-toggle-pairs" aria-pressed="${showPairs}">
-    ${showPairs ? '페어 숨기기' : '페어 표시'}
-  </button>`;
-
-  if (!showPairs) {
-    return `<div class="pair-section">
-      <div class="records-head"><h3>페어 조합</h3>${toggle}</div>
-    </div>`;
-  }
-
-  if (!doubleRoles.length) {
-    return `<div class="pair-section">
-      <div class="records-head"><h3>페어 조합</h3>${toggle}</div>
-      <p class="record-empty">이 작품은 더블캐스팅 배역이 없습니다.</p>
-    </div>`;
-  }
 
   const picker = doubleRoles.map(r => {
     const chips = r.actors.map(aId => {
-      const on = selected.has(aId);
-      const disabled = !on && selected.size >= PAIR_MAX;
-      return `<button type="button" class="chip js-pair-actor" data-actor="${aId}"
-                aria-pressed="${on}" ${disabled ? 'disabled' : ''}>${ACTORS[aId]}</button>`;
+      const on = fix[r.id] === aId;
+      return `<button type="button" class="chip js-pair-fix" data-role="${r.id}" data-actor="${aId}" aria-pressed="${on}">${ACTORS[aId]}</button>`;
     }).join('');
     return `<div class="role-row"><span class="role-name">${r.name}</span><div class="chips">${chips}</div></div>`;
   }).join('');
 
-  return `<div class="pair-section">
-    <div class="records-head"><h3>페어 조합</h3>${toggle}</div>
+  const favs = favoritePairsByWork[workId] || [];
+  const key = pairFixKey(fix);
+  const alreadyFav = favs.some(f => pairFixKey(f) === key);
+  const canFav = hasFix && !alreadyFav && favs.length < FAVORITE_MAX;
+
+  const pairFixBlock = doubleRoles.length ? `<div class="pair-fix">
+    <p class="field-lbl">배역별로 배우를 고정하면 그 페어의 관극 기록만 볼 수 있어요</p>
     <div class="pair-picker">${picker}</div>
-    <p class="pair-cap">조합에 넣을 배우를 최대 ${PAIR_MAX}명까지 고를 수 있어요 (${selected.size}/${PAIR_MAX})</p>
-    ${pairTallyHTML(workId, selected)}
+    <div class="pair-fix-foot">
+      ${hasFix ? `<button type="button" class="btn btn-ghost btn-sm js-pair-clear">고정 풀기</button>` : ''}
+      <button type="button" class="btn btn-ghost btn-sm js-fav-add" ${canFav ? '' : 'disabled'}>
+        ${alreadyFav ? '★ 즐겨찾기에 있음' : `☆ 즐겨찾기에 담기 (${favs.length}/${FAVORITE_MAX})`}
+      </button>
+    </div>
+  </div>` : '';
+
+  const records = hasFix ? recordsMatchingFix(workId, fix) : recordsForWork(workId);
+  const rows = records.length
+    ? records.map(({ rec, perf }) => `<div class="record-row">
+        <span class="when">${perf.m}월 ${perf.d}일 ${perf.t}</span>
+        <span class="seatinfo">${rec.seat ? `좌석 ${rec.seat}` : '좌석 미정'}</span>
+      </div>`).join('')
+    : hasFix
+      ? `<div class="record-empty">이 조합으로 본 기록이 없습니다.</div>`
+      : `<div class="record-empty">아직 담은 회차가 없습니다. 캘린더에서 "이 회차 봤어요"를 눌러보세요.</div>`;
+
+  return `<div class="records">
+    ${pairFixBlock}
+    <div class="records-head">
+      <h3>관극 기록${hasFix ? ` · ${pairLabel(workId, fix)}` : ''} <span class="num" style="color:var(--ink-faint);font-size:12px;">${records.length}건</span></h3>
+    </div>
+    <div class="record-list">${rows}</div>
   </div>`;
-}
-
-function pairTallyHTML (workId, selected) {
-  if (!selected.size) return `<p class="record-empty">배우를 고르면 그 조합으로 본 횟수를 계산합니다.</p>`;
-
-  const roleIds = WORKS[workId].roles
-    .filter(r => r.actors.some(a => selected.has(a)))
-    .map(r => r.id);
-
-  const counts = new Map();   // label -> count
-  recordsForWork(workId).forEach(({ perf }) => {
-    if (!roleIds.every(rid => selected.has(perf.cast[rid]))) return;
-    const label = roleIds.map(rid => ACTORS[perf.cast[rid]]).join(' · ');
-    counts.set(label, (counts.get(label) || 0) + 1);
-  });
-
-  if (!counts.size) return `<p class="record-empty">고른 조합으로 본 기록이 없습니다.</p>`;
-
-  const rows = [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([label, n]) => `<div class="record-row"><span class="pair">${label}</span><span class="num">${n}회</span></div>`)
-    .join('');
-  return `<div class="record-list">${rows}</div>`;
 }
 
 /* ═══ 이벤트 바인딩 ═══ */
@@ -1263,17 +1267,41 @@ function bind () {
   const loginCta = document.querySelector('.js-login-cta');
   if (loginCta) loginCta.addEventListener('click', () => setLoggedIn(true));
 
-  const pairsBtn = document.querySelector('.js-toggle-pairs');
-  if (pairsBtn) pairsBtn.addEventListener('click', () => { showPairs = !showPairs; skipGrid = true; render(); });
-
-  document.querySelectorAll('.js-pair-actor').forEach(b =>
+  document.querySelectorAll('.js-pair-fix').forEach(b =>
     b.addEventListener('click', () => {
       const active = settlementWork || worksOf(actorId)[0];
-      const set = pairSelectedByWork[active] || (pairSelectedByWork[active] = new Set());
-      const aId = b.dataset.actor;
-      if (set.has(aId)) set.delete(aId);
-      else if (set.size < PAIR_MAX) set.add(aId);
-      else return;
+      const fix = pairFixByWork[active] || (pairFixByWork[active] = {});
+      const { role, actor } = b.dataset;
+      if (fix[role] === actor) delete fix[role]; else fix[role] = actor;
+      skipGrid = true;
+      render();
+    }));
+
+  const pairClearBtn = document.querySelector('.js-pair-clear');
+  if (pairClearBtn) pairClearBtn.addEventListener('click', () => {
+    const active = settlementWork || worksOf(actorId)[0];
+    pairFixByWork[active] = {};
+    skipGrid = true;
+    render();
+  });
+
+  const favAddBtn = document.querySelector('.js-fav-add');
+  if (favAddBtn) favAddBtn.addEventListener('click', () => {
+    const active = settlementWork || worksOf(actorId)[0];
+    const fix = pairFixByWork[active] || {};
+    if (!Object.keys(fix).length) return;
+    const favs = favoritePairsByWork[active] || (favoritePairsByWork[active] = []);
+    const key = pairFixKey(fix);
+    if (favs.length >= FAVORITE_MAX || favs.some(f => pairFixKey(f) === key)) return;
+    favs.push({ ...fix });
+    skipGrid = true;
+    render();
+  });
+
+  document.querySelectorAll('.js-fav-remove').forEach(b =>
+    b.addEventListener('click', () => {
+      const active = settlementWork || worksOf(actorId)[0];
+      (favoritePairsByWork[active] || []).splice(+b.dataset.i, 1);
       skipGrid = true;
       render();
     }));
