@@ -82,7 +82,6 @@ a { color:inherit; }
 }
 .tab:hover { color:var(--ink); }
 .tab[aria-current="page"] { color:var(--ink); border-bottom-color:var(--ink); }
-.tab .lock { font-size:11px; color:var(--ink-faint); }
 
 /* ═══ 검색 ═══ */
 .searchwrap { padding:32px 0 0; }
@@ -234,7 +233,6 @@ a { color:inherit; }
 .perf.selected { box-shadow:0 0 0 1.5px var(--wc); }
 .perf .t { font-family:var(--mono); font-size:11px; font-weight:500; flex:none; }
 .perf .n { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.perf .ev { margin-left:auto; flex:none; font-size:9px; color:var(--ink-soft); }
 .more { font-size:10px; color:var(--ink-faint); padding-left:5px; }
 
 /* ── 0건 안내 (PRD 6.3) ── */
@@ -253,12 +251,6 @@ a { color:inherit; }
 .cast-table { width:100%; border-collapse:collapse; font-size:14px; }
 .cast-table th, .cast-table td { text-align:left; padding:8px 0; border-bottom:1px solid var(--hairline); }
 .cast-table th { width:90px; font-weight:500; color:var(--ink-soft); font-size:13px; }
-.cast-table .fav { font-weight:500; }
-.cast-table .fav::after {
-  content:"애배"; margin-left:6px; font-size:10px; font-weight:700;
-  color:var(--ink-soft); border:1px solid var(--hairline);
-  background:var(--canvas); border-radius:999px; padding:1px 6px;
-}
 .ev-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
 .ev-badge {
   font-size:12px; font-weight:500; border-radius:999px; padding:3px 11px;
@@ -318,8 +310,8 @@ a { color:inherit; }
   <div class="shell tabs-inner">
     <a class="tab" href="index.html">홈</a>
     <a class="tab" href="search.html" aria-current="page">검색하기</a>
-    <a class="tab" href="#">내 달력 <span class="lock" aria-hidden="true">잠김</span></a>
-    <a class="tab" href="#">애배 달력 <span class="lock" aria-hidden="true">잠김</span></a>
+    <!-- 데모용 진입로 — 실제로는 로그인 유저의 "내 배우" 목록에서 채워질 자리 -->
+    <a class="tab" href="actor.html?a=a1">배우 페이지 · 유하람</a>
   </div>
 </nav>
 
@@ -449,7 +441,6 @@ PERFS.forEach(p => { p.y = p.y || 2026; p.m = p.m || 8; });
 
 const TODAY = { y:2026, m:8, d:12 };
 const RANGE = { min:{y:2026,m:7}, max:{y:2026,m:9} };
-const FAVORITES = ['a1','a3'];   // 등록된 애배 (최대 4)
 
 /* ═══ 상태 ═══ */
 let view = null;          // {kind:'actor'|'work', id}
@@ -772,8 +763,6 @@ function render () {
 
 function subjectHTML () {
   if (view.kind === 'actor') {
-    const full = FAVORITES.length >= 4;
-    const already = FAVORITES.includes(view.id);
     return `<section class="card subject">
       <div>
         <span class="subject-kind">배우</span>
@@ -781,9 +770,7 @@ function subjectHTML () {
         <p class="sub">출연 중인 작품 <span class="num">${worksOf(view.id).length}</span>개</p>
       </div>
       <div class="subject-actions">
-        <button class="btn btn-primary" ${already||full?'disabled':''}>
-          ${already ? '이미 애배입니다' : full ? '애배 자리 없음' : '+ 애배로 추가하기'}
-        </button>
+        <a class="btn btn-primary" href="actor.html?a=${view.id}">배우 페이지 보기 →</a>
       </div>
     </section>`;
   }
@@ -871,13 +858,11 @@ function calendarHTML (perfs, colors) {
         const key = colorKeyOf(p), col = colors.get(key);
         const v = col ? col.v : '--cat-8';
         const name = view.kind === 'actor' ? WORKS[p.w].name : ACTORS[p.cast[governingRole().id]];
-        const ev = (p.events||[]).length ? '●' : '';
         const sel = selectedPerf && sameP(selectedPerf, p) ? ' selected' : '';
         return `<button class="perf${sel}" data-w="${p.w}" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}" data-t="${p.t}"
                   style="--wc:var(${v}); --wc-soft:var(${v}-soft)"
                   aria-label="${p.d}일 ${p.t} ${name}">
-                  <span class="t">${p.t}</span><span class="n">${name}</span>
-                  <span class="ev">${ev}</span></button>`;
+                  <span class="t">${p.t}</span><span class="n">${name}</span></button>`;
       }).join('')}
       ${list.length > 3 ? `<span class="more">+${list.length-3}</span>` : ''}
     </div>`;
@@ -980,8 +965,7 @@ function renderDetail (p) {
   const w = WORKS[p.w];
   const rows = w.roles.map(r => {
     const a = p.cast[r.id];
-    const fav = FAVORITES.includes(a) ? ' class="fav"' : '';
-    return `<tr><th>${r.name}</th><td><span${fav}>${ACTORS[a]}</span></td></tr>`;
+    return `<tr><th>${r.name}</th><td>${ACTORS[a]}</td></tr>`;
   }).join('');
 
   const events = p.events || [];

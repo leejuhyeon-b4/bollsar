@@ -167,7 +167,6 @@ a { color: inherit; }
 }
 .tab:hover { color: var(--ink); }
 .tab[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
-.tab .lock { font-size: 11px; color: var(--ink-faint); }
 
 /* ═══ 본문 ═══ */
 .layout { padding: 28px 0 56px; }
@@ -325,8 +324,8 @@ a { color: inherit; }
   <div class="shell tabs-inner">
     <a class="tab" href="index.html" aria-current="page">홈</a>
     <a class="tab" href="search.html">검색하기</a>
-    <a class="tab" href="#">내 달력 <span class="lock" aria-hidden="true">잠김</span></a>
-    <a class="tab" href="#">애배 달력 <span class="lock" aria-hidden="true">잠김</span></a>
+    <!-- 데모용 진입로 — 실제로는 로그인 유저의 "내 배우" 목록에서 채워질 자리 -->
+    <a class="tab" href="actor.html?a=a1">배우 페이지 · 유하람</a>
   </div>
 </nav>
 
@@ -337,13 +336,13 @@ a { color: inherit; }
 
     <!-- 인트로 -->
     <section class="card intro">
-      <h1>애배 넷의 회차와 이벤트를,<br>달력 하나에서</h1>
+      <h1>내 배우의 모든 회차와 이벤트를,<br>배우 전용 페이지 하나에서</h1>
       <p>
         커튼콜 촬영·포토타임·막공 같은 <b>회차별 이벤트 정보</b>는 어느 예매처에도 정리되어 있지 않습니다.
         애배력은 그 자리를 채웁니다.
       </p>
       <div class="intro-actions">
-        <button class="btn btn-primary">애배 등록하고 시작하기</button>
+        <a class="btn btn-primary" href="search.html">배우 검색하러 가기</a>
       </div>
     </section>
 

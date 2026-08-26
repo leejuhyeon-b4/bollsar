@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>배우 페이지 — 애배력</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   애배력 — 배우 페이지 (PRD_v2 3~7장)
+   색:   DESIGN2.md
+   타이포·칩: PRD-1st.md 7장
+
+   PRD_v2 3.2 — URL 구조는 /[배우slug] 이지만, 이 목업 단계에서는
+   정적 파일이라 actor.html?a=배우id 쿼리로 흉내낸다.
+   PRD_v2 4장 — "내 달력"이라는 별도 화면/탭을 두지 않고, 회차 체크와
+   좌석 입력을 이 배우 페이지 캘린더 안에 통합한다(로그인 필요).
+   PRD_v2 7장 — 정산판도 이 페이지 안에 통합 표시(로그인 필요).
+
+   이 파일은 search.html의 "배우 뷰" 로직(여러 작품을 배우 기준으로
+   합쳐 보여주는 것)을 그대로 물려받는다 — PRD_v2 3.3의
+   "배우 데이터는 작품 캘린더의 부산물"이라는 원칙이 이미 그 코드에
+   구현되어 있기 때문이다.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --canvas:#F4F2F7; --surface:#FFFFFF;
+  --ink:#1C1826; --ink-soft:#6B6478; --ink-faint:#9A93AC; --hairline:#E0DCE8;
+
+  --cat-1:#6B3FA0; --cat-1-soft:#E4DBF2;
+  --cat-2:#B34E14; --cat-2-soft:#F7E2D4;
+  --cat-3:#16697A; --cat-3-soft:#D7E9ED;
+  --cat-4:#B02D6E; --cat-4-soft:#F6DAE8;
+  --cat-5:#6B7028; --cat-5-soft:#E6E8D4;
+  --cat-6:#2C5BB5; --cat-6-soft:#DBE3F6;
+  --cat-7:#7A4A28; --cat-7-soft:#EBDFD6;
+  --cat-8:#736A87; --cat-8-soft:#E5E2EB;
+
+  --unverified:#B37A14; --unverified-bg:#FAF0DC;
+  --success:#2F6B45;
+  --danger:#A62B32;  --danger-bg:#FAE3E4;
+
+  --serif:"Gowun Batang", serif;
+  --sans:"Noto Sans KR", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+
+  --r-card:12px; --r-ui:8px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background:var(--canvas); font-family:var(--sans);
+  font-size:14px; line-height:1.6; color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+time, .num, .mono { font-family:var(--mono); font-feature-settings:"tnum"; }
+h1,h2,h3 { font-family:var(--serif); font-weight:700; line-height:1.35; }
+a { color:inherit; }
+
+.card { background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-card); }
+.shell { max-width:1080px; margin:0 auto; padding:0 24px; }
+
+/* ═══ 상단바 · 탭 ═══ */
+.topbar { background:var(--surface); border-bottom:1px solid var(--hairline); position:sticky; top:0; z-index:20; }
+.topbar-inner { display:flex; align-items:center; gap:20px; padding:14px 24px; }
+.wordmark { font-family:var(--serif); font-size:24px; font-weight:700; letter-spacing:-.02em; text-decoration:none; flex:none; }
+.topbar-actions { margin-left:auto; display:flex; gap:8px; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  height:40px; padding:0 16px;
+  font-family:var(--sans); font-size:14px; font-weight:500;
+  border-radius:var(--r-ui); cursor:pointer; white-space:nowrap;
+  border:1px solid transparent; text-decoration:none; background:none;
+}
+.btn-primary { background:var(--ink); color:var(--surface); }
+.btn-primary:hover { background:#322c40; }
+.btn-ghost { background:var(--surface); color:var(--ink); border-color:var(--hairline); }
+.btn-ghost:hover { border-color:var(--ink-soft); }
+.btn-sm { height:34px; padding:0 12px; font-size:13px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn:disabled:hover { background:var(--surface); border-color:var(--hairline); }
+.btn[aria-pressed="true"] { background:var(--ink); color:var(--surface); border-color:var(--ink); }
+
+.tabs { background:var(--surface); border-bottom:1px solid var(--hairline); }
+.tabs-inner { display:flex; gap:4px; }
+.tab {
+  padding:13px 16px; font-size:14px; font-weight:500; color:var(--ink-soft);
+  text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.tab:hover { color:var(--ink); }
+.tab[aria-current="page"] { color:var(--ink); border-bottom-color:var(--ink); }
+
+/* ═══ 식별 헤더 ═══ */
+.wrap { padding:24px 0 56px; display:flex; flex-direction:column; gap:16px; }
+
+.identity { padding:20px 22px; display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.subject-kind {
+  font-size:11px; font-weight:700; color:var(--ink-soft);
+  border:1px solid var(--hairline); background:var(--canvas);
+  border-radius:999px; padding:2px 10px;
+}
+.identity h1 { font-size:26px; letter-spacing:-.01em; margin-top:6px; }
+.identity .sub { font-size:13px; color:var(--ink-soft); margin-top:4px; }
+.identity .slugline { font-size:12px; color:var(--ink-faint); margin-top:8px; }
+.identity-actions { margin-left:auto; align-self:center; }
+
+/* ── 결과 없음 ── */
+.notfound { padding:44px 24px; text-align:center; }
+.notfound h1 { font-size:20px; margin-bottom:10px; }
+.notfound p { font-size:13px; color:var(--ink-soft); margin-bottom:18px; }
+
+/* ═══ 필터 · 범례 ═══ */
+.filters { padding:18px 22px; }
+.filters h2 { font-size:15px; margin-bottom:4px; }
+.filter-rule { font-size:12px; color:var(--ink-faint); line-height:1.7; margin-bottom:14px; }
+.role-row { display:flex; align-items:baseline; gap:12px; padding:7px 0; flex-wrap:wrap; }
+.role-name { flex:none; width:74px; font-size:13px; font-weight:500; color:var(--ink-soft); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+
+.chip {
+  display:inline-flex; align-items:center; gap:7px;
+  height:34px; padding:0 14px;
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  border-radius:999px; cursor:pointer;
+  background:var(--surface); color:var(--ink); border:1px solid var(--hairline);
+}
+.chip::before { content:""; width:7px; height:7px; border-radius:999px; background:var(--wc, var(--ink-faint)); flex:none; }
+.chip:hover { border-color:var(--ink-faint); }
+.chip[aria-pressed="true"] { background:var(--wc, var(--ink)); color:var(--surface); border-color:var(--wc, var(--ink)); }
+.chip[aria-pressed="true"]::before { background:var(--surface); }
+
+.filter-foot {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-top:14px; padding-top:12px; border-top:1px solid var(--hairline);
+  font-size:13px; color:var(--ink-soft);
+}
+.filter-foot .count strong { font-family:var(--mono); color:var(--ink); }
+.filter-foot .reset { margin-left:auto; }
+
+.legend {
+  display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;
+  padding:12px 22px; border-top:1px solid var(--hairline);
+  font-size:12px; color:var(--ink-soft);
+}
+.legend .lbl { font-weight:500; color:var(--ink-faint); }
+.legend span.item { display:inline-flex; align-items:center; gap:7px; }
+.legend i { width:10px; height:10px; border-radius:3px; background:var(--wc); flex:none; }
+
+/* ═══ 달력 ═══ */
+.cal-head { display:flex; align-items:center; gap:12px; padding:18px 22px 12px; }
+.cal-head h2 { font-size:17px; }
+.cal-nav { margin-left:auto; display:flex; gap:6px; }
+.cal-nav button {
+  width:34px; height:34px; border-radius:var(--r-ui);
+  border:1px solid var(--hairline); background:var(--surface);
+  color:var(--ink-soft); cursor:pointer; font-size:14px;
+}
+.cal-nav button:hover { border-color:var(--ink-soft); color:var(--ink); }
+
+.cal { padding:0 14px 14px; }
+.cal-dow { display:grid; grid-template-columns:repeat(7,1fr); font-size:12px; font-weight:500; color:var(--ink-faint); padding-bottom:6px; }
+.cal-dow div { text-align:center; padding:4px 0; }
+.cal-dow .sun { color:var(--danger); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-cell {
+  min-height:96px; padding:6px;
+  border:1px solid var(--hairline); border-radius:var(--r-ui);
+  background:var(--surface);
+  display:flex; flex-direction:column; gap:3px;
+}
+.cal-cell.pad { background:transparent; border-color:transparent; }
+.cal-cell .d { font-family:var(--mono); font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:5px; }
+.cal-cell.sun .d { color:var(--danger); }
+.cal-cell.today .d { color:var(--ink); font-weight:600; }
+.cal-cell.today { box-shadow:inset 0 0 0 1.5px var(--ink); }
+
+.perf {
+  display:flex; align-items:center; gap:6px;
+  width:100%; padding:3px 5px; border-radius:5px;
+  border:0; border-left:3px solid var(--wc);
+  background:var(--wc-soft); color:var(--ink);
+  font-family:var(--sans); font-size:11px; text-align:left; cursor:pointer;
+}
+.perf:hover { filter:brightness(.96); }
+.perf.selected { box-shadow:0 0 0 1.5px var(--wc); }
+.perf .t { font-family:var(--mono); font-size:11px; font-weight:500; flex:none; }
+.perf .n { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* 내가 담은(체크한) 회차 — 이벤트 유무는 달력에 표시하지 않고, 내 기록만 눈에 띄게 */
+.perf.went { background:var(--wc); color:var(--surface); border-left-width:5px; font-weight:600; }
+.more { font-size:10px; color:var(--ink-faint); padding-left:5px; }
+
+.empty { padding:44px 24px; text-align:center; }
+.empty h3 { font-size:17px; margin-bottom:8px; }
+.empty p { font-size:13px; color:var(--ink-soft); max-width:44ch; margin:0 auto; }
+.empty .btn { margin-top:18px; }
+
+/* ═══ 회차 상세 ═══ */
+.detail { padding:20px 22px; overflow:hidden; }
+.detail[hidden] { display:none; }
+.detail-head { display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+.detail-head h2 { font-size:19px; }
+.detail-when { font-size:13px; color:var(--ink-soft); margin-top:3px; }
+.cast-table { width:100%; border-collapse:collapse; font-size:14px; }
+.cast-table th, .cast-table td { text-align:left; padding:8px 0; border-bottom:1px solid var(--hairline); }
+.cast-table th { width:90px; font-weight:500; color:var(--ink-soft); font-size:13px; }
+.cast-table .you { font-weight:700; }
+.cast-table .you::after {
+  content:"이 페이지"; margin-left:6px; font-size:10px; font-weight:700;
+  color:var(--ink-soft); border:1px solid var(--hairline);
+  background:var(--canvas); border-radius:999px; padding:1px 6px;
+}
+.ev-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.ev-badge { font-size:12px; font-weight:500; border-radius:999px; padding:3px 11px; border:1px solid var(--hairline); background:var(--canvas); color:var(--ink-soft); }
+.ev-badge.unverified { color:var(--unverified); background:var(--unverified-bg); border-color:#EFDFBC; }
+.ev-none {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-top:14px; padding:12px 14px;
+  background:var(--canvas); border-radius:var(--r-ui);
+  font-size:13px; color:var(--ink-soft);
+}
+.history { margin-top:14px; padding:12px 14px; background:var(--danger-bg); border-radius:var(--r-ui); font-size:13px; color:var(--ink); }
+.history b { color:var(--danger); }
+.history .when { font-size:11px; color:var(--ink-soft); display:block; margin-top:3px; }
+
+/* ── 회차 체크 + 좌석 선택 (로그인 필요, PRD_v2 4장) ── */
+.checkblock { margin-top:16px; padding-top:16px; border-top:1px dashed var(--hairline); }
+.checkrow { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.checkrow .hint { font-size:12px; color:var(--ink-faint); }
+/* 문단형 라벨 전용 — .legend/.seat-legend 안의 인라인 <span class="lbl">와는 별개 클래스다 */
+.field-lbl { font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+
+/* ═══ 인페이지 탭 — 캘린더 / 정산판 ═══
+   같은 actor.html·같은 URL 안에서 보기만 전환한다(정산판을 별도 화면/탭으로
+   빼는 게 아니라 PRD_v2 4장의 "배우 페이지 내 통합 표시"를 유지하는 방식). */
+.pagetabs {
+  display:inline-flex; align-self:flex-start; padding:3px; gap:3px;
+  background:var(--canvas); border:1px solid var(--hairline); border-radius:999px;
+}
+.pagetabs button {
+  height:34px; padding:0 18px; border:0; border-radius:999px;
+  background:transparent; color:var(--ink-soft); cursor:pointer;
+  font-family:var(--sans); font-size:13px; font-weight:500;
+}
+.pagetabs button[aria-pressed="true"] { background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(28,24,38,.08); }
+
+/* ═══ 좌석 선택 모달 — 회차 체크 직후 캘린더 맥락에서 바로 뜬다 ═══ */
+.modal-backdrop {
+  position:fixed; inset:0; z-index:50;
+  background:rgba(28,24,38,.45);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+}
+.modal-backdrop[hidden] { display:none; }
+.modal {
+  background:var(--surface); border-radius:var(--r-card); border:1px solid var(--hairline);
+  max-width:420px; width:100%; max-height:86vh; overflow:auto; padding:22px;
+}
+.modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:4px; }
+.modal-head h3 { font-size:16px; }
+.modal-head .sub { font-size:12px; color:var(--ink-soft); margin-top:3px; }
+.modal-close {
+  background:none; border:0; cursor:pointer; color:var(--ink-faint);
+  font-size:18px; line-height:1; padding:4px;
+}
+.modal-close:hover { color:var(--ink); }
+.modal .field-lbl { margin-top:14px; }
+.modal .seatgrid { overflow-x:auto; }
+
+/* ═══ 로그인 게이트 (PRD-1st 5장) ═══
+   실제 인증은 없다. 상단바 로그인 버튼이 body.logged-in을 토글하고,
+   .gate-locked는 흐림+비활성으로, .gate-cta는 그 위에 안내+로그인 유도를 얹는다. */
+.gate { position:relative; }
+.gate-locked {
+  filter:blur(3px); opacity:.55; pointer-events:none; user-select:none;
+  transition:filter .3s ease, opacity .3s ease;
+}
+body.logged-in .gate-locked { filter:none; opacity:1; pointer-events:auto; }
+.gate-cta {
+  position:absolute; inset:0; z-index:5;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; text-align:center; padding:20px;
+}
+.gate-cta p { font-size:13px; color:var(--ink-soft); max-width:32ch; }
+body.logged-in .gate-cta { display:none; }
+.gate-cta.inline { position:static; padding:18px 0 4px; }
+
+/* ═══ 정산판 (PRD_v2 7장) ═══ */
+.settlement { padding:0; }
+.settlement-head { padding:18px 22px 4px; }
+.settlement-head h2 { font-size:17px; }
+.settlement-head p { font-size:12px; color:var(--ink-faint); margin-top:4px; }
+.settlement-body { padding:14px 22px 22px; min-height:220px; }
+
+.tally-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+.tally-card {
+  flex:1; min-width:150px; padding:14px 16px;
+  border:1px solid var(--hairline); border-radius:var(--r-ui);
+  border-left:3px solid var(--wc);
+}
+.tally-card .name { font-size:13px; font-weight:500; color:var(--ink-soft); }
+.tally-card .n { font-family:var(--mono); font-size:22px; font-weight:600; margin-top:4px; }
+.tally-card .n small { font-size:13px; color:var(--ink-faint); font-weight:400; }
+
+.settlement-switch { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+
+.seat-panel { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+.seatgrid { display:flex; flex-direction:column; gap:4px; }
+.seatgrid .row { display:flex; gap:4px; align-items:center; }
+.seatgrid .rowlabel { width:16px; font-family:var(--mono); font-size:10px; color:var(--ink-faint); text-align:center; }
+.seat {
+  width:22px; height:22px; border-radius:5px;
+  background:var(--canvas); border:1px solid var(--hairline);
+  cursor:default; padding:0;
+}
+.seat.pickable { cursor:pointer; }
+.seat.pickable:hover { border-color:var(--ink-soft); }
+.seat.mine { box-shadow:0 0 0 1.5px var(--ink); }
+
+.seat-side { flex:1; min-width:200px; display:flex; flex-direction:column; gap:14px; }
+.swatches { display:flex; flex-wrap:wrap; gap:8px; }
+.swatch {
+  width:28px; height:28px; border-radius:999px; border:2px solid transparent;
+  cursor:pointer; padding:0;
+}
+.swatch[aria-pressed="true"] { border-color:var(--ink); }
+.seat-legend { display:flex; flex-wrap:wrap; gap:10px; font-size:11px; color:var(--ink-soft); align-items:center; }
+.seat-legend .sw { width:14px; height:14px; border-radius:4px; display:inline-block; vertical-align:-3px; margin-right:4px; border:1px solid var(--hairline); }
+
+.save-shot { align-self:flex-start; }
+
+/* ── 관극 기록 (PRD_v2 7장) ── */
+.records { margin-top:20px; padding-top:16px; border-top:1px solid var(--hairline); }
+.records-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.records-head h3 { font-size:14px; }
+.record-row {
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  padding:8px 0; font-size:13px; border-top:1px dashed var(--hairline);
+}
+.record-row:first-child { border-top:0; }
+.record-row .when { font-family:var(--mono); color:var(--ink); flex:none; }
+.record-row .seat { color:var(--ink-soft); flex:none; }
+.record-row .pair { color:var(--ink); font-size:13px; font-weight:500; }
+.record-row .num { margin-left:auto; font-family:var(--mono); color:var(--ink-soft); flex:none; }
+.record-empty { font-size:13px; color:var(--ink-faint); padding:8px 0; }
+
+/* ── 페어 섹션 (PRD_v2 7.3) — 좌석배치도 바로 아래, 정산판 이미지의 마지막 블록.
+   정산 자체는 페어 집계가 아니지만(7.1), 이 섹션 자체는 표시 여부를 유저가
+   토글할 수 있다 — 요약 이미지 크기를 유지하려는 목적. 더블캐스팅 배역이
+   많으면 조합이 기하급수로 늘어나므로, 배우를 최대 4명까지만 골라 그
+   조합의 관람 횟수만 계산한다. */
+.pair-section { margin-top:20px; padding-top:16px; border-top:1px solid var(--hairline); }
+.pair-picker { display:flex; flex-direction:column; gap:4px; margin:2px 0 8px; }
+.pair-cap { font-size:12px; color:var(--ink-faint); margin-bottom:12px; }
+
+/* ═══ 반응형 ═══ */
+@media (max-width:900px) {
+  .cal-cell { min-height:78px; }
+  .perf .n { display:none; }
+  .role-name { width:100%; }
+  .seat-panel { flex-direction:column; }
+  .seatgrid { overflow-x:auto; }
+}
+@media (max-width:640px) {
+  .shell { padding:0 16px; }
+  .topbar-inner { padding:12px 16px; gap:12px; }
+  .wordmark { font-size:20px; }
+  .tabs-inner { overflow-x:auto; scrollbar-width:none; }
+  .tabs-inner::-webkit-scrollbar { display:none; }
+  .tab { padding:12px; white-space:nowrap; }
+  .cal { padding:0 8px 10px; }
+  .cal-grid { gap:2px; }
+  .cal-cell { min-height:62px; padding:4px 3px; border-radius:6px; }
+  .perf { padding:2px 3px; border-left-width:3px; justify-content:center; }
+  .identity h1 { font-size:22px; }
+  .chip { height:40px; }
+  .btn { height:44px; }
+  .seat { width:20px; height:20px; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" href="index.html">애배력</a>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">제보하기</button>
+      <button class="btn btn-primary btn-sm" id="loginBtn">로그인</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="주 메뉴">
+  <div class="shell tabs-inner">
+    <a class="tab" href="index.html">홈</a>
+    <a class="tab" href="search.html">검색하기</a>
+    <a class="tab" id="tabActor" href="#" aria-current="page">배우 페이지</a>
+  </div>
+</nav>
+
+<div class="shell wrap" id="wrap"></div>
+
+<!-- 좌석 선택 모달 — #wrap 재렌더와 무관하게 열림 상태를 유지하려고 별도 정적 노드로 둔다 -->
+<div class="modal-backdrop" id="seatModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="seatModalTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="seatModalTitle">좌석 선택</h3>
+        <p class="sub" id="seatModalSub"></p>
+      </div>
+      <button type="button" class="modal-close" id="seatModalClose" aria-label="닫기">✕</button>
+    </div>
+    <p class="field-lbl">앉았던 좌석을 골라주세요 (대표 좌석 그리드 — 실제 배치도는 작품마다 별도 준비됩니다)</p>
+    <div id="seatModalGrid"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   데이터 — search.html과 동일한 가상 데이터. 전부 가상입니다.
+   ═══════════════════════════════════════════════════════════ */
+const ACTORS = {
+  a1:'유하람', a2:'백지운', a3:'강태윤', a4:'서도현',
+  a5:'민재희', a6:'정하윤', a7:'노경',   a8:'임세아', a9:'차유리'
+};
+
+const WORKS = {
+  w1: { name:'붉은 편지', alias:['붉편'], venue:'충무 파랑새', tier:'full',
+        roles:[ {id:'r1', name:'윤서', actors:['a1','a2']},
+                {id:'r2', name:'해강', actors:['a3','a4']},
+                {id:'r3', name:'도경', actors:['a5','a6']} ] },
+  w2: { name:'달의 항구', alias:['달항'], venue:'대학로 목련', tier:'full',
+        roles:[ {id:'r4', name:'선우', actors:['a1','a7']},
+                {id:'r5', name:'유월', actors:['a8']} ] },
+  w3: { name:'검은 숲', alias:['검숲'], venue:'세종 M', tier:'full',
+        roles:[ {id:'r6', name:'이든', actors:['a3','a2']},
+                {id:'r7', name:'라온', actors:['a9']} ] }
+};
+
+const PERFS = [
+  {w:'w1',d:4, t:'19:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:5, t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:6, t:'19:30', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:7, t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:8, t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:8, t:'18:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:9, t:'14:00', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:11,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:12,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'},
+   history:{role:'윤서', from:'유하람', to:'백지운', when:'08.12 08:05'}},
+  {w:'w1',d:13,t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:14,t:'19:30', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:15,t:'14:00', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:15,t:'18:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:16,t:'14:00', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:18,t:'19:30', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:19,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:20,t:'19:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:21,t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:22,t:'14:00', cast:{r1:'a1',r2:'a4',r3:'a5'}},
+  {w:'w1',d:22,t:'18:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:23,t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'}, events:[{label:'포토타임', verified:true}]},
+  {w:'w1',d:25,t:'19:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:26,t:'19:30', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:28,t:'19:30', cast:{r1:'a2',r2:'a3',r3:'a5'}},
+  {w:'w1',d:29,t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'}},
+  {w:'w1',d:29,t:'18:30', cast:{r1:'a2',r2:'a4',r3:'a6'}},
+  {w:'w1',d:30,t:'14:00', cast:{r1:'a1',r2:'a3',r3:'a5'},
+   events:[{label:'커튼콜 촬영', verified:true}]},
+
+  {w:'w2',d:2, t:'15:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:5, t:'20:00', cast:{r4:'a7',r5:'a8'}},
+  {w:'w2',d:9, t:'15:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:12,t:'20:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:16,t:'15:00', cast:{r4:'a1',r5:'a8'},
+   events:[{label:'커튼콜 촬영', verified:false}]},
+  {w:'w2',d:19,t:'20:00', cast:{r4:'a7',r5:'a8'}},
+  {w:'w2',d:22,t:'15:00', cast:{r4:'a7',r5:'a8'}},
+  {w:'w2',d:26,t:'20:00', cast:{r4:'a1',r5:'a8'}},
+  {w:'w2',d:30,t:'15:00', cast:{r4:'a1',r5:'a8'}},
+
+  {w:'w3',d:1, t:'19:00', cast:{r6:'a3',r7:'a9'}},
+  {w:'w3',d:8, t:'20:00', cast:{r6:'a2',r7:'a9'}},
+  {w:'w3',d:15,t:'20:00', cast:{r6:'a3',r7:'a9'}},
+  {w:'w3',d:23,t:'18:00', cast:{r6:'a3',r7:'a9'},
+   events:[{label:'막공', verified:true},{label:'종연 커튼콜', verified:false}]}
+];
+
+PERFS.forEach(p => { p.y = p.y || 2026; p.m = p.m || 8; });
+
+(function seedOtherMonths () {
+  const rotation = [
+    {r1:'a1',r2:'a3',r3:'a5'}, {r1:'a2',r2:'a4',r3:'a6'},
+    {r1:'a1',r2:'a4',r3:'a5'}, {r1:'a2',r2:'a3',r3:'a5'}
+  ];
+  let i = 0;
+  const run = (y, m, days) => {
+    for (let d = 1; d <= days; d++) {
+      const w = new Date(y, m - 1, d).getDay();
+      if (w === 1) continue;
+      const times = w === 6 ? ['14:00','18:30'] : w === 0 ? ['14:00'] : ['19:30'];
+      times.forEach(t => PERFS.push({ w:'w1', y, m, d, t, cast:rotation[i++ % 4] }));
+    }
+  };
+  run(2026, 7, 31);
+  run(2026, 9, 30);
+
+  const sep = PERFS.filter(p => p.y===2026 && p.m===9 && p.w==='w1');
+  const last = sep[sep.length - 1];
+  if (last) last.events = [{label:'막공', verified:true},{label:'커튼콜 촬영', verified:true}];
+
+  [ [2,'15:00','a1'], [6,'20:00','a7'], [9,'15:00','a1'],
+    [13,'20:00','a7'], [16,'15:00','a1'], [20,'20:00','a1'],
+    [23,'15:00','a7'], [27,'20:00','a1'] ]
+    .forEach(([d,t,a]) => PERFS.push({ w:'w2', y:2026, m:9, d, t, cast:{r4:a, r5:'a8'} }));
+})();
+
+const TODAY = { y:2026, m:8, d:12 };
+const RANGE = { min:{y:2026,m:7}, max:{y:2026,m:9} };
+
+/* 좌석 그리드 — 실좌표 에디터가 아니라 단순화한 대표 격자 (PRD_v2 6.2, 11장 오픈이슈 참조) */
+const SEAT_ROWS = ['가','나','다','라','마'];
+const SEAT_COLS = 8;
+
+/* 좌석 색 — 작품·배우 구분용 --cat-*와는 별개(DESIGN2.md: 구분색은 버튼·개인선택 UI에 쓰지 않는다).
+   유저가 정산판에서 작품마다 자유롭게 고르는 색(PRD_v2 7.2). */
+const SEAT_COLORS = [
+  { id:'plum',  hex:'#7A3E73', label:'자두' },
+  { id:'teal',  hex:'#1F7A6C', label:'청록' },
+  { id:'amber', hex:'#9C6B10', label:'호박' },
+  { id:'slate', hex:'#3D5A80', label:'남색' },
+  { id:'moss',  hex:'#556B2F', label:'이끼' },
+  { id:'rose',  hex:'#A6415A', label:'장미' }
+];
+
+/* 내 관극 기록 — my_records 테이블의 목업(PRD_v2 5장). 배우a1(유하람)의
+   실제 회차 키에 맞춰 심어 둔 데모용 데이터. 새로고침하면 초기화된다. */
+let MY_RECORDS = [
+  { key:'w1|2026|8|4|19:30',  workId:'w1', seat:'가-3' },
+  { key:'w1|2026|8|8|14:00',  workId:'w1', seat:'가-3' },
+  { key:'w1|2026|8|15|18:30', workId:'w1', seat:'가-3' },
+  { key:'w1|2026|8|20|19:30', workId:'w1', seat:'나-5' },
+  { key:'w1|2026|8|26|19:30', workId:'w1', seat:'다-2' },
+  { key:'w1|2026|8|29|14:00', workId:'w1', seat:'다-2' },
+  { key:'w2|2026|8|2|15:00',  workId:'w2', seat:'다-1' },
+  { key:'w2|2026|8|9|15:00',  workId:'w2', seat:'다-1' },
+  { key:'w2|2026|8|26|20:00', workId:'w2', seat:'라-6' }
+];
+let seatColorByWork = {};   // { workId: colorId } — 정산판에서 유저가 고른 색
+let pairSelectedByWork = {};   // { workId: Set<actorId> } — 페어 조합에 포함할 배우, 최대 4명 (PRD_v2 7.3)
+
+const $ = s => document.querySelector(s);
+const el = (h) => { const t=document.createElement('template'); t.innerHTML=h.trim(); return t.content.firstChild; };
+const catVar = i => `--cat-${(i % 8) + 1}`;
+const perfKey = p => [p.w, p.y, p.m, p.d, p.t].join('|');
+const daysIn  = (y,m) => new Date(y, m, 0).getDate();
+const firstDow = (y,m) => new Date(y, m-1, 1).getDay();
+const idx = o => o.y * 12 + o.m;
+const sameP = (a,b) => a.w===b.w && a.y===b.y && a.m===b.m && a.d===b.d && a.t===b.t;
+const dow = p => ['일','월','화','수','목','금','토'][new Date(p.y, p.m-1, p.d).getDay()] + '요일';
+
+function worksOf (actorId) {
+  return Object.entries(WORKS)
+    .filter(([, w]) => w.roles.some(r => r.actors.includes(actorId)))
+    .map(([id]) => id);
+}
+
+/* ═══ 상태 ═══ */
+const params = new URLSearchParams(location.search);
+const actorId = params.get('a') || 'a1';
+const actorExists = !!ACTORS[actorId];
+
+let filters = { works: new Set() };   // 작품 칩 — 합집합
+let selectedPerf = null;
+let ym = { y:TODAY.y, m:TODAY.m };
+let loggedIn = false;
+let settlementWork = actorExists ? (worksOf(actorId)[0] || null) : null;
+let page = 'calendar';   // 'calendar' | 'settlement' — 같은 URL 안에서 보기만 전환
+let showPairs = false;   // 정산판 관극 기록의 페어 조합 표시 — 기본은 숨김, 유저가 토글 (PRD_v2 7.3)
+
+const inMonth = p => p.y === ym.y && p.m === ym.m;
+
+/* ═══════════════════════════════════════════════════════════
+   모션 — GSAP 3.15 easeReverse (search.html과 동일한 값)
+   ═══════════════════════════════════════════════════════════ */
+const reduced = () => !!(window.matchMedia
+              && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const MOTION = typeof gsap !== 'undefined' && !reduced();
+
+if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
+  ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
+  : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
+
+const EASE = {
+  out:   'expo.out',
+  in:    'power2.out',
+  pop:   'back.out(1.5)',
+  popIn: 'power3.out'
+};
+if (MOTION) gsap.defaults({ ease:EASE.out, easeReverse:EASE.in, duration:.36 });
+const TL_DEFAULTS = { ease:EASE.out, easeReverse:EASE.in };
+const spread = (n, per, cap) => ({ amount: Math.min(n * per, cap) });
+
+let detailTl = null;
+let gridFrom = 'start';
+let skipGrid = false;
+
+function openDetail (box) {
+  if (!MOTION) return;
+  const head   = box.querySelectorAll('.detail-head > *');
+  const rows   = box.querySelectorAll('.cast-table tr');
+  const badges = box.querySelectorAll('.ev-badge, .ev-none, .history, .checkblock');
+
+  const padT = gsap.getProperty(box, 'paddingTop');
+  const padB = gsap.getProperty(box, 'paddingBottom');
+  const brdT = gsap.getProperty(box, 'borderTopWidth');
+  const brdB = gsap.getProperty(box, 'borderBottomWidth');
+
+  detailTl = gsap.timeline({ defaults:TL_DEFAULTS })
+    .fromTo(box,
+      { height:0, opacity:0, paddingTop:0, paddingBottom:0,
+        borderTopWidth:0, borderBottomWidth:0 },
+      { height:'auto', opacity:1, paddingTop:padT, paddingBottom:padB,
+        borderTopWidth:brdT, borderBottomWidth:brdB, duration:.44 })
+    .fromTo(head, { opacity:0, y:10 }, { opacity:1, y:0, stagger:.07 }, .12)
+    .fromTo(rows,
+      { opacity:0, x:-14 },
+      { opacity:1, x:0, ease:EASE.pop, easeReverse:EASE.popIn,
+        stagger:spread(rows.length, .07, .3) }, .18)
+    .fromTo(badges,
+      { opacity:0, scale:.9 },
+      { opacity:1, scale:1, duration:.3, ease:EASE.pop, easeReverse:EASE.popIn,
+        stagger:.06 }, .3);
+}
+
+function closeDetail () {
+  const done = () => { selectedPerf = null; detailTl = null; skipGrid = true; render(); };
+  if (!MOTION || !detailTl) return done();
+  detailTl.eventCallback('onReverseComplete', done);
+  detailTl.timeScale(1.5).reverse();
+}
+
+function animateGrid () {
+  const from = gridFrom;
+  gridFrom = 'start';
+  if (!MOTION || skipGrid) { skipGrid = false; return; }
+  const pills = $('#wrap').querySelectorAll('.perf');
+  if (!pills.length) return;
+  gsap.from(pills, {
+    opacity:0, y:-5, scale:.96, duration:.3,
+    stagger:{ ...spread(pills.length, .01, .35), from }
+  });
+}
+
+/* 정산판 스와치를 고를 때 살짝 튕기는 효과 — 새 이징을 만들지 않고 기존 EASE.pop을 그대로 쓴다 */
+function popSwatch (elm) {
+  if (!MOTION) return;
+  gsap.fromTo(elm, { scale:.7 }, { scale:1, duration:.4, ease:EASE.pop });
+}
+
+/* ═══ 좌석 선택 모달 ═══
+   회차를 체크한 직후 캘린더 맥락에서 바로 뜬다. #wrap 재렌더 주기와 분리된
+   정적 노드라, 좌석을 고르는 동안 달력이 다시 그려져도 모달 상태가 끊기지 않는다. */
+function openSeatModal (perf) {
+  const modal = $('#seatModal');
+  $('#seatModalSub').textContent = `${WORKS[perf.w].name} · ${perf.m}월 ${perf.d}일 ${perf.t}`;
+  $('#seatModalGrid').innerHTML = seatGridHTML(perf.w, { mode:'pick', perf });
+  $('#seatModalGrid').querySelectorAll('.seat.pickable').forEach(seat => {
+    seat.addEventListener('click', () => {
+      setSeatForPerf(perf, seat.dataset.seat);
+      closeSeatModal();
+    });
+  });
+
+  modal.hidden = false;
+  document.addEventListener('keydown', escCloseModal);
+  $('#seatModalClose').focus();
+
+  if (!MOTION) return;
+  gsap.fromTo(modal, { opacity:0 }, { opacity:1, duration:.22, ease:EASE.out });
+  gsap.fromTo(modal.querySelector('.modal'),
+    { opacity:0, y:12, scale:.96 },
+    { opacity:1, y:0, scale:1, duration:.32, ease:EASE.out, easeReverse:EASE.in });
+}
+
+function closeSeatModal () {
+  const modal = $('#seatModal');
+  if (modal.hidden) return;
+  document.removeEventListener('keydown', escCloseModal);
+  const done = () => { modal.hidden = true; };
+  if (!MOTION) return done();
+  gsap.to(modal.querySelector('.modal'), { opacity:0, y:8, scale:.97, duration:.2, ease:EASE.in });
+  gsap.to(modal, { opacity:0, duration:.2, ease:EASE.in, onComplete:done });
+}
+
+function escCloseModal (e) { if (e.key === 'Escape') closeSeatModal(); }
+
+/* ═══ 필터 · 색 ═══ */
+function actorPerfs (useFilters = true) {
+  const picked = filters.works;
+  return PERFS.filter(p => {
+    if (!inMonth(p)) return false;
+    if (!Object.values(p.cast).includes(actorId)) return false;
+    if (useFilters && picked && picked.size) return picked.has(p.w);
+    return true;
+  });
+}
+
+function colorMap () {
+  const map = new Map();
+  worksOf(actorId).forEach((w, i) => map.set(w, { name:WORKS[w].name, v:catVar(i) }));
+  return map;
+}
+
+/* ═══ 관극 기록 헬퍼 (PRD_v2 5장 my_records) ═══ */
+function recordFor (p) { return MY_RECORDS.find(r => r.key === perfKey(p)); }
+
+function toggleCheck (p) {
+  const key = perfKey(p);
+  const existing = MY_RECORDS.find(r => r.key === key);
+  if (existing) {
+    MY_RECORDS = MY_RECORDS.filter(r => r.key !== key);   // 다시 누르면 기록 취소
+  } else {
+    MY_RECORDS.push({ key, workId:p.w, seat:null });        // 좌석은 아직 미정
+  }
+  skipGrid = true;
+  render();
+}
+
+function setSeatForPerf (p, seatId) {
+  const rec = MY_RECORDS.find(r => r.key === perfKey(p));
+  if (!rec) return;
+  rec.seat = rec.seat === seatId ? rec.seat : seatId;
+  skipGrid = true;
+  render();
+}
+
+function seatVisitCounts (workId) {
+  const map = new Map();
+  MY_RECORDS.filter(r => r.workId === workId && r.seat).forEach(r =>
+    map.set(r.seat, (map.get(r.seat) || 0) + 1));
+  return map;
+}
+
+const alphaForCount = n => n >= 4 ? 1 : n === 3 ? .75 : n === 2 ? .55 : n === 1 ? .35 : 0;
+
+function seatHex (workId) {
+  const colorId = seatColorByWork[workId] || SEAT_COLORS[0].id;
+  return SEAT_COLORS.find(c => c.id === colorId).hex;
+}
+
+/* 관극 기록 → 그 회차의 실제 캐스팅(페어 조합) 되짚기 (PRD_v2 7.3) */
+function perfFromKey (key) {
+  const [w, y, m, d, t] = key.split('|');
+  return PERFS.find(p => p.w===w && p.y===+y && p.m===+m && p.d===+d && p.t===t);
+}
+function recordsForWork (workId) {
+  return MY_RECORDS.filter(r => r.workId === workId)
+    .map(rec => ({ rec, perf: perfFromKey(rec.key) }))
+    .filter(x => x.perf)
+    .sort((a, b) => (a.perf.m*100+a.perf.d) - (b.perf.m*100+b.perf.d) || a.perf.t.localeCompare(b.perf.t));
+}
+
+/* seatGridHTML — pick 모드(상세 패널 안, 좌석 선택) / summary 모드(정산판, 읽기전용 집계) 겸용 */
+function seatGridHTML (workId, opts) {
+  const mode = opts.mode;
+  const counts = mode === 'summary' ? seatVisitCounts(workId) : null;
+  const hex = seatHex(workId);
+  const mySeat = mode === 'pick' ? (recordFor(opts.perf) || {}).seat : null;
+
+  const rows = SEAT_ROWS.map(r => {
+    let cells = '';
+    for (let c = 1; c <= SEAT_COLS; c++) {
+      const id = `${r}-${c}`;
+      let style = '', cls = 'seat';
+      if (mode === 'summary') {
+        const n = counts.get(id) || 0;
+        const a = alphaForCount(n);
+        style = a ? `background:${hex}${Math.round(a*255).toString(16).padStart(2,'0')};border-color:${hex}` : '';
+      } else {
+        cls += ' pickable';
+        if (id === mySeat) cls += ' mine';
+      }
+      const label = `${r}열 ${c}번${mode==='summary' && counts.get(id) ? ' · ' + counts.get(id) + '회' : ''}`;
+      cells += `<button type="button" class="${cls}" style="${style}"
+                  data-seat="${id}" aria-label="${label}" title="${label}"
+                  ${mode==='pick' ? '' : 'tabindex="-1"'}></button>`;
+    }
+    return `<div class="row"><span class="rowlabel">${r}</span>${cells}</div>`;
+  }).join('');
+
+  return `<div class="seatgrid" data-mode="${mode}" data-work="${workId}">${rows}</div>`;
+}
+
+/* ═══ 렌더 ═══ */
+function render () {
+  const wrap = $('#wrap');
+  document.body.classList.toggle('logged-in', loggedIn);
+  $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
+
+  if (!actorExists) {
+    wrap.innerHTML = notFoundHTML();
+    return;
+  }
+
+  $('#tabActor').textContent = `배우 페이지 · ${ACTORS[actorId]}`;
+  $('#tabActor').href = `actor.html?a=${actorId}`;
+
+  let pageBody;
+  if (page === 'settlement') {
+    pageBody = settlementHTML();
+  } else {
+    const perfs  = actorPerfs(true);
+    const inRaw  = actorPerfs(false);
+    const colors = colorMap();
+    const cal = perfs.length ? calendarHTML(perfs, colors)
+              : inRaw.length ? emptyByFilterHTML()
+              : emptyByMonthHTML();
+    pageBody = filtersHTML(perfs.length) + cal +
+      `<section class="card detail" id="detail" hidden></section>`;
+  }
+
+  wrap.innerHTML = identityHTML() + pageTabsHTML() + pageBody;
+
+  bind();
+  if (page === 'calendar') {
+    animateGrid();
+    if (selectedPerf) renderDetail(selectedPerf);
+  }
+}
+
+function pageTabsHTML () {
+  return `<div class="pagetabs">
+    <button type="button" aria-pressed="${page==='calendar'}" data-page="calendar">캘린더</button>
+    <button type="button" aria-pressed="${page==='settlement'}" data-page="settlement">정산판</button>
+  </div>`;
+}
+
+function notFoundHTML () {
+  return `<section class="card notfound">
+    <h1>배우를 찾을 수 없습니다</h1>
+    <p>이 slug로 등록된 배우 페이지가 없습니다.</p>
+    <a class="btn btn-primary" href="search.html">검색하러 가기</a>
+  </section>`;
+}
+
+function identityHTML () {
+  return `<section class="card identity">
+    <div>
+      <span class="subject-kind">배우</span>
+      <h1>${ACTORS[actorId]}</h1>
+      <p class="sub">출연 중인 작품 <span class="num">${worksOf(actorId).length}</span>개</p>
+      <p class="slugline mono">이 배우만 보려면: 애배력.com/${ACTORS[actorId]}</p>
+    </div>
+    <div class="identity-actions">
+      <a class="btn btn-ghost btn-sm" href="search.html">다른 배우 찾기</a>
+    </div>
+  </section>`;
+}
+
+function filtersHTML (count) {
+  const c = colorMap();
+  const picked = filters.works;
+  const rows = `<div class="role-row">
+    <span class="role-name">작품</span>
+    <div class="chips">${worksOf(actorId).map(w =>
+      `<button class="chip" aria-pressed="${picked.has(w)}"
+               data-val="${w}"
+               style="--wc:var(${c.get(w).v})">${WORKS[w].name}</button>`).join('')}
+    </div></div>`;
+
+  const active = picked.size > 0;
+  return `<section class="card filters">
+    <h2>작품으로 좁히기</h2>
+    <p class="filter-rule">작품을 여러 개 고르면 <b>합집합</b>으로 보입니다. 한 회차는 한 작품에만 속하기 때문입니다.</p>
+    ${rows}
+    <div class="filter-foot">
+      <span class="count"><strong>${count}</strong>개 회차</span>
+      ${active ? '' : '<span style="color:var(--ink-faint)">아무것도 고르지 않으면 전체가 보입니다</span>'}
+      ${active ? '<button class="btn btn-ghost btn-sm js-reset">필터 지우기</button>' : ''}
+    </div>
+    ${legendHTML()}
+  </section>`;
+}
+
+function legendHTML () {
+  const c = colorMap();
+  const items = [...c.entries()].map(([, v]) =>
+    `<span class="item"><i style="--wc:var(${v.v})"></i>${v.name}</span>`).join('');
+  return `<div class="legend"><span class="lbl">색 기준 · 작품</span>${items}</div>`;
+}
+
+function calendarHTML (perfs, colors) {
+  const byDay = {};
+  perfs.forEach(p => (byDay[p.d] = byDay[p.d] || []).push(p));
+
+  const first = firstDow(ym.y, ym.m), days = daysIn(ym.y, ym.m);
+  let cells = '';
+  for (let i = 0; i < first; i++) cells += `<div class="cal-cell pad"></div>`;
+
+  for (let d = 1; d <= days; d++) {
+    const dow_ = (first + d - 1) % 7;
+    const list = (byDay[d] || []).sort((a,b) => a.t.localeCompare(b.t));
+    const shown = list.slice(0, 3);
+    const isToday = ym.y===TODAY.y && ym.m===TODAY.m && d===TODAY.d;
+    const cls = ['cal-cell', dow_===0?'sun':'', isToday?'today':''].join(' ');
+
+    cells += `<div class="${cls}">
+      <span class="d">${d}</span>
+      ${shown.map(p => {
+        const col = colors.get(p.w);
+        const v = col ? col.v : '--cat-8';
+        const went = loggedIn && !!recordFor(p);
+        const cls = ['perf', went ? 'went' : '', selectedPerf && sameP(selectedPerf, p) ? 'selected' : ''].join(' ').trim();
+        return `<button class="${cls}" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}" data-t="${p.t}" data-w="${p.w}"
+                  style="--wc:var(${v}); --wc-soft:var(${v}-soft)"
+                  aria-label="${p.d}일 ${p.t} ${WORKS[p.w].name}${went?' · 다녀옴':''}">
+                  <span class="t">${p.t}</span><span class="n">${WORKS[p.w].name}</span></button>`;
+      }).join('')}
+      ${list.length > 3 ? `<span class="more">+${list.length-3}</span>` : ''}
+    </div>`;
+  }
+
+  return `<section class="card">
+    <div class="cal-head">
+      <h2>${monthLabel()}</h2>
+      ${calNavHTML()}
+    </div>
+    <div class="cal">
+      <div class="cal-dow">
+        <div class="sun">일</div><div>월</div><div>화</div><div>수</div>
+        <div>목</div><div>금</div><div>토</div>
+      </div>
+      <div class="cal-grid">${cells}</div>
+    </div>
+  </section>`;
+}
+
+const monthLabel = () => `${ym.y}년 ${ym.m}월`;
+
+function calNavHTML () {
+  const canPrev = idx(ym) > idx(RANGE.min);
+  const canNext = idx(ym) < idx(RANGE.max);
+  return `<div class="cal-nav">
+    <button class="js-month" data-step="-1" aria-label="이전 달" ${canPrev?'':'disabled'}>‹</button>
+    <button class="js-month" data-step="1"  aria-label="다음 달" ${canNext?'':'disabled'}>›</button>
+  </div>`;
+}
+
+function moveMonth (step) {
+  const n = { y:ym.y, m:ym.m + step };
+  if (n.m > 12) { n.m = 1;  n.y++; }
+  if (n.m < 1)  { n.m = 12; n.y--; }
+  if (idx(n) < idx(RANGE.min) || idx(n) > idx(RANGE.max)) return;
+  ym = n;
+  selectedPerf = null;
+  detailTl = null;
+  gridFrom = step < 0 ? 'end' : 'start';
+  render();
+}
+
+function emptyByFilterHTML () {
+  const names = [...filters.works].map(w => WORKS[w].name);
+  return `<section class="card">
+    <div class="cal-head"><h2>${monthLabel()}</h2>${calNavHTML()}</div>
+    <div class="empty">
+      <h3>${ACTORS[actorId]} 님의 ${ym.m}월 회차가 없습니다</h3>
+      <p>고른 작품(${names.join(', ')})에는 ${ym.m}월 회차가 없습니다. 작품 선택을 풀면 다른 작품의 회차를 볼 수 있습니다.</p>
+      <button class="btn btn-ghost js-reset">필터 지우기</button>
+    </div>
+  </section>`;
+}
+
+function emptyByMonthHTML () {
+  return `<section class="card">
+    <div class="cal-head"><h2>${monthLabel()}</h2>${calNavHTML()}</div>
+    <div class="empty">
+      <h3>${ym.m}월에는 등록된 회차가 없습니다</h3>
+      <p>${ACTORS[actorId]}의 ${ym.m}월 일정이 아직 공개되지 않았거나, 애배력이 아직 확보하지 못했습니다.
+         캐스팅표가 공개되면 홈의 제보·공지에 올라옵니다.</p>
+    </div>
+  </section>`;
+}
+
+/* ═══ 회차 상세 (PRD_v2 4장 — 체크 + 좌석 입력 포함) ═══ */
+function renderDetail (p) {
+  const box = $('#detail');
+  const w = WORKS[p.w];
+  const rows = w.roles.map(r => {
+    const a = p.cast[r.id];
+    const you = a === actorId ? ' class="you"' : '';
+    return `<tr><th>${r.name}</th><td${you}>${ACTORS[a]}</td></tr>`;
+  }).join('');
+
+  const events = p.events || [];
+  const evHTML = events.length
+    ? `<div class="ev-row">${events.map(e =>
+        `<span class="ev-badge${e.verified ? '' : ' unverified'}">${e.label}${e.verified ? '' : ' · 미검증'}</span>`
+      ).join('')}</div>`
+    : `<div class="ev-none">이벤트 정보 없음
+        <button class="btn btn-ghost btn-sm">제보하기</button></div>`;
+
+  const hist = p.history
+    ? `<div class="history">
+         <b>캐스팅 변경</b> — ${p.history.role} 역 ${p.history.from} → ${p.history.to}
+         <span class="when">${p.history.when} 반영 · 예정 캐스팅은 이력에 보관됩니다</span>
+       </div>` : '';
+
+  const rec = recordFor(p);
+  const checkBlockLocked = `
+    <div class="checkrow">
+      <button class="btn btn-ghost" disabled>이 회차 봤어요</button>
+      <span class="hint">로그인하면 관극 기록과 좌석을 남길 수 있습니다</span>
+    </div>`;
+  const checkBlockLive = `
+    <div class="checkrow">
+      <button class="btn ${rec ? 'btn-primary' : 'btn-ghost'} js-check" type="button"
+              aria-pressed="${!!rec}">${rec ? '✓ 이 회차 봤어요' : '이 회차 봤어요'}</button>
+      ${rec
+        ? `<button class="btn btn-ghost btn-sm js-pick-seat" type="button">${rec.seat ? `좌석 ${rec.seat} · 변경` : '좌석 선택하기'}</button>`
+        : '<span class="hint">눌러서 관극 기록을 남기세요</span>'}
+    </div>`;
+
+  box.innerHTML = `
+    <div class="detail-head">
+      <div>
+        <h2>${w.name}</h2>
+        <p class="detail-when"><time>${p.m}월 ${p.d}일</time> ${dow(p)} <time>${p.t}</time> · ${w.venue}</p>
+      </div>
+    </div>
+    <table class="cast-table"><tbody>${rows}</tbody></table>
+    ${evHTML}${hist}
+    <div class="checkblock gate">
+      <div class="gate-locked">${checkBlockLive}</div>
+      <div class="gate-cta inline">${checkBlockLocked}</div>
+    </div>`;
+  box.hidden = false;
+  openDetail(box);
+}
+
+/* ═══ 정산판 (PRD_v2 7장) ═══ */
+function settlementHTML () {
+  const works = worksOf(actorId);
+  const lockedPreview = `
+    <div class="tally-row">
+      ${works.slice(0,2).map((w,i) => `<div class="tally-card" style="--wc:var(${catVar(i)})">
+        <div class="name">${WORKS[w].name}</div>
+        <div class="n">·· <small>/ ·· 회</small></div>
+      </div>`).join('')}
+    </div>
+    ${works[0] ? seatGridHTML(works[0], { mode:'summary' }) : ''}`;
+
+  const liveContent = works.length ? liveSettlementHTML(works) : `<p class="hint" style="color:var(--ink-soft)">출연 중인 작품이 없습니다.</p>`;
+
+  return `<section class="card settlement">
+    <div class="settlement-head">
+      <h2>정산판</h2>
+      <p>페어 조합이 아닌 <b>배우별 단순 관람 횟수</b>만 집계합니다 (PRD_v2 7.1). 좌석 색은 자유롭게 고를 수 있고, 방문 횟수만큼 진하게 표시됩니다 (7.2).</p>
+    </div>
+    <div class="settlement-body gate">
+      <div class="gate-locked">${liveContent}</div>
+      <div class="gate-cta">
+        <p>로그인하면 내가 실제로 본 회차 기준으로<br>작품별 관람 횟수와 좌석 기록을 볼 수 있습니다</p>
+        <button class="btn btn-primary btn-sm js-login-cta">로그인하고 정산판 보기</button>
+      </div>
+    </div>
+  </section>`;
+}
+
+function liveSettlementHTML (works) {
+  const tally = works.map((w, i) => {
+    const denom = PERFS.filter(p => Object.values(p.cast).includes(actorId) && p.w === w).length;
+    const numer = MY_RECORDS.filter(r => r.workId === w).length;
+    return `<div class="tally-card" style="--wc:var(${catVar(i)})">
+      <div class="name">${WORKS[w].name}</div>
+      <div class="n">${numer}<small> / ${denom}회</small></div>
+    </div>`;
+  }).join('');
+
+  const active = settlementWork && works.includes(settlementWork) ? settlementWork : works[0];
+  const switcher = works.map(w =>
+    `<button class="chip js-settle-work" aria-pressed="${w===active}" data-work="${w}">${WORKS[w].name}</button>`).join('');
+
+  const colorId = seatColorByWork[active] || SEAT_COLORS[0].id;
+  const swatches = SEAT_COLORS.map(c =>
+    `<button type="button" class="swatch js-swatch" data-color="${c.id}"
+       style="background:${c.hex}" aria-pressed="${c.id===colorId}" title="${c.label}" aria-label="${c.label}"></button>`).join('');
+
+  return `
+    <div class="tally-row">${tally}</div>
+    <div class="settlement-switch">${switcher}</div>
+    <div class="seat-panel">
+      ${seatGridHTML(active, { mode:'summary' })}
+      <div class="seat-side">
+        <div>
+          <p class="field-lbl">좌석 색 고르기</p>
+          <div class="swatches">${swatches}</div>
+        </div>
+        <div class="seat-legend">
+          <span class="lbl">방문 횟수</span>
+          <span><i class="sw" style="background:${seatHex(active)};opacity:.35"></i>1회</span>
+          <span><i class="sw" style="background:${seatHex(active)};opacity:.55"></i>2회</span>
+          <span><i class="sw" style="background:${seatHex(active)};opacity:.75"></i>3회</span>
+          <span><i class="sw" style="background:${seatHex(active)}"></i>4회+</span>
+        </div>
+        <button class="btn btn-ghost btn-sm save-shot" disabled title="추후 지원 예정 (PRD_v2 7.3)">이미지로 저장</button>
+      </div>
+    </div>
+    ${pairSectionHTML(active)}
+    ${recordsHTML(active)}`;
+}
+
+function recordsHTML (workId) {
+  const records = recordsForWork(workId);
+  const rows = records.length
+    ? records.map(({ rec, perf }) => `<div class="record-row">
+        <span class="when">${perf.m}월 ${perf.d}일 ${perf.t}</span>
+        <span class="seat">${rec.seat ? `좌석 ${rec.seat}` : '좌석 미정'}</span>
+      </div>`).join('')
+    : `<div class="record-empty">아직 담은 회차가 없습니다. 캘린더에서 "이 회차 봤어요"를 눌러보세요.</div>`;
+
+  return `<div class="records">
+    <div class="records-head">
+      <h3>관극 기록 <span class="num" style="color:var(--ink-faint);font-size:12px;">${records.length}건</span></h3>
+    </div>
+    <div class="record-list">${rows}</div>
+  </div>`;
+}
+
+/* ═══ 페어 섹션 — 좌석배치도 바로 아래, 표시 여부는 유저 토글 (PRD_v2 7.3) ═══
+   더블캐스팅 배역이 많으면 조합 수가 기하급수로 늘어나므로, 배우를
+   최대 4명까지만 골라 "그 배우들이 낀 조합을 몇 번 봤는지"만 집계한다. */
+const PAIR_MAX = 4;
+
+function pairSectionHTML (workId) {
+  const doubleRoles = WORKS[workId].roles.filter(r => r.actors.length > 1);
+  const selected = pairSelectedByWork[workId] || (pairSelectedByWork[workId] = new Set());
+
+  const toggle = `<button type="button" class="btn btn-ghost btn-sm js-toggle-pairs" aria-pressed="${showPairs}">
+    ${showPairs ? '페어 숨기기' : '페어 표시'}
+  </button>`;
+
+  if (!showPairs) {
+    return `<div class="pair-section">
+      <div class="records-head"><h3>페어 조합</h3>${toggle}</div>
+    </div>`;
+  }
+
+  if (!doubleRoles.length) {
+    return `<div class="pair-section">
+      <div class="records-head"><h3>페어 조합</h3>${toggle}</div>
+      <p class="record-empty">이 작품은 더블캐스팅 배역이 없습니다.</p>
+    </div>`;
+  }
+
+  const picker = doubleRoles.map(r => {
+    const chips = r.actors.map(aId => {
+      const on = selected.has(aId);
+      const disabled = !on && selected.size >= PAIR_MAX;
+      return `<button type="button" class="chip js-pair-actor" data-actor="${aId}"
+                aria-pressed="${on}" ${disabled ? 'disabled' : ''}>${ACTORS[aId]}</button>`;
+    }).join('');
+    return `<div class="role-row"><span class="role-name">${r.name}</span><div class="chips">${chips}</div></div>`;
+  }).join('');
+
+  return `<div class="pair-section">
+    <div class="records-head"><h3>페어 조합</h3>${toggle}</div>
+    <div class="pair-picker">${picker}</div>
+    <p class="pair-cap">조합에 넣을 배우를 최대 ${PAIR_MAX}명까지 고를 수 있어요 (${selected.size}/${PAIR_MAX})</p>
+    ${pairTallyHTML(workId, selected)}
+  </div>`;
+}
+
+function pairTallyHTML (workId, selected) {
+  if (!selected.size) return `<p class="record-empty">배우를 고르면 그 조합으로 본 횟수를 계산합니다.</p>`;
+
+  const roleIds = WORKS[workId].roles
+    .filter(r => r.actors.some(a => selected.has(a)))
+    .map(r => r.id);
+
+  const counts = new Map();   // label -> count
+  recordsForWork(workId).forEach(({ perf }) => {
+    if (!roleIds.every(rid => selected.has(perf.cast[rid]))) return;
+    const label = roleIds.map(rid => ACTORS[perf.cast[rid]]).join(' · ');
+    counts.set(label, (counts.get(label) || 0) + 1);
+  });
+
+  if (!counts.size) return `<p class="record-empty">고른 조합으로 본 기록이 없습니다.</p>`;
+
+  const rows = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, n]) => `<div class="record-row"><span class="pair">${label}</span><span class="num">${n}회</span></div>`)
+    .join('');
+  return `<div class="record-list">${rows}</div>`;
+}
+
+/* ═══ 이벤트 바인딩 ═══ */
+function bind () {
+  document.querySelectorAll('.chip[data-val]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.dataset.val;
+      filters.works.has(val) ? filters.works.delete(val) : filters.works.add(val);
+      selectedPerf = null;
+      detailTl = null;
+      render();
+    });
+  });
+
+  document.querySelectorAll('.js-reset').forEach(b =>
+    b.addEventListener('click', () => {
+      filters.works = new Set(); selectedPerf = null; detailTl = null; render();
+    }));
+
+  document.querySelectorAll('.perf').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { y, m, d, t, w } = btn.dataset;
+      const p = PERFS.find(q => q.w===w && q.y===+y && q.m===+m && q.d===+d && q.t===t);
+      if (selectedPerf && sameP(selectedPerf, p)) { closeDetail(); return; }
+      selectedPerf = p;
+      skipGrid = true;
+      render();
+      $('#detail').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    });
+  });
+
+  document.querySelectorAll('.js-month').forEach(b =>
+    b.addEventListener('click', () => moveMonth(+b.dataset.step)));
+
+  document.querySelectorAll('.pagetabs button').forEach(b =>
+    b.addEventListener('click', () => {
+      if (b.dataset.page === page) return;
+      page = b.dataset.page;
+      selectedPerf = null;
+      detailTl = null;
+      closeSeatModal();
+      render();
+    }));
+
+  const checkBtn = document.querySelector('.js-check');
+  if (checkBtn) checkBtn.addEventListener('click', () => toggleCheck(selectedPerf));
+
+  const pickSeatBtn = document.querySelector('.js-pick-seat');
+  if (pickSeatBtn) pickSeatBtn.addEventListener('click', () => openSeatModal(selectedPerf));
+
+  document.querySelectorAll('.js-settle-work').forEach(b =>
+    b.addEventListener('click', () => { settlementWork = b.dataset.work; skipGrid = true; render(); }));
+
+  document.querySelectorAll('.js-swatch').forEach(b =>
+    b.addEventListener('click', () => {
+      const active = settlementWork || worksOf(actorId)[0];
+      seatColorByWork[active] = b.dataset.color;
+      popSwatch(b);
+      skipGrid = true;
+      render();
+    }));
+
+  const loginCta = document.querySelector('.js-login-cta');
+  if (loginCta) loginCta.addEventListener('click', () => setLoggedIn(true));
+
+  const pairsBtn = document.querySelector('.js-toggle-pairs');
+  if (pairsBtn) pairsBtn.addEventListener('click', () => { showPairs = !showPairs; skipGrid = true; render(); });
+
+  document.querySelectorAll('.js-pair-actor').forEach(b =>
+    b.addEventListener('click', () => {
+      const active = settlementWork || worksOf(actorId)[0];
+      const set = pairSelectedByWork[active] || (pairSelectedByWork[active] = new Set());
+      const aId = b.dataset.actor;
+      if (set.has(aId)) set.delete(aId);
+      else if (set.size < PAIR_MAX) set.add(aId);
+      else return;
+      skipGrid = true;
+      render();
+    }));
+}
+
+/* ═══ 로그인 데모 토글 — 실제 인증 없음, 상태만 흉내낸다 ═══ */
+function setLoggedIn (v) {
+  loggedIn = v;
+  skipGrid = true;
+  render();
+}
+$('#loginBtn').addEventListener('click', () => setLoggedIn(!loggedIn));
+
+/* 모달은 #wrap 밖의 정적 노드라 bind()가 아니라 여기서 한 번만 건다 */
+$('#seatModalClose').addEventListener('click', closeSeatModal);
+$('#seatModal').addEventListener('click', e => {
+  if (e.target.id === 'seatModal') closeSeatModal();
+});
+
+render();
+</script>
+
+</body>
+</html>
