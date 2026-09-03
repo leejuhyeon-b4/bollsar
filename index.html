@@ -3,606 +3,772 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>애배력 — 애배 캐스팅 달력</title>
+<title>애배력 — 강홍석 스케줄</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+KR:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════
-   애배력 — 홈 (제보·공지)
-   색:   DESIGN2.md
-   타이포·칩: PRD-1st.md 7장 (DESIGN2.md의 출처 문서)
+   애배력 — 스케줄 탭 (PRD_v3 3장)
+
+   디자인: Claude Design 〈Fan Schedule Newspaper〉 — 신문 지면 미감.
+   달력형이 이 탭의 중심 화면이고, 목록형은 같은 미감의 지면 기사 열로 둔다
+   ("내 달력" 별도 탭 없음 — 관극 여부는 여기서 체크). 회차 클릭 시 하단 시트
+   상세: 배역·상대역, 이벤트, (로그인 시) 관극 체크 + 좌석.
+   정산판(settlement.html)은 이번 작업에서 손대지 않음.
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── 기반색 (DESIGN2.md) ── */
-  --canvas:     #F4F2F7;
-  --surface:    #FFFFFF;
-  --ink:        #1C1826;
-  --ink-soft:   #6B6478;
-  --ink-faint:  #9A93AC;
-  --hairline:   #E0DCE8;
+  --paper:#e9e3d5; --paper-2:#e3dccb; --paper-3:#ded7c6;
+  --ink:#17150f;
+  --ink-72:rgba(23,21,15,.72); --ink-60:rgba(23,21,15,.6);
+  --ink-55:rgba(23,21,15,.55); --ink-45:rgba(23,21,15,.45);
+  --ink-40:rgba(23,21,15,.4);  --ink-28:rgba(23,21,15,.28);
+  --ink-14:rgba(23,21,15,.14);
+  --accent:#8f2e22;
 
-  /* ── 구분색 팔레트 · 배정 순서 고정 ── */
-  --cat-1: #6B3FA0;  --cat-1-soft: #E4DBF2;  /* 보라   */
-  --cat-2: #B34E14;  --cat-2-soft: #F7E2D4;  /* 주황   */
-  --cat-3: #16697A;  --cat-3-soft: #D7E9ED;  /* 청록   */
-  --cat-4: #B02D6E;  --cat-4-soft: #F6DAE8;  /* 자홍   */
-  --cat-5: #6B7028;  --cat-5-soft: #E6E8D4;  /* 올리브 */
-  --cat-6: #2C5BB5;  --cat-6-soft: #DBE3F6;  /* 파랑   */
-  --cat-7: #7A4A28;  --cat-7-soft: #EBDFD6;  /* 갈색   */
-  --cat-8: #736A87;  --cat-8-soft: #E5E2EB;  /* 회보라 */
-
-  /* ── 상태색 ── */
-  --unverified:    #B37A14;  --unverified-bg: #FAF0DC;
-  --success:       #2F6B45;
-  --danger:        #A62B32;  --danger-bg:     #FAE3E4;
-
-  /* ── 타이포 (PRD 7장) ── */
-  --serif: "Gowun Batang", serif;                    /* 제목 */
-  --sans:  "Noto Sans KR", system-ui, sans-serif;    /* 본문 */
-  --mono:  "IBM Plex Mono", ui-monospace, monospace; /* 날짜·시간·숫자 */
-
-  /* ── 파생값: 두 문서 어디에도 없어 이 파일에서 정함 ── */
-  --r-card: 12px;
-  --r-ui:   8px;
-  --gap:    16px;
+  --fraktur:"UnifrakturMaguntia","Playfair Display","Noto Serif KR",serif;
+  --display:"Playfair Display","Noto Serif KR",serif;
+  --serif:"Noto Serif KR",serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing:border-box; margin:0; padding:0; }
 
 body {
-  background: var(--canvas);
-  font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
+  background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:14px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,.5), rgba(0,0,0,0) 55%),
+    radial-gradient(100% 50% at 50% 100%, rgba(90,78,55,.14), rgba(0,0,0,0) 70%);
+  background-attachment:fixed;
 }
+[hidden] { display:none !important; }
+.mono { font-family:var(--mono); }
+a { color:var(--accent); text-decoration:none; }
 
-/* 숫자·날짜·시간은 고정폭 — 달력에서 세로 정렬되어야 한다 */
-time, .num, .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
-
-h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.35; }
-
-a { color: inherit; }
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-card);
+.np-shell {
+  max-width:600px; margin:0 auto; min-height:100vh;
+  padding:0 18px; display:flex; flex-direction:column;
+  background:rgba(233,227,213,.55);
 }
+@media (min-width:640px) { .np-shell { border-inline:1px solid var(--ink-14); } }
 
-.shell { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+/* ═══ 마스트헤드 ═══ */
+.np-mast { position:relative; flex:none; padding:18px 0 10px; text-align:center; border-bottom:3px double var(--ink); }
+.np-login {
+  position:absolute; right:0; top:14px;
+  border:1px solid var(--ink-40); background:none; color:var(--ink);
+  font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+  padding:4px 8px; cursor:pointer;
+}
+.np-login:hover { background:var(--ink); color:var(--paper); }
+.np-wordmark { font-family:var(--fraktur); font-weight:400; font-size:31px; line-height:1; letter-spacing:.01em; margin:2px 0 4px; }
+.np-byline {
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+  padding-top:6px; border-top:1px solid var(--ink-40);
+  font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--ink-60);
+}
+.np-byline > :first-child { text-align:left; }
+.np-byline > :last-child { text-align:right; }
+.np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:500; }
 
-/* ═══ 상단바 ═══ */
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--hairline);
-  position: sticky; top: 0; z-index: 20;
+/* ═══ 탭 ═══ */
+.np-nav {
+  flex:none; display:flex; gap:18px; justify-content:center;
+  padding:9px 0; border-bottom:1px solid var(--ink-28);
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
 }
-.topbar-inner {
-  display: flex; align-items: center; gap: 20px;
-  padding-top: 14px; padding-bottom: 14px;
-}
-.wordmark {
-  font-family: var(--serif); font-size: 24px; font-weight: 700;
-  letter-spacing: -.02em; text-decoration: none; flex: none;
-}
+.np-nav [aria-current] { color:var(--ink); border-bottom:2px solid var(--accent); padding-bottom:3px; }
+.np-nav a { color:var(--ink-55); }
+.np-nav a:hover { color:var(--ink); }
 
-/* 검색 (PRD 5장 — 홈 최상단)
-   접힌 상태는 돋보기 하나가 든 원. 누르면 입력란으로 늘어난다.
-   늘어나는 모션은 ref/orchestrated-easereverse.html 의 알약과 같은 방식이다.
-   폭은 JS가 잡으므로 여기서는 접힌 크기만 정한다. */
-.search {
-  position: relative; flex: none;
-  width: 42px; height: 42px;
-  background: var(--canvas);
-  border: 1px solid var(--hairline);
-  border-radius: 999px;
-  overflow: hidden;               /* 접혔을 때 입력란·버튼을 잘라낸다 */
-}
-.search.is-open { background: var(--surface); border-color: var(--ink-soft); }
+.np-main { flex:1; padding:14px 0 28px; }
 
-/* 돋보기 = 여는 버튼. 접혀 있을 땐 원 전체가 이 버튼이다. */
-.search-toggle {
-  position: absolute; left: 0; top: 0; z-index: 2;
-  width: 40px; height: 40px;
-  display: flex; align-items: center; justify-content: center;
-  background: none; border: 0; padding: 0; cursor: pointer;
-  color: var(--ink-faint);
-}
-.search-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; border-radius: 999px; }
-.search-toggle svg { display: block; }
+.np-foot { flex:none; border-top:3px double var(--ink); padding:12px 0 26px; }
+.np-foot p { font-family:var(--mono); font-size:8.5px; line-height:1.7; letter-spacing:.03em; color:var(--ink-55); }
 
-.search input {
-  width: 100%; height: 40px;
-  padding: 0 60px 0 40px;
-  font-family: var(--sans); font-size: 14px; color: var(--ink);
-  background: transparent; border: 0; border-radius: 999px;
+/* ═══ 뷰 토글 ═══ */
+.np-vt { display:flex; width:max-content; margin:0 auto 4px; border:1px solid var(--ink-40); }
+.np-vt button {
+  border:0; background:none; color:var(--ink-55); cursor:pointer;
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; padding:6px 16px;
 }
-.search input::placeholder { color: var(--ink-faint); }
-.search input:focus { outline: none; }
+.np-vt button + button { border-left:1px solid var(--ink-40); }
+.np-vt button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
 
-.search-go {
-  position: absolute; right: 4px; top: 4px;
-  height: 32px; padding: 0 12px;
-  font-family: var(--sans); font-size: 13px; font-weight: 500;
-  color: var(--surface); background: var(--ink);
-  border: 0; border-radius: 999px; cursor: pointer;
+/* ═══ 다가오는 회차 (지면 헤드라인) ═══ */
+.np-lead { padding:14px 0 13px; border-bottom:1px solid var(--ink-28); }
+.np-lead-kick { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--accent); text-transform:uppercase; }
+.np-lead-ttl { font-family:var(--display); font-weight:900; font-size:22px; line-height:1.14; letter-spacing:-.01em; margin:4px 0 5px; }
+.np-lead-deck { font-size:12px; line-height:1.62; color:var(--ink-72); text-wrap:pretty; }
+.np-lead-meta { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; font-family:var(--mono); font-size:9px; letter-spacing:.05em; color:var(--ink-60); }
+.np-lead-meta .dday { background:var(--ink); color:var(--paper); padding:2px 6px; white-space:nowrap; }
+
+/* ═══ 달 이동 ═══ */
+.np-month { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 0 0; }
+.np-month button {
+  flex:none; width:26px; height:26px; border:1px solid var(--ink-40);
+  background:none; color:var(--ink); font-family:var(--mono); font-size:12px; cursor:pointer;
 }
-/* GSAP이 없을 때 — 애니메이션 없이 즉시 펼쳐진다 */
-.search:not(.is-open) input,
-.search:not(.is-open) .search-go { opacity: 0; pointer-events: none; }
+.np-month button:disabled { opacity:.3; cursor:not-allowed; }
+.np-month .m-mid { text-align:center; flex:1; }
+.np-month .m-ttl { font-family:var(--display); font-weight:700; font-style:italic; font-size:19px; line-height:1; }
+.np-month .m-sub { font-family:var(--mono); font-size:8.5px; letter-spacing:.18em; color:var(--ink-55); margin-top:2px; text-transform:uppercase; }
 
-.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-
-/* ── 버튼: 구분색은 쓰지 않는다 (DESIGN2.md) ── */
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 40px; padding: 0 16px;
-  font-family: var(--sans); font-size: 14px; font-weight: 500;
-  border-radius: var(--r-ui); cursor: pointer; white-space: nowrap;
-  border: 1px solid transparent; text-decoration: none;
+/* ═══ 달력 격자 ═══ */
+.np-cal { margin-top:10px; border-top:2px solid var(--ink); border-bottom:1px solid var(--ink-28); }
+.np-dow { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--ink-28); }
+.np-dow div { text-align:center; padding:5px 0; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-60); }
+.np-dow .sun { color:var(--accent); }
+.np-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.np-cell {
+  min-height:82px; padding:6px 2px 6px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  border-right:1px solid var(--ink-14); border-bottom:1px solid var(--ink-14);
 }
-.btn-primary { background: var(--ink); color: var(--surface); }
-.btn-primary:hover { background: #322c40; }
-.btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--hairline); }
-.btn-ghost:hover { border-color: var(--ink-soft); }
-.btn-sm { height: 34px; padding: 0 12px; font-size: 13px; }
-
-/* ═══ 탭 내비 ═══ */
-.tabs {
-  background: var(--surface);
-  border-bottom: 1px solid var(--hairline);
+.np-cell:nth-child(7n) { border-right:0; }
+.np-grid .np-cell:nth-last-child(-n+7) { border-bottom:0; }
+.np-cell.pad { opacity:.3; }
+.np-cell[data-day] { cursor:pointer; }
+.np-cell .n { font-family:var(--display); font-size:13px; font-weight:600; line-height:1; color:var(--ink); }
+.np-cell.sun .n { color:rgba(143,46,34,.8); }
+.np-cell.today .n { color:var(--accent); font-weight:900; border-bottom:2px solid var(--accent); }
+.np-cell.sel { background:var(--ink); }
+.np-cell.sel .n, .np-cell.sel .np-cell-t { color:var(--paper); }
+.np-cell-photo {
+  width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 22%;
+  filter:grayscale(1) contrast(1.12); border:1px solid var(--ink-28); background:var(--paper-3);
 }
-.tabs-inner { display: flex; gap: 4px; }
-.tab {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 13px 16px;
-  font-size: 14px; font-weight: 500; color: var(--ink-soft);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-}
-.tab:hover { color: var(--ink); }
-.tab[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+.np-cell.sel .np-cell-photo { border-color:var(--paper); }
+.np-cell-t { font-family:var(--mono); font-size:8px; letter-spacing:.01em; color:var(--ink-72); line-height:1.2; }
 
-/* ═══ 본문 ═══ */
-.layout { padding: 28px 0 56px; }
-.col-main { display: flex; flex-direction: column; gap: var(--gap); }
+/* ═══ 지면 섹션 (선택한 날 / 목록) ═══ */
+.np-sec { margin-top:14px; border-top:3px double var(--ink); padding-top:11px; }
+.np-sec-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.np-sec-head h3 { font-family:var(--display); font-weight:700; font-size:15px; letter-spacing:.01em; }
+.np-sec-head .cnt { font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--ink-55); }
+.np-sec-body { margin-top:8px; }
 
-/* ── 인트로 ── */
-.intro { padding: 28px; }
-.intro h1 { font-size: 30px; letter-spacing: -.01em; }
-.intro p { color: var(--ink-soft); margin-top: 10px; max-width: 46ch; }
-.intro-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.np-entry {
+  display:grid; grid-template-columns:56px 1fr; gap:11px;
+  width:100%; text-align:left; background:none; border:0;
+  border-top:1px solid var(--ink-14); padding:11px 0;
+  font-family:var(--serif); cursor:pointer;
+}
+.np-entry:first-of-type { border-top:0; }
+.np-entry:active { opacity:.55; }
+.np-entry .lc { text-align:right; border-right:1px solid var(--ink-14); padding-right:9px; }
+.np-entry .lc .big { font-family:var(--mono); font-size:13px; font-weight:500; letter-spacing:-.01em; }
+.np-entry .lc .sm { font-family:var(--mono); font-size:8px; letter-spacing:.08em; color:var(--ink-55); margin-top:2px; }
+.np-entry.daycol .lc .big { font-family:var(--display); font-size:17px; font-weight:600; }
+.np-entry .tags { display:flex; flex-wrap:wrap; align-items:center; gap:5px 6px; }
+.np-entry .cat { font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); font-style:normal; text-transform:uppercase; }
+.np-entry.went .cat { color:var(--accent); }
+.np-entry .ttl { display:block; font-weight:700; font-size:14px; line-height:1.35; letter-spacing:-.01em; margin:3px 0; }
+.np-entry .place { display:block; font-size:11px; color:var(--ink-60); }
+.np-entry.past { opacity:.5; }
+.np-mini {
+  font-family:var(--mono); font-size:8px; letter-spacing:.04em; font-style:normal;
+  border:1px solid var(--ink-28); padding:1px 5px; color:var(--ink-60);
+}
+.np-mini.unv, .np-mini.hist { color:var(--accent); border-color:rgba(143,46,34,.4); }
+.np-mini.went { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 
-/* ── 섹션 ── */
-.section-head {
-  display: flex; align-items: baseline; gap: 10px;
-  padding: 18px 20px 12px;
-}
-.section-head h2 { font-size: 18px; }
-.section-head .meta { margin-left: auto; font-size: 12px; color: var(--ink-faint); }
+.np-empty { border-top:1px solid var(--ink-14); padding:24px 0; text-align:center; }
+.np-empty .h { font-family:var(--display); font-style:italic; font-size:15px; color:var(--ink-55); }
+.np-empty .s { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-40); margin-top:5px; }
 
-/* ── 피드 ── */
-.feed { padding: 0 8px 8px; }
-.feed-item {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 14px 12px;
-  border-radius: var(--r-ui);
-  text-decoration: none;
+.np-past {
+  display:block; width:100%; padding:11px; margin-top:2px;
+  background:none; border:0; border-top:1px solid var(--ink-28);
+  font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--ink-55); cursor:pointer;
 }
-.feed-item + .feed-item { border-top: 1px solid var(--hairline); border-radius: 0; }
-.feed-item:hover { background: var(--canvas); border-radius: var(--r-ui); }
+.np-past:hover { color:var(--ink); }
 
-/* 유형 태그 — 상태색은 항상 글자를 동반한다 */
-.type-tag {
-  flex: none; min-width: 62px; text-align: center;
-  padding: 3px 8px; border-radius: 999px;
-  font-size: 11px; font-weight: 700; line-height: 1.5;
-  border: 1px solid;
+/* ═══ 예매 버튼 ═══ */
+.np-book {
+  margin-top:16px; border-top:1px solid var(--ink-28); border-bottom:1px solid var(--ink-28);
+  padding:12px 0; display:grid; grid-template-columns:1fr 1fr; gap:10px;
 }
-.type-tag.t-open   { color: var(--ink-soft);   border-color: var(--hairline);    background: var(--canvas); }
-.type-tag.t-change { color: var(--danger);     border-color: var(--danger-bg);   background: var(--danger-bg); }
-.type-tag.t-report { color: var(--success);    border-color: #DCEBE2;            background: #ECF5F0; }
-.type-tag.t-fix    { color: var(--danger);     border-color: var(--danger-bg);   background: var(--danger-bg); }
+.np-book-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:12px 8px; border:1px solid var(--ink); background:var(--paper);
+  text-decoration:none; color:var(--ink);
+}
+.np-book-btn:hover { background:var(--ink); color:var(--paper); }
+.np-book-btn .lbl { font-family:var(--mono); font-size:8px; letter-spacing:.2em; color:var(--ink-55); text-transform:uppercase; }
+.np-book-btn:hover .lbl { color:var(--paper); }
+.np-book-btn b { font-family:var(--display); font-weight:700; font-size:16px; }
 
-.feed-body { flex: 1; min-width: 0; }
-.feed-title { font-size: 14px; font-weight: 500; color: var(--ink); }
-.feed-item:hover .feed-title { text-decoration: underline; text-underline-offset: 3px; }
-.feed-meta {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-  margin-top: 5px; font-size: 12px; color: var(--ink-faint);
-}
-.feed-meta time { font-size: 11px; }
+.np-listhead { display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:4px 0 2px; }
+.np-listhead h3 { font-family:var(--display); font-weight:700; font-size:15px; }
+.np-listhead .cnt { font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--ink-55); }
 
-/* 작품 표식 — 색 + 이름을 항상 같이 (DESIGN2.md) */
-.work-tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  color: var(--ink-soft); font-weight: 500;
+/* ═══ 회차 상세 (하단 시트) ═══ */
+.np-sheet-wrap { position:fixed; inset:0; z-index:40; }
+.np-sheet-back { position:absolute; inset:0; background:rgba(15,14,10,.55); }
+.np-sheet {
+  position:absolute; left:0; right:0; bottom:0; max-width:600px; margin:0 auto;
+  background:var(--paper); border-top:3px double var(--ink);
+  padding:14px 20px 22px; max-height:84vh; overflow-y:auto;
 }
-.work-tag::before {
-  content: ""; width: 3px; height: 12px; border-radius: 2px;
-  background: var(--wc); flex: none;
+.np-sheet-head { display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; color:var(--ink-55); text-transform:uppercase; }
+.np-x { border:0; background:none; font-family:var(--mono); font-size:13px; cursor:pointer; color:var(--ink); }
+.np-sheet-ttl { font-family:var(--display); font-weight:900; font-size:22px; line-height:1.16; letter-spacing:-.01em; margin:7px 0 2px; }
+.np-sheet-sub { font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-60); }
+.np-hr { height:1px; background:var(--ink-28); margin:10px 0; }
+.np-cast { width:100%; border-collapse:collapse; font-size:13px; }
+.np-cast th, .np-cast td { text-align:left; padding:7px 0; border-bottom:1px solid var(--ink-14); }
+.np-cast th { width:82px; font-weight:400; color:var(--ink-55); font-family:var(--mono); font-size:10px; letter-spacing:.08em; }
+.np-cast .you { font-weight:700; }
+.np-cast .you::after {
+  content:"강홍석"; margin-left:6px;
+  font-family:var(--mono); font-size:8px; font-weight:500; letter-spacing:.04em;
+  color:var(--paper); background:var(--ink); padding:1px 5px;
 }
-.badge-unverified {
-  color: var(--unverified); background: var(--unverified-bg);
-  border: 1px solid #EFDFBC; border-radius: 999px;
-  padding: 1px 8px; font-size: 11px; font-weight: 700;
+.np-badges { display:flex; flex-wrap:wrap; gap:5px; margin-top:12px; }
+.np-badge { font-family:var(--mono); font-size:8.5px; letter-spacing:.05em; border:1px solid var(--ink-28); padding:2px 6px; color:var(--ink-60); }
+.np-badge.unv { color:var(--accent); border-color:rgba(143,46,34,.4); }
+.np-noev { margin-top:12px; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-40); }
+.np-hist { margin-top:12px; padding:10px 12px; background:var(--paper-3); border-left:3px solid var(--accent); font-size:11.5px; line-height:1.5; }
+.np-hist b { display:block; margin-bottom:3px; color:var(--accent); font-family:var(--mono); font-size:9px; letter-spacing:.08em; }
+.np-hist span { display:block; margin-top:3px; font-family:var(--mono); font-size:8px; color:var(--ink-55); }
+.np-check { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
+.np-check .hint { font-family:var(--mono); font-size:8px; letter-spacing:.04em; color:var(--ink-45); }
+.np-btn {
+  border:1px solid var(--ink); background:none; color:var(--ink); cursor:pointer;
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; padding:10px 14px;
 }
+.np-btn.solid { background:var(--ink); color:var(--paper); }
+.np-btn.ghost { border-color:var(--ink-40); }
+.np-btn:disabled { opacity:.4; cursor:not-allowed; }
+.np-sheet-foot { margin-top:12px; text-align:center; font-family:var(--mono); font-size:8px; letter-spacing:.06em; color:var(--ink-40); }
 
-/* ═══ 푸터 ═══ */
-.footer {
-  border-top: 1px solid var(--hairline);
-  background: var(--surface);
-  padding: 24px 0 40px;
-}
-.footer-inner { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
-.footer p { font-size: 12px; color: var(--ink-faint); flex: 1; min-width: 260px; line-height: 1.7; }
-.footer a { font-size: 12px; color: var(--ink-soft); }
+/* ═══ 좌석 선택 모달 ═══ */
+.modal-backdrop { position:fixed; inset:0; z-index:50; background:rgba(15,14,10,.55); display:flex; align-items:center; justify-content:center; padding:20px; }
+.modal { background:var(--paper); border:1px solid var(--ink); max-width:400px; width:100%; max-height:86vh; overflow:auto; padding:20px; }
+.modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.modal-head h3 { font-family:var(--display); font-weight:700; font-size:16px; }
+.modal-head .sub { font-family:var(--mono); font-size:8.5px; letter-spacing:.04em; color:var(--ink-55); margin-top:3px; }
+.modal-close { border:0; background:none; cursor:pointer; color:var(--ink); font-family:var(--mono); font-size:14px; }
+.modal .field-lbl { font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; color:var(--ink-55); margin:14px 0 8px; line-height:1.6; }
+.seatgrid { display:flex; flex-direction:column; gap:4px; overflow-x:auto; }
+.seatgrid .row { display:flex; gap:4px; align-items:center; }
+.seatgrid .rowlabel { width:16px; font-family:var(--mono); font-size:9px; color:var(--ink-40); text-align:center; }
+.seat { width:26px; height:26px; border:1px solid var(--ink-28); background:var(--paper-3); cursor:pointer; padding:0; }
+.seat:hover { border-color:var(--ink); }
+.seat.mine { background:var(--ink); border-color:var(--ink); }
 
-/* ═══ 등장 애니메이션 대기 상태 ═══
-   GSAP이 뜨고 모션 축소도 아닐 때만 <html>에 .pre-anim이 붙는다.
-   본문 스크립트가 이 클래스를 걷어내며 타임라인을 시작한다.
-   스크립트가 못 돌아도 head의 failsafe가 1.2초 뒤 무조건 걷어내므로,
-   이 클래스 때문에 화면이 비어 있는 채로 남는 경우는 없다. */
-.pre-anim .topbar-inner > *,
-.pre-anim .tabs-inner > *,
-.pre-anim .col-main > .card,
-.pre-anim .feed-item,
-.pre-anim .footer-inner > * { opacity: 0; }
+/* ═══ 등장 애니메이션 대기 ═══ */
+.pre-anim .np-mast > *, .pre-anim .np-nav > *, .pre-anim .np-main > * { opacity:0; }
 
-/* ═══ 반응형 — PC 우선 (PRD 5장) ═══ */
-@media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-  .shell { padding: 0 16px; }
-  .topbar-inner { flex-wrap: wrap; gap: 12px; }
-  .wordmark { font-size: 20px; }
-  .search { order: 3; max-width: none; flex-basis: 100%; }
-  .topbar-actions { margin-left: auto; }
-  .tabs-inner { overflow-x: auto; scrollbar-width: none; }
-  .tabs-inner::-webkit-scrollbar { display: none; }
-  .tab { padding: 12px; white-space: nowrap; }
-  .intro { padding: 20px; }
-  .intro h1 { font-size: 24px; }
-  .feed-item { padding: 12px 8px; }
-  .btn { height: 44px; }  /* 터치 타깃 */
+/* ═══ 반응형 ═══ */
+@media (max-width:600px) {
+  .np-shell { padding:0 14px; }
+  .np-wordmark { font-size:23px; }
+  .np-cell { min-height:68px; }
+  .np-cell-photo { width:30px; height:30px; }
+  .np-entry { grid-template-columns:48px 1fr; gap:9px; }
 }
 </style>
 
-<!-- easeReverse는 GSAP 3.15.0부터. 본문보다 먼저 받아 두어야 등장 애니메이션이 깜빡이지 않는다. -->
+<!-- 등장 애니메이션이 깜빡이지 않도록 본문보다 먼저 GSAP을 받아 둔다. -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
 <script>
-/* 등장 애니메이션을 쓸 조건이면 본문을 미리 감춘다. failsafe 포함 — 아래 주석은 CSS의 .pre-anim 참고 */
 (function () {
-  var reduced = window.matchMedia
-             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (typeof gsap === 'undefined' || reduced) return;
-  var html = document.documentElement;
-  html.classList.add('pre-anim');
-  setTimeout(function () { html.classList.remove('pre-anim'); }, 1200);
+  document.documentElement.classList.add('pre-anim');
+  setTimeout(function () { document.documentElement.classList.remove('pre-anim'); }, 1200);
 })();
 </script>
 </head>
 <body>
 
-<!-- ══ 상단바 ══ -->
-<header class="topbar">
-  <div class="shell topbar-inner">
-    <a class="wordmark" href="index.html">애배력</a>
+<div class="np-shell">
+  <header class="np-mast" id="mast">
+    <button class="np-login" id="loginBtn">로그인</button>
+    <h1 class="np-wordmark">Neue Fan Zeitung</h1>
+    <div class="np-byline"><span id="todayStamp"></span><span class="by-name">강홍석</span><span>NO. 1</span></div>
+  </header>
 
-    <!-- 검색어를 입력하면 검색 페이지로 이동한다 (PRD 5장)
-         접힌 상태 = 돋보기 원. 누르면 입력란으로 늘어난다. -->
-    <form class="search" role="search" action="search.html" method="get">
-      <button type="button" class="search-toggle" id="searchToggle"
-              aria-expanded="false" aria-controls="q" aria-label="검색창 열기">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="7" cy="7" r="4.75" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="10.6" y1="10.6" x2="14" y2="14"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <label class="visually-hidden" for="q" hidden>배우 또는 작품 검색</label>
-      <input id="q" name="q" type="search" autocomplete="off" tabindex="-1"
-             placeholder="배우 이름 또는 작품명 (붉편, 달항…)">
-      <button type="submit" class="search-go" tabindex="-1">검색</button>
-    </form>
+  <nav class="np-nav" aria-label="주 메뉴">
+    <span aria-current="page">스케줄</span>
+    <a href="settlement.html">정산판</a>
+  </nav>
 
-    <div class="topbar-actions">
-      <button class="btn btn-ghost btn-sm">제보하기</button>
-      <button class="btn btn-primary btn-sm">로그인</button>
-    </div>
-  </div>
-</header>
+  <main class="np-main" id="wrap"></main>
 
-<!-- ══ 탭 ══ -->
-<nav class="tabs" aria-label="주 메뉴">
-  <div class="shell tabs-inner">
-    <a class="tab" href="index.html" aria-current="page">홈</a>
-    <a class="tab" href="search.html">검색하기</a>
-    <!-- 데모용 진입로 — 실제로는 로그인 유저의 "내 배우" 목록에서 채워질 자리 -->
-    <a class="tab" href="actor.html?a=a1">배우 페이지 · 유하람</a>
-  </div>
-</nav>
-
-<div class="shell layout">
-
-  <!-- ─────────── 본문 ─────────── -->
-  <main class="col-main">
-
-    <!-- 인트로 -->
-    <section class="card intro">
-      <h1>내 배우의 모든 회차와 이벤트를,<br>배우 전용 페이지 하나에서</h1>
-      <p>
-        커튼콜 촬영·포토타임·막공 같은 <b>회차별 이벤트 정보</b>는 어느 예매처에도 정리되어 있지 않습니다.
-        애배력은 그 자리를 채웁니다.
-      </p>
-      <div class="intro-actions">
-        <a class="btn btn-primary" href="search.html">배우 검색하러 가기</a>
-      </div>
-    </section>
-
-    <!-- 제보·공지 -->
-    <section class="card">
-      <div class="section-head">
-        <h2>제보 · 공지</h2>
-        <span class="meta"><time>2026.08.12</time> 기준</span>
-      </div>
-      <div class="feed">
-
-        <a class="feed-item" href="#">
-          <span class="type-tag t-open">캐스팅표</span>
-          <div class="feed-body">
-            <div class="feed-title">「붉은 편지」 9월 캐스팅표 공개 · 30회차 반영 완료</div>
-            <div class="feed-meta">
-              <span class="work-tag" style="--wc:var(--cat-1)">붉은 편지</span>
-              <time>08.12 09:20</time>
-            </div>
-          </div>
-        </a>
-
-        <a class="feed-item" href="#">
-          <span class="type-tag t-change">변경</span>
-          <div class="feed-body">
-            <div class="feed-title">8/12 19:30 윤서 역 유하람 → 백지운 대체 출연</div>
-            <div class="feed-meta">
-              <span class="work-tag" style="--wc:var(--cat-1)">붉은 편지</span>
-              <time>08.12 08:05</time>
-              <span>· 변경 이력 보관됨</span>
-            </div>
-          </div>
-        </a>
-
-        <a class="feed-item" href="#">
-          <span class="type-tag t-report">제보</span>
-          <div class="feed-body">
-            <div class="feed-title">8/16 15:00 커튼콜 촬영 허용 — 이벤트 정보 반영</div>
-            <div class="feed-meta">
-              <span class="work-tag" style="--wc:var(--cat-3)">달의 항구</span>
-              <time>08.11 22:47</time>
-              <span class="badge-unverified">미검증</span>
-            </div>
-          </div>
-        </a>
-
-        <a class="feed-item" href="#">
-          <span class="type-tag t-report">제보</span>
-          <div class="feed-body">
-            <div class="feed-title">8/23 18:00 막공 · 종연 커튼콜 예정 — 이벤트 정보 반영</div>
-            <div class="feed-meta">
-              <span class="work-tag" style="--wc:var(--cat-5)">검은 숲</span>
-              <time>08.11 19:10</time>
-              <span>· 검수 완료</span>
-            </div>
-          </div>
-        </a>
-
-        <a class="feed-item" href="#">
-          <span class="type-tag t-fix">정정</span>
-          <div class="feed-body">
-            <div class="feed-title">8/09 14:00 해강 역 표기 오류 정정 (강태윤 → 서도현)</div>
-            <div class="feed-meta">
-              <span class="work-tag" style="--wc:var(--cat-1)">붉은 편지</span>
-              <time>08.10 11:32</time>
-              <span>· 관리자 승인 후 반영</span>
-            </div>
-          </div>
-        </a>
-
-        <a class="feed-item" href="#">
-          <span class="type-tag t-open">캐스팅표</span>
-          <div class="feed-body">
-            <div class="feed-title">「그믐」 커버리지 추가 — 회차별 캐스팅 정식 지원 시작</div>
-            <div class="feed-meta">
-              <span class="work-tag" style="--wc:var(--cat-7)">그믐</span>
-              <time>08.09 16:00</time>
-            </div>
-          </div>
-        </a>
-
-      </div>
-    </section>
-
-  </main>
+  <footer class="np-foot">
+    <p>© <span class="mono">2026</span> 애배력 — 회차별 캐스팅과 이벤트 정보는 제작사 공식 공지를 1차 출처로 합니다.
+       현재 표시되는 일정·캐스팅은 준비 중인 예시 데이터입니다.</p>
+  </footer>
 </div>
 
-<!-- ══ 푸터 ══ -->
-<footer class="footer">
-  <div class="shell footer-inner">
-    <p>
-      © <span class="num">2026</span> 애배력 — 회차별 캐스팅과 이벤트 정보는 제작사 공식 공지를 1차 출처로 하며,
-      공연 일정 기초 데이터는 KOPIS 오픈 API를 따릅니다.
-    </p>
-    <a href="#">이용 안내</a>
-    <a href="#">제보 규칙</a>
-    <a href="#">개인정보</a>
-    <a href="#">문의</a>
-  </div>
-</footer>
+<!-- 회차 상세 — #wrap 재렌더와 무관하게 열림 상태를 유지하려 별도 정적 노드로 둔다 -->
+<div class="np-sheet-wrap" id="sheet" hidden>
+  <div class="np-sheet-back" id="sheetBack"></div>
+  <div class="np-sheet" role="dialog" aria-modal="true" aria-label="회차 상세" id="sheetBody"></div>
+</div>
 
+<!-- 좌석 선택 모달 -->
+<div class="modal-backdrop" id="seatModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="seatModalTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="seatModalTitle">좌석 선택</h3>
+        <p class="sub" id="seatModalSub"></p>
+      </div>
+      <button type="button" class="modal-close" id="seatModalClose" aria-label="닫기">✕</button>
+    </div>
+    <p class="field-lbl">앉았던 좌석을 골라주세요 — 대표 좌석 그리드입니다. 실제 배치도는 작품마다 별도 준비됩니다.</p>
+    <div id="seatModalGrid"></div>
+  </div>
+</div>
+
+<!-- 공용 데이터 · 헬퍼 (정산판 탭과 공유) -->
+<script src="data.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════
-   모션 — GSAP 3.15 easeReverse
-   ───────────────────────────────────────────────────────────
-   reverse()는 값뿐 아니라 이징까지 되감는다. out 이징으로 연 것을
-   그대로 되감으면 in 이징이 되어, 열 때와 닫을 때의 성격이 뒤집힌다.
-   easeReverse는 되감을 때 쓸 이징을 따로 지정하고, 재생 헤드가
-   방향을 바꾼 지점부터 남은 거리에 대해 다시 계산한다.
-
-   이 페이지에서 방향이 실제로 바뀌는 곳은 두 군데다 —
-   검색창 focus/blur, 피드 항목 hover/focus. 둘 다 사용자가 중간에
-   마음을 바꾸는 것이 정상인 자리라 easeReverse가 일할 값이 있다.
-
-   ※ 이징 토큰은 search.html과 같은 값이다. 두 파일이 각자 자족적인
-     구조라 값을 함께 두었다 — 셋 이상으로 늘어나면 motion.js로 뺀다.
+   모션 — GSAP 3.15 (settlement.html과 같은 값)
    ═══════════════════════════════════════════════════════════ */
-/* matchMedia가 없는 환경에서도 터지지 않게 한 겹 감싼다.
-   질의에 답할 수 없으면 false — 즉 모션을 붙이지 않는 쪽으로 기운다. */
+const $$ = s => document.querySelectorAll(s);
 const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
-
-/* GSAP이 못 뜨거나 모션 축소 설정이면 MOTION은 false가 되고,
-   아래 함수들은 전부 조용히 아무것도 하지 않는다. */
 const MOTION = typeof gsap !== 'undefined' && !mq('(prefers-reduced-motion: reduce)');
 
-/* 조용히 꺼지면 "왜 아무 일도 안 일어나지"를 알 길이 없다. 이유를 남긴다. */
 if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
   ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
   : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
 
-/* 닫는 이징도 out 계열이다 — 공식 데모와 같은 방식.
-   in 계열(power3.in 등)을 쓰면 되감기 초반이 3차 곡선이라 거의 움직이지 않아,
-   "닫아도 아무 일이 없다가 끝에 훅 사라지는" 느낌이 된다. */
-const EASE = {
-  out:   'expo.out',        // 나타남 — 빠르게 나와 부드럽게 안착
-  in:    'power2.out',      // 사라짐 — 곧바로 반응해서 부드럽게 마무리
-  pop:   'back.out(1.5)',   // 항목 — 살짝 넘어갔다 제자리
-  popIn: 'power3.out'       // 항목 되감기 — 튕기지 않고 곧장 빠져나감
-};
+const EASE = { out:'expo.out', in:'power2.out', pop:'back.out(1.5)' };
+if (MOTION) gsap.defaults({ ease:EASE.out, duration:.36 });
 
-const TL_DEFAULTS = { ease:EASE.out, easeReverse:EASE.in };
-const cssVar = n => getComputedStyle(document.documentElement)
-                      .getPropertyValue(n).trim();
+const MONTH_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD = ['일','월','화','수','목','금','토'];
+const dowShort = p => WD[new Date(p.y, p.m - 1, p.d).getDay()];
 
-if (MOTION) gsap.defaults({ ease:EASE.out, easeReverse:EASE.in, duration:.36 });
+/* ═══════════════════════════════════════════════════════════
+   상태
+   ═══════════════════════════════════════════════════════════ */
+let view = 'calendar';                 // 'calendar' | 'list' — 달력형이 이 탭의 중심
+let ym = { y:TODAY.y, m:TODAY.m };      // 달력형에서 보고 있는 달
+let selDay = 1;                         // 달력형에서 선택된 날 (지면 섹션 대상)
+let showPast = false;                   // 목록형에서 지난 회차 펼침 여부
+let sheetKey = null;                    // 열린 상세 시트의 perfKey
+let loggedIn = false;
+let skipAnim = false;
+let gridFrom = 'start';
 
-/* ── 1. 등장 오케스트레이션 (한 방향) ──
-   위에서 아래로 — 상단바 → 탭 → 카드 → 피드 줄 → 푸터 */
+const inMonth = p => p.y === ym.y && p.m === ym.m;
+const monthPerfs = () => hongPerfs().filter(inMonth).sort(cmpPerf);
+
+/* 달력 셀 안에 넣는 배우 사진 (강홍석 · 엘리자벳 프로모션).
+   TODO: 관리자 업로드 사진으로 교체 (PRD_v3 3.1 / 3.2) — 그때 이 경로만 바꾸면 된다. */
+const PHOTO = 'ref/news.jpg';
+
+function defaultSelDay () {
+  const days = [...new Set(monthPerfs().map(p => p.d))].sort((a, b) => a - b);
+  if (!days.length) return 1;
+  if (ym.y === TODAY.y && ym.m === TODAY.m) return days.find(d => d >= TODAY.d) || days[days.length - 1];
+  return days[0];
+}
+
+/* ═══════════════════════════════════════════════════════════
+   렌더
+   ═══════════════════════════════════════════════════════════ */
+function render () {
+  document.body.classList.toggle('logged-in', loggedIn);
+  $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
+  $('#wrap').innerHTML = viewTabsHTML() + (view === 'calendar' ? calendarHTML() : listHTML());
+  bind();
+  animateBody();
+}
+
+function viewTabsHTML () {
+  return `<div class="np-vt" role="tablist" aria-label="보기 전환">
+    <button type="button" role="tab" data-view="calendar" aria-pressed="${view === 'calendar'}">달력</button>
+    <button type="button" role="tab" data-view="list" aria-pressed="${view === 'list'}">목록</button>
+  </div>`;
+}
+
+/* ── 다가오는 회차 (지면 헤드라인) ── */
+function leadHTML () {
+  const up = hongPerfs().filter(p => !isPast(p)).sort(cmpPerf);
+  const p = up[0] || hongPerfs().sort(cmpPerf).slice(-1)[0];
+  if (!p) return '';
+  const diff = Math.round((new Date(p.y, p.m - 1, p.d) - new Date(TODAY.y, TODAY.m - 1, TODAY.d)) / 86400000);
+  const dday = diff === 0 ? 'D-DAY' : diff > 0 ? 'D-' + diff : 'D+' + Math.abs(diff);
+  const role = (hongRole(p) || {}).name || '';
+
+  let deck;
+  if ((p.events || []).length) deck = `${p.events.map(e => e.label).join(' · ')} 등 회차 이벤트가 예정돼 있습니다.`;
+  else if (p.history) deck = `직전 캐스팅 변경이 반영된 회차입니다.`;
+  else deck = `${ACTORS[HONG].name} 출연 예정 회차입니다. 새 캐스팅·이벤트가 공개되면 이 자리에 먼저 실립니다.`;
+
+  return `<section class="np-lead">
+    <div class="np-lead-kick">다가오는 회차</div>
+    <h2 class="np-lead-ttl">뮤지컬 &lsquo;${WORK.title}&rsquo;${role ? ` ${role} 역` : ''}</h2>
+    <p class="np-lead-deck">${deck}</p>
+    <div class="np-lead-meta">
+      <span class="dday">${dday}</span>
+      <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${WORK.venue ? ' · ' + WORK.venue : ''}</span>
+    </div>
+  </section>`;
+}
+
+/* ── 지면 기사 한 줄 (달력 지면 / 목록 공용) ── */
+function entryHTML (p, mode, extra) {
+  const key = perfKey(p);
+  const role = (hongRole(p) || {}).name || '';
+  const went = loggedIn && !!recordFor(p);
+  const daycol = mode === 'day';
+
+  const badges = [
+    ...(p.events || []).map(e => `<em class="np-mini${e.verified ? '' : ' unv'}">${e.label}${e.verified ? '' : ' · 미검증'}</em>`),
+    p.history ? `<em class="np-mini hist">캐스팅 변경</em>` : '',
+    went ? `<em class="np-mini went">✓ 봤어요</em>` : ''
+  ].filter(Boolean).join('');
+
+  const lc = daycol
+    ? `<div class="lc"><div class="big">${p.d}</div><div class="sm">${p.m}월 ${dowShort(p)}</div></div>`
+    : `<div class="lc"><div class="big">${p.t}</div><div class="sm">${dowShort(p)}요일</div></div>`;
+
+  return `<button type="button" class="np-entry${daycol ? ' daycol' : ''}${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}">
+    ${lc}
+    <div>
+      <div class="tags"><em class="cat">뮤지컬 회차</em>${badges}</div>
+      <span class="ttl">${WORK.title}${role ? ` — ${role} 역` : ''}</span>
+      <span class="place">${WORK.venue || '극장 미정 · 공식 공지 예정'}</span>
+    </div>
+  </button>`;
+}
+
+/* ═══ 달력형 ═══ */
+function calendarHTML () {
+  const list = monthPerfs();
+  const byDay = {};
+  list.forEach(p => (byDay[p.d] = byDay[p.d] || []).push(p));
+
+  const first = firstDow(ym.y, ym.m);
+  const dim = daysIn(ym.y, ym.m);
+  const totalCells = Math.ceil((first + dim) / 7) * 7;
+
+  let cells = '';
+  for (let i = 0; i < totalCells; i++) {
+    const day = i - first + 1;
+    if (day < 1 || day > dim) { cells += `<div class="np-cell pad"></div>`; continue; }
+    const dItems = (byDay[day] || []).sort((a, b) => a.t.localeCompare(b.t));
+    const isSel = day === selDay;
+    const isToday = ym.y === TODAY.y && ym.m === TODAY.m && day === TODAY.d;
+    const isSun = (i % 7) === 0;
+    const cls = ['np-cell', isSel ? 'sel' : '', isToday ? 'today' : '', isSun ? 'sun' : ''].join(' ').trim();
+    const inner = dItems.length
+      ? `<img class="np-cell-photo" src="${PHOTO}" alt="${ACTORS[HONG].name}" loading="lazy">
+         <span class="np-cell-t">${dItems.map(p => p.t).join('·')}</span>`
+      : '';
+    cells += `<div class="${cls}" data-day="${day}">
+      <span class="n">${day}</span>
+      ${inner}
+    </div>`;
+  }
+
+  const dow = WD.map((w, i) => `<div class="${i === 0 ? 'sun' : ''}">${w}</div>`).join('');
+
+  const dayList = (byDay[selDay] || []).sort((a, b) => a.t.localeCompare(b.t));
+  const entries = dayList.length
+    ? dayList.map(p => entryHTML(p, 'time')).join('')
+    : `<div class="np-empty"><div class="h">No entries filed.</div><div class="s">이 날은 ${ACTORS[HONG].name} 공연이 없습니다</div></div>`;
+
+  return `
+  ${leadHTML()}
+  <section>
+    <div class="np-month">
+      <button type="button" class="js-month" data-step="-1" aria-label="이전 달" ${idx(ym) > idx(RANGE.min) ? '' : 'disabled'}>‹</button>
+      <div class="m-mid">
+        <div class="m-ttl">${MONTH_EN[ym.m - 1]} ${ym.y}</div>
+        <div class="m-sub">${ym.y}년 ${ym.m}월 · ${ACTORS[HONG].name} ${list.length}회차</div>
+      </div>
+      <button type="button" class="js-month" data-step="1" aria-label="다음 달" ${idx(ym) < idx(RANGE.max) ? '' : 'disabled'}>›</button>
+    </div>
+    <div class="np-cal">
+      <div class="np-dow">${dow}</div>
+      <div class="np-grid">${cells}</div>
+    </div>
+  </section>
+
+  <section class="np-sec">
+    <div class="np-sec-head">
+      <h3>${ym.m}월 ${selDay}일의 지면</h3>
+      <span class="cnt">${dayList.length} ENTRIES</span>
+    </div>
+    <div class="np-sec-body">${entries}</div>
+  </section>
+
+  <section class="np-book">
+    <a class="np-book-btn" href="https://ticket.melon.com/performance/index.htm?prodId=213480" target="_blank" rel="noopener">
+      <span class="lbl">엘리자벳 예매</span><b>멜론티켓</b>
+    </a>
+    <a class="np-book-btn" href="https://tickets.interpark.com/goods/26009314" target="_blank" rel="noopener">
+      <span class="lbl">엘리자벳 예매</span><b>NOL 티켓</b>
+    </a>
+  </section>`;
+}
+
+/* ═══ 목록형 ═══ */
+function listHTML () {
+  const all = hongPerfs().sort(cmpPerf);
+  const upcoming = all.filter(p => !isPast(p));
+  const past = all.filter(isPast);
+
+  const rows = upcoming.length
+    ? upcoming.map(p => entryHTML(p, 'day')).join('')
+    : `<div class="np-empty"><div class="h">No upcoming entries.</div><div class="s">새 캐스팅표가 공개되면 반영됩니다</div></div>`;
+
+  const pastBlock = past.length
+    ? `<button type="button" class="np-past" id="pastToggle">${showPast ? '▲ 지난 회차 접기' : `▼ 지난 회차 ${past.length}건`}</button>` +
+      (showPast ? past.map(p => entryHTML(p, 'day', 'past')).join('') : '')
+    : '';
+
+  return `<section>
+    <div class="np-listhead">
+      <h3>${ACTORS[HONG].name} 출연 회차</h3>
+      <span class="cnt">예정 ${upcoming.length} · 지난 ${past.length}</span>
+    </div>
+    <div class="np-sec-body">${rows}${pastBlock}</div>
+  </section>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   회차 상세 (하단 시트)
+   ═══════════════════════════════════════════════════════════ */
+function sheetHTML (p) {
+  const diff = Math.round((new Date(p.y, p.m - 1, p.d) - new Date(TODAY.y, TODAY.m - 1, TODAY.d)) / 86400000);
+  const dday = diff === 0 ? 'D-DAY' : diff > 0 ? 'D-' + diff : 'D+' + Math.abs(diff);
+
+  const rows = ROLES.map(r => {
+    const a = p.cast[r.id];
+    if (!a) return '';
+    return `<tr><th>${r.name}</th><td class="${a === HONG ? 'you' : ''}">${actorName(a)}</td></tr>`;
+  }).join('');
+
+  const events = p.events || [];
+  const evHTML = events.length
+    ? `<div class="np-badges">${events.map(e => `<span class="np-badge${e.verified ? '' : ' unv'}">${e.label}${e.verified ? '' : ' · 미검증'}</span>`).join('')}</div>`
+    : `<p class="np-noev">이벤트 정보 없음 · 제보는 추후 지원</p>`;
+
+  const hist = p.history
+    ? `<div class="np-hist"><b>캐스팅 변경</b>${p.history.role} 역 ${p.history.from} → ${p.history.to}
+        <span>${p.history.when} 반영 · 예정 캐스팅은 이력에 보관됩니다</span></div>`
+    : '';
+
+  const rec = recordFor(p);
+  const check = loggedIn
+    ? `<div class="np-check">
+        <button type="button" class="np-btn ${rec ? 'solid' : ''} js-check" aria-pressed="${!!rec}">${rec ? '✓ 이 회차 봤어요' : '이 회차 봤어요'}</button>
+        ${rec
+          ? `<button type="button" class="np-btn ghost js-seat">${rec.seat ? `좌석 ${rec.seat} · 변경` : '좌석 선택'}</button>`
+          : `<span class="hint">눌러서 관극 기록을 남기세요</span>`}
+      </div>`
+    : `<div class="np-check">
+        <button type="button" class="np-btn ghost" disabled>이 회차 봤어요</button>
+        <span class="hint">로그인하면 관극 기록과 좌석을 남길 수 있습니다</span>
+      </div>`;
+
+  return `
+    <div class="np-sheet-head">
+      <span>회차 · ${p.m}월 ${p.d}일 ${dowShort(p)}요일</span>
+      <button type="button" class="np-x js-close" aria-label="닫기">✕</button>
+    </div>
+    <h3 class="np-sheet-ttl">${WORK.title}</h3>
+    <p class="np-sheet-sub">${p.t} 시작${WORK.venue ? ' · ' + WORK.venue : ''}</p>
+    <div class="np-hr"></div>
+    <table class="np-cast"><tbody>${rows}</tbody></table>
+    ${evHTML}${hist}${check}
+    <p class="np-sheet-foot">${dday} · 티켓/방청 정보는 공식 채널을 확인하세요</p>`;
+}
+
+function openSheet (p) {
+  sheetKey = perfKey(p);
+  const wrap = $('#sheet');
+  const body = $('#sheetBody');
+  body.innerHTML = sheetHTML(p);
+  wrap.hidden = false;
+
+  body.querySelector('.js-close').addEventListener('click', closeSheet);
+  const c = body.querySelector('.js-check');
+  if (c) c.addEventListener('click', () => {
+    toggleCheck(p);
+    const np = perfFromKey(sheetKey);
+    if (np) openSheet(np);          // 시트 안 체크 상태 갱신
+  });
+  const s = body.querySelector('.js-seat');
+  if (s) s.addEventListener('click', () => openSeatModal(p));
+
+  document.removeEventListener('keydown', escCloseSheet);
+  document.addEventListener('keydown', escCloseSheet);
+
+  if (!MOTION) return;
+  gsap.fromTo('#sheetBack', { opacity:0 }, { opacity:1, duration:.18, ease:EASE.out });
+  gsap.fromTo('#sheetBody', { yPercent:100 }, { yPercent:0, duration:.34, ease:EASE.out });
+}
+
+function closeSheet () {
+  const wrap = $('#sheet');
+  if (wrap.hidden) return;
+  document.removeEventListener('keydown', escCloseSheet);
+  sheetKey = null;
+  const done = () => { wrap.hidden = true; };
+  if (!MOTION) return done();
+  gsap.to('#sheetBack', { opacity:0, duration:.16 });
+  gsap.to('#sheetBody', { yPercent:100, duration:.24, ease:EASE.in, onComplete:done });
+}
+function escCloseSheet (e) { if (e.key === 'Escape') closeSheet(); }
+
+/* ═══ 관극 기록 (my_records 목업) ═══ */
+function toggleCheck (p) {
+  const key = perfKey(p);
+  const existing = MY_RECORDS.find(r => r.key === key);
+  if (existing) MY_RECORDS = MY_RECORDS.filter(r => r.key !== key);
+  else MY_RECORDS.push({ key, seat:null });
+  skipAnim = true;
+  render();
+}
+
+function setSeatForPerf (p, seatId) {
+  const rec = MY_RECORDS.find(r => r.key === perfKey(p));
+  if (!rec) return;
+  rec.seat = seatId;
+  skipAnim = true;
+  render();
+}
+
+/* ═══ 좌석 선택 모달 ═══ */
+function seatModalGridHTML (perf) {
+  const mySeat = (recordFor(perf) || {}).seat;
+  const rows = SEAT_ROWS.map(r => {
+    let cells = '';
+    for (let c = 1; c <= SEAT_COLS; c++) {
+      const id = `${r}-${c}`;
+      cells += `<button type="button" class="seat${id === mySeat ? ' mine' : ''}" data-seat="${id}" aria-label="${r}열 ${c}번" title="${r}열 ${c}번"></button>`;
+    }
+    return `<div class="row"><span class="rowlabel">${r}</span>${cells}</div>`;
+  }).join('');
+  return `<div class="seatgrid">${rows}</div>`;
+}
+
+function openSeatModal (perf) {
+  const modal = $('#seatModal');
+  $('#seatModalSub').textContent = `${WORK.title} · ${perf.m}월 ${perf.d}일 ${perf.t}`;
+  $('#seatModalGrid').innerHTML = seatModalGridHTML(perf);
+  $('#seatModalGrid').querySelectorAll('.seat').forEach(seat => {
+    seat.addEventListener('click', () => {
+      setSeatForPerf(perf, seat.dataset.seat);
+      closeSeatModal();
+      if (sheetKey) { const np = perfFromKey(sheetKey); if (np) openSheet(np); }
+    });
+  });
+
+  modal.hidden = false;
+  document.removeEventListener('keydown', escCloseModal);
+  document.addEventListener('keydown', escCloseModal);
+  $('#seatModalClose').focus();
+
+  if (!MOTION) return;
+  gsap.fromTo(modal, { opacity:0 }, { opacity:1, duration:.2, ease:EASE.out });
+  gsap.fromTo(modal.querySelector('.modal'),
+    { opacity:0, y:12, scale:.97 }, { opacity:1, y:0, scale:1, duration:.3, ease:EASE.out });
+}
+
+function closeSeatModal () {
+  const modal = $('#seatModal');
+  if (modal.hidden) return;
+  document.removeEventListener('keydown', escCloseModal);
+  const done = () => { modal.hidden = true; };
+  if (!MOTION) return done();
+  gsap.to(modal.querySelector('.modal'), { opacity:0, y:8, scale:.98, duration:.18, ease:EASE.in });
+  gsap.to(modal, { opacity:0, duration:.18, ease:EASE.in, onComplete:done });
+}
+function escCloseModal (e) { if (e.key === 'Escape') closeSeatModal(); }
+
+/* ═══════════════════════════════════════════════════════════
+   이벤트 바인딩
+   ═══════════════════════════════════════════════════════════ */
+function moveMonth (step) {
+  const n = { y:ym.y, m:ym.m + step };
+  if (n.m > 12) { n.m = 1; n.y++; }
+  if (n.m < 1)  { n.m = 12; n.y--; }
+  if (idx(n) < idx(RANGE.min) || idx(n) > idx(RANGE.max)) return;
+  ym = n;
+  sheetKey = null;
+  closeSheet();
+  gridFrom = step < 0 ? 'end' : 'start';
+  selDay = defaultSelDay();
+  render();
+}
+
+function bind () {
+  $$('.np-vt button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.view === view) return;
+    view = b.dataset.view;
+    sheetKey = null;
+    closeSheet();
+    render();
+  }));
+
+  $$('.np-cell[data-day]').forEach(c => c.addEventListener('click', () => {
+    selDay = +c.dataset.day;
+    skipAnim = true;
+    render();
+  }));
+
+  $$('.np-entry').forEach(e => e.addEventListener('click', () => {
+    const p = perfFromKey(e.dataset.key);
+    if (p) openSheet(p);
+  }));
+
+  $$('.js-month').forEach(b => b.addEventListener('click', () => moveMonth(+b.dataset.step)));
+
+  const pastToggle = $('#pastToggle');
+  if (pastToggle) pastToggle.addEventListener('click', () => { showPast = !showPast; skipAnim = true; render(); });
+}
+
+/* ═══ 등장 · 재렌더 애니메이션 ═══ */
 function enter () {
   document.documentElement.classList.remove('pre-anim');
   if (!MOTION) return;
-  gsap.timeline({ defaults:TL_DEFAULTS })
-    .from('.topbar-inner > *', { opacity:0, y:-10, duration:.5,  stagger:.08 })
-    .from('.tab',              { opacity:0, y:-8,  duration:.4,  stagger:.05 }, .14)
-    .from('.col-main > .card', { opacity:0, y:20,  duration:.6,  stagger:.12 }, .22)
-    .from('.feed-item',        { opacity:0, y:12,  duration:.45, stagger:{ amount:.35 },
-                                 ease:EASE.pop, clearProps:'all' }, .5)
-    .from('.footer-inner > *', { opacity:0, y:8,   duration:.4,  stagger:.05 }, .66);
+  gsap.timeline()
+    .from('.np-mast > *', { opacity:0, y:-8, duration:.5, stagger:.07 })
+    .from('.np-nav > *',  { opacity:0, y:-6, duration:.4, stagger:.05 }, .12)
+    .from('.np-main > *', { opacity:0, y:16, duration:.5, stagger:.1, clearProps:'all' }, .2);
 }
 
-/* ── 2. 검색창 펼치기 / 접기 — ref/orchestrated-easereverse.html 의 알약 모션 ──
-   접힌 상태는 돋보기 하나가 든 원. 누르면 입력란으로 늘어난다.
-
-   이징 값은 원본 데모 그대로다. 핵심은 여는 이징과 닫는 이징이 둘 다
-   out 계열이라는 점 — back.out(2)로 튕겨 나오고 power2.out으로 곧장 접힌다.
-   easeReverse가 없으면 back.out이 거꾸로 재생되면서, 접히기 전에 원래 폭보다
-   더 넓어졌다가 사라진다. 그게 이 기능이 없애는 현상이다. */
-function searchExpand () {
-  const form   = document.querySelector('.search');
-  const toggle = document.querySelector('#searchToggle');
-  const input  = document.querySelector('#q');
-  const go     = document.querySelector('.search-go');
-  if (!form || !toggle || !input || !go) return;
-
-  const COLLAPSED = 42;
-  const expanded = () => mq('(max-width:640px)')
-    ? Math.max(window.innerWidth - 32, 200)   /* 모바일 — 제 줄을 다 쓴다 */
-    : 420;
-
-  let isOpen = false, tl = null;
-
-  function build () {
-    if (tl) tl.revert();
-    if (!MOTION) return null;
-    return gsap.timeline({ paused:true })
-      .to(form,   { width:expanded(), duration:.8,
-                    ease:'back.out(2)', easeReverse:'power2.out' }, 0)
-      .to(toggle, { color:cssVar('--ink'), duration:.5,
-                    ease:'back.out', easeReverse:'power4.out' }, .1)
-      .from(input,{ opacity:0, x:-10, duration:.45,
-                    ease:'power2.out', easeReverse:true }, .16)
-      .from(go,   { opacity:0, scale:.7, duration:.5, transformOrigin:'right center',
-                    ease:'back.out(2)', easeReverse:'power3.out' }, .22);
-  }
-  tl = build();
-
-  function setOpen (open) {
-    if (open === isOpen) return;
-    isOpen = open;
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? '검색창 닫기' : '검색창 열기');
-    input.tabIndex = go.tabIndex = open ? 0 : -1;
-    form.classList.toggle('is-open', open);   /* GSAP 없을 때는 이 클래스가 전부다 */
-    if (tl) { if (open) tl.timeScale(1).play(); else tl.reverse(); }
-    if (open) input.focus();
-  }
-
-  toggle.addEventListener('click', () => {
-    /* 열려 있고 입력한 게 있으면 검색을 실행한다 — 돋보기를 두 번 눌러 지워지면 곤란하다 */
-    if (isOpen && input.value.trim()) { form.submit(); return; }
-    setOpen(!isOpen);
+function animateBody () {
+  if (!MOTION || skipAnim) { skipAnim = false; return; }
+  const items = $('#wrap').querySelectorAll('.np-cell[data-day], .np-entry');
+  if (!items.length) return;
+  gsap.from(items, {
+    opacity:0, y:-4, duration:.28,
+    stagger:{ amount:Math.min(items.length * .012, .35), from:gridFrom }
   });
-
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { setOpen(false); toggle.focus(); }
-  });
-
-  /* 바깥을 누르면 접는다. 단 입력한 내용이 있으면 열어 둔다. */
-  document.addEventListener('click', e => {
-    if (!isOpen || form.contains(e.target) || input.value.trim()) return;
-    setOpen(false);
-  });
-
-  /* 확장 폭이 화면 폭에서 나오므로, 접혀 있을 때만 다시 만든다 */
-  let rt;
-  window.addEventListener('resize', () => {
-    clearTimeout(rt);
-    rt = setTimeout(() => { if (!isOpen) tl = build(); }, 150);
-  });
-
-  /* 접힌 폭은 CSS가 정하지만, 되돌아갈 값을 GSAP도 알아야 한다 */
-  if (!MOTION) form.style.width = COLLAPSED + 'px';
+  gridFrom = 'start';
 }
 
-/* ── 3. 피드 항목 hover / focus — 되감기 ②
-   hover는 가장 자주 중간에 뒤집히는 상호작용이다.
-   태그가 먼저, 본문이 뒤따라 나가고, 되감을 땐 그 역순으로 돌아온다. */
-function feedHover () {
-  if (!MOTION || !mq('(hover: hover)')) return;
+/* ═══ 로그인 데모 토글 — 실제 인증 없음 ═══ */
+$('#loginBtn').addEventListener('click', () => { loggedIn = !loggedIn; skipAnim = true; render(); });
+$('#seatModalClose').addEventListener('click', closeSeatModal);
+$('#seatModal').addEventListener('click', e => { if (e.target.id === 'seatModal') closeSeatModal(); });
+$('#sheetBack').addEventListener('click', closeSheet);
 
-  document.querySelectorAll('.feed-item').forEach(item => {
-    const tag  = item.querySelector('.type-tag');
-    const body = item.querySelector('.feed-body');
-    const tl = gsap.timeline({ paused:true, defaults:TL_DEFAULTS })
-      .to(tag,  { x:3, scale:1.04, duration:.3,
-                  ease:EASE.pop, easeReverse:EASE.popIn })
-      .to(body, { x:3, duration:.3 }, .04);
+/* ═══ 초기화 ═══ */
+$('#todayStamp').textContent =
+  `${TODAY.y}년 ${TODAY.m}월 ${TODAY.d}일 ${WD[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]}요일`;
 
-    const on  = () => tl.timeScale(1).play();
-    const off = () => tl.timeScale(1.35).reverse();
-    item.addEventListener('mouseenter', on);
-    item.addEventListener('mouseleave', off);
-    item.addEventListener('focus', on);    // 키보드도 같은 반응
-    item.addEventListener('blur',  off);
-  });
-}
-
+selDay = defaultSelDay();
+skipAnim = true;
+render();
 enter();
-searchExpand();
-feedHover();
 </script>
 
 </body>

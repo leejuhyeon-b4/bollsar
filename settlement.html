@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>정산판 — 애배력</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   애배력 — 정산판 탭 (PRD_v3 4장)
+   색:   DESIGN2.md
+   타이포·칩: PRD-1st.md 7장 (DESIGN2.md의 출처 문서)
+
+   PRD_v3 4.1 — "강홍석 고정"이 기본값. 진입 시 강홍석 관람 집계가 바로 보인다.
+   유저가 고정을 해제하면 같은 작품 공동출연 배우 기준으로 정산판을 전환할 수 있다.
+   집계 방식·좌석·색은 v2 7장과 동일: 배우별 단순 관람 횟수(/N회), 페어 정산 아님.
+   좌석배치도는 등급색 없이 단색, 방문한 좌석만 유저가 고른 색, 방문 횟수별 진하기 단계화.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --canvas:#F4F2F7; --surface:#FFFFFF;
+  --ink:#1C1826; --ink-soft:#6B6478; --ink-faint:#9A93AC; --hairline:#E0DCE8;
+
+  --cat-1:#6B3FA0; --cat-1-soft:#E4DBF2;
+  --cat-2:#B34E14; --cat-2-soft:#F7E2D4;
+  --cat-3:#16697A; --cat-3-soft:#D7E9ED;
+  --cat-4:#B02D6E; --cat-4-soft:#F6DAE8;
+  --cat-5:#6B7028; --cat-5-soft:#E6E8D4;
+  --cat-6:#2C5BB5; --cat-6-soft:#DBE3F6;
+  --cat-7:#7A4A28; --cat-7-soft:#EBDFD6;
+  --cat-8:#736A87; --cat-8-soft:#E5E2EB;
+
+  --unverified:#B37A14; --unverified-bg:#FAF0DC;
+  --success:#2F6B45;
+  --danger:#A62B32;  --danger-bg:#FAE3E4;
+
+  --serif:"Gowun Batang", serif;
+  --sans:"Noto Sans KR", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+
+  --r-card:12px; --r-ui:8px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background:var(--canvas); font-family:var(--sans);
+  font-size:14px; line-height:1.6; color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+time, .num, .mono { font-family:var(--mono); font-feature-settings:"tnum"; }
+h1,h2,h3 { font-family:var(--serif); font-weight:700; line-height:1.35; }
+a { color:inherit; }
+
+.card { background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-card); }
+.shell { max-width:1080px; margin:0 auto; padding:0 24px; }
+
+/* ═══ 상단바 · 탭 ═══ */
+.topbar { background:var(--surface); border-bottom:1px solid var(--hairline); position:sticky; top:0; z-index:20; }
+.topbar-inner { display:flex; align-items:center; gap:20px; padding:14px 24px; }
+.wordmark { font-family:var(--serif); font-size:24px; font-weight:700; letter-spacing:-.02em; text-decoration:none; flex:none; }
+.topbar-actions { margin-left:auto; display:flex; gap:8px; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  height:40px; padding:0 16px;
+  font-family:var(--sans); font-size:14px; font-weight:500;
+  border-radius:var(--r-ui); cursor:pointer; white-space:nowrap;
+  border:1px solid transparent; text-decoration:none; background:none;
+}
+.btn-primary { background:var(--ink); color:var(--surface); }
+.btn-primary:hover { background:#322c40; }
+.btn-ghost { background:var(--surface); color:var(--ink); border-color:var(--hairline); }
+.btn-ghost:hover { border-color:var(--ink-soft); }
+.btn-sm { height:34px; padding:0 12px; font-size:13px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn:disabled:hover { background:var(--surface); border-color:var(--hairline); }
+
+.tabs { background:var(--surface); border-bottom:1px solid var(--hairline); }
+.tabs-inner { display:flex; gap:4px; }
+.tab {
+  padding:13px 16px; font-size:14px; font-weight:500; color:var(--ink-soft);
+  text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.tab:hover { color:var(--ink); }
+.tab[aria-current="page"] { color:var(--ink); border-bottom-color:var(--ink); }
+
+/* ═══ 식별 헤더 ═══ */
+.wrap { padding:24px 0 56px; display:flex; flex-direction:column; gap:16px; }
+
+.identity { padding:20px 22px; display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.identity .photo {
+  width:52px; height:52px; border-radius:999px; flex:none;
+  background:var(--canvas); border:1px solid var(--hairline);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--serif); font-size:20px; color:var(--ink-soft);
+  background-size:cover; background-position:center;
+}
+.subject-kind {
+  font-size:11px; font-weight:700; color:var(--ink-soft);
+  border:1px solid var(--hairline); background:var(--canvas);
+  border-radius:999px; padding:2px 10px;
+}
+.identity h1 { font-size:24px; letter-spacing:-.01em; margin-top:6px; }
+.identity .sub { font-size:13px; color:var(--ink-soft); margin-top:4px; }
+
+/* ═══ 로그인 게이트 (PRD_v3 6장 — 정산판은 개인 기록이라 로그인 필요) ═══
+   실제 인증은 없다. 상단바 로그인 버튼이 body.logged-in을 토글하고,
+   .gate-locked는 흐림+비활성으로, .gate-cta는 그 위에 안내+로그인 유도를 얹는다. */
+.gate { position:relative; }
+.gate-locked {
+  filter:blur(3px); opacity:.55; pointer-events:none; user-select:none;
+  transition:filter .3s ease, opacity .3s ease;
+}
+body.logged-in .gate-locked { filter:none; opacity:1; pointer-events:auto; }
+.gate-cta {
+  position:absolute; inset:0; z-index:5;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; text-align:center; padding:20px;
+}
+.gate-cta p { font-size:13px; color:var(--ink-soft); max-width:32ch; }
+body.logged-in .gate-cta { display:none; }
+
+/* ═══ 칩 ═══ */
+.chip {
+  display:inline-flex; align-items:center; gap:7px;
+  height:34px; padding:0 14px;
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  border-radius:999px; cursor:pointer;
+  background:var(--surface); color:var(--ink); border:1px solid var(--hairline);
+}
+.chip::before { content:""; width:7px; height:7px; border-radius:999px; background:var(--wc, var(--ink-faint)); flex:none; }
+.chip:hover { border-color:var(--ink-faint); }
+.chip[aria-pressed="true"] { background:var(--wc, var(--ink)); color:var(--surface); border-color:var(--wc, var(--ink)); }
+.chip[aria-pressed="true"]::before { background:var(--surface); }
+
+.role-row { display:flex; align-items:baseline; gap:12px; padding:7px 0; flex-wrap:wrap; }
+.role-name { flex:none; width:74px; font-size:13px; font-weight:500; color:var(--ink-soft); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+.field-lbl { font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+
+/* ═══ 정산판 (PRD_v3 4장 / v2 7장) ═══ */
+.settlement { padding:0; }
+.settlement-head { padding:18px 22px 4px; }
+.settlement-head h2 { font-size:17px; }
+.settlement-head p { font-size:12px; color:var(--ink-faint); margin-top:4px; }
+.settlement-body { padding:14px 22px 22px; min-height:220px; }
+
+/* ── 고정 주체 전환 (PRD_v3 4.1) ── */
+.subject-lock {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:12px 14px; margin-bottom:16px;
+  background:var(--canvas); border-radius:var(--r-ui);
+  font-size:13px; color:var(--ink-soft);
+}
+.subject-lock .who { font-weight:700; color:var(--ink); }
+.subject-lock .spacer { margin-left:auto; }
+.costar-picker { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+
+.tally-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+.tally-card {
+  flex:1; min-width:150px; padding:14px 16px;
+  border:1px solid var(--hairline); border-radius:var(--r-ui);
+  border-left:3px solid var(--wc);
+}
+.tally-card .name { font-size:13px; font-weight:500; color:var(--ink-soft); }
+.tally-card .n { font-family:var(--mono); font-size:22px; font-weight:600; margin-top:4px; }
+.tally-card .n small { font-size:13px; color:var(--ink-faint); font-weight:400; }
+
+.seat-panel { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+.seatgrid { display:flex; flex-direction:column; gap:4px; }
+.seatgrid .row { display:flex; gap:4px; align-items:center; }
+.seatgrid .rowlabel { width:16px; font-family:var(--mono); font-size:10px; color:var(--ink-faint); text-align:center; }
+.seat {
+  width:22px; height:22px; border-radius:5px;
+  background:var(--canvas); border:1px solid var(--hairline);
+  cursor:default; padding:0;
+}
+
+.seat-side { flex:1; min-width:200px; display:flex; flex-direction:column; gap:14px; }
+.swatches { display:flex; flex-wrap:wrap; gap:8px; }
+.swatch {
+  width:28px; height:28px; border-radius:999px; border:2px solid transparent;
+  cursor:pointer; padding:0;
+}
+.swatch[aria-pressed="true"] { border-color:var(--ink); }
+.seat-legend { display:flex; flex-wrap:wrap; gap:10px; font-size:11px; color:var(--ink-soft); align-items:center; }
+.seat-legend .lbl { font-weight:500; color:var(--ink-faint); }
+.seat-legend .sw { width:14px; height:14px; border-radius:4px; display:inline-block; vertical-align:-3px; margin-right:4px; border:1px solid var(--hairline); }
+
+.save-shot { align-self:flex-start; }
+
+/* ── 페어 즐겨찾기 (PRD_v3 4.1 / v2 7.3) — 좌석배치도 바로 아래, 정산판 이미지에
+   실제로 포함되는 블록. 정산 자체는 페어 집계가 아니지만, 유저가 원하면 아래
+   관극 기록에서 배역별로 고정한 조합을 최대 3개까지 즐겨찾기에 담아 이미지에 넣는다. */
+.pair-section { margin-top:20px; padding-top:16px; border-top:1px solid var(--hairline); }
+.records { margin-top:20px; padding-top:16px; border-top:1px solid var(--hairline); }
+.records-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.records-head h3 { font-size:14px; }
+.record-row {
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  padding:8px 0; font-size:13px; border-top:1px dashed var(--hairline);
+}
+.record-row:first-child { border-top:0; }
+.record-row .when { font-family:var(--mono); color:var(--ink); flex:none; }
+.record-row .seatinfo { color:var(--ink-soft); flex:none; }
+.record-row .pair { color:var(--ink); font-size:13px; font-weight:500; }
+.record-row .num { margin-left:auto; font-family:var(--mono); color:var(--ink-soft); flex:none; }
+.record-empty { font-size:13px; color:var(--ink-faint); padding:8px 0; }
+
+.pair-fix { padding-bottom:14px; border-bottom:1px dashed var(--hairline); margin-bottom:10px; }
+.pair-picker { display:flex; flex-direction:column; gap:4px; margin:8px 0; }
+.pair-fix-foot { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; }
+
+/* ═══ 반응형 ═══ */
+@media (max-width:900px) {
+  .seat-panel { flex-direction:column; }
+  .seatgrid { overflow-x:auto; }
+  .role-name { width:100%; }
+}
+@media (max-width:640px) {
+  .shell { padding:0 16px; }
+  .topbar-inner { padding:12px 16px; gap:12px; }
+  .wordmark { font-size:20px; }
+  .tabs-inner { overflow-x:auto; scrollbar-width:none; }
+  .tabs-inner::-webkit-scrollbar { display:none; }
+  .tab { padding:12px; white-space:nowrap; }
+  .identity h1 { font-size:20px; }
+  .chip { height:40px; }
+  .btn { height:44px; }
+  .seat { width:20px; height:20px; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" href="index.html">애배력</a>
+    <div class="topbar-actions">
+      <button class="btn btn-primary btn-sm" id="loginBtn">로그인</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="주 메뉴">
+  <div class="shell tabs-inner">
+    <a class="tab" href="index.html">스케줄</a>
+    <a class="tab" href="settlement.html" aria-current="page">정산판</a>
+  </div>
+</nav>
+
+<div class="shell wrap" id="wrap"></div>
+
+<!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
+<script src="data.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   모션 — GSAP 3.15 easeReverse (index.html과 같은 값)
+   ═══════════════════════════════════════════════════════════ */
+const reduced = () => !!(window.matchMedia
+              && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const MOTION = typeof gsap !== 'undefined' && !reduced();
+
+if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
+  ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
+  : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
+
+const EASE = { out:'expo.out', in:'power2.out', pop:'back.out(1.5)', popIn:'power3.out' };
+if (MOTION) gsap.defaults({ ease:EASE.out, easeReverse:EASE.in, duration:.36 });
+
+function popSwatch (elm) {
+  if (!MOTION) return;
+  gsap.fromTo(elm, { scale:.7 }, { scale:1, duration:.4, ease:EASE.pop });
+}
+function enter () {
+  if (!MOTION) return;
+  gsap.from('#wrap > .card', { opacity:0, y:18, duration:.5, stagger:.1, clearProps:'all' });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   상태
+   ═══════════════════════════════════════════════════════════ */
+let loggedIn = false;
+let subject  = HONG;                 // 기본값 = 강홍석 고정 (PRD_v3 4.1)
+let seatColorBySubject = {};         // { actorId: colorId }
+let pairFix = {};                    // { roleId: actorId } — 배역별 고정 (관극 기록 필터)
+let favoritePairs = [];              // [{ roleId:actorId, ... }] — 정산판 이미지용, 최대 3개
+const FAVORITE_MAX = 3;
+
+const coStars = () => {
+  const set = new Set();
+  ROLES.forEach(r => r.actors.forEach(a => { if (a !== HONG) set.add(a); }));
+  return [...set];
+};
+
+/* ═══ 집계 헬퍼 ═══ */
+function recordsForSubject (who) {
+  return MY_RECORDS
+    .map(rec => ({ rec, perf: perfFromKey(rec.key) }))
+    .filter(x => x.perf && Object.values(x.perf.cast).includes(who))
+    .sort((a, b) => cmpPerf(a.perf, b.perf));
+}
+
+function seatVisitCounts (list) {
+  const map = new Map();
+  list.forEach(({ rec }) => {
+    if (!rec.seat) return;
+    map.set(rec.seat, (map.get(rec.seat) || 0) + 1);
+  });
+  return map;
+}
+
+const alphaForCount = n => n >= 4 ? 1 : n === 3 ? .75 : n === 2 ? .55 : n === 1 ? .35 : 0;
+
+function seatHex (who) {
+  const colorId = seatColorBySubject[who] || SEAT_COLORS[0].id;
+  return SEAT_COLORS.find(c => c.id === colorId).hex;
+}
+
+/* 배역별 고정 조합 헬퍼 (PRD_v3 4.1 / v2 7.3) */
+const doubleRoles = () => ROLES.filter(r => r.actors.length > 1);
+const pairLabel   = fix => ROLES.filter(r => fix[r.id]).map(r => actorName(fix[r.id])).join(' · ');
+const pairFixKey  = fix => Object.entries(fix).sort(([a], [b]) => a.localeCompare(b)).map(([r, a]) => `${r}:${a}`).join(',');
+const recordsMatchingFix = (list, fix) => {
+  const rids = Object.keys(fix);
+  return list.filter(({ perf }) => rids.every(rid => perf.cast[rid] === fix[rid]));
+};
+
+/* ═══ 좌석 그리드 (읽기전용 집계) ═══ */
+function seatGridHTML (list, who) {
+  const counts = seatVisitCounts(list);
+  const hex = seatHex(who);
+  const rows = SEAT_ROWS.map(r => {
+    let cells = '';
+    for (let c = 1; c <= SEAT_COLS; c++) {
+      const id = `${r}-${c}`;
+      const n = counts.get(id) || 0;
+      const a = alphaForCount(n);
+      const style = a
+        ? `background:${hex}${Math.round(a * 255).toString(16).padStart(2, '0')};border-color:${hex}`
+        : '';
+      const label = `${r}열 ${c}번${n ? ' · ' + n + '회' : ''}`;
+      cells += `<button type="button" class="seat" style="${style}" tabindex="-1"
+                  aria-label="${label}" title="${label}"></button>`;
+    }
+    return `<div class="row"><span class="rowlabel">${r}</span>${cells}</div>`;
+  }).join('');
+  return `<div class="seatgrid">${rows}</div>`;
+}
+
+/* ═══ 렌더 ═══ */
+function render () {
+  const wrap = $('#wrap');
+  document.body.classList.toggle('logged-in', loggedIn);
+  $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
+
+  wrap.innerHTML = identityHTML() + settlementHTML();
+  bind();
+}
+
+function identityHTML () {
+  const photo = ACTORS[HONG].photo;
+  const avatar = photo
+    ? `<span class="photo" style="background-image:url('${photo}')"></span>`
+    : `<span class="photo" aria-hidden="true">${ACTORS[HONG].name[0]}</span>`;
+  return `<section class="card identity">
+    ${avatar}
+    <div>
+      <span class="subject-kind">정산판</span>
+      <h1>${ACTORS[HONG].name} · ${WORK.title}</h1>
+      <p class="sub">내가 실제로 본 회차 기준 관람 집계</p>
+    </div>
+  </section>`;
+}
+
+function settlementHTML () {
+  const list  = recordsForSubject(subject);
+  const denom = assignedCount(subject);
+  const numer = list.length;
+
+  const locked  = subject === HONG;
+  const subjectLock = `<div class="subject-lock">
+    ${locked
+      ? `<span><span class="who">${ACTORS[HONG].name}</span> 고정 — 진입 시 강홍석 관람 집계가 바로 보입니다</span>
+         <button type="button" class="btn btn-ghost btn-sm spacer js-unlock">고정 해제</button>`
+      : `<span>공동출연 <span class="who">${actorName(subject)}</span> 기준으로 보는 중</span>
+         <button type="button" class="btn btn-ghost btn-sm spacer js-relock">${ACTORS[HONG].name} 고정으로</button>`}
+  </div>`;
+
+  const picker = locked ? '' : `<div class="costar-picker">
+    ${coStars().map(a =>
+      `<button type="button" class="chip js-costar" data-actor="${a}" aria-pressed="${a === subject}">${actorName(a)}</button>`
+    ).join('')}
+  </div>`;
+
+  const tally = `<div class="tally-row">
+    <div class="tally-card" style="--wc:var(--cat-1)">
+      <div class="name">${actorName(subject)} · ${WORK.title}</div>
+      <div class="n">${numer}<small> / ${denom}회</small></div>
+    </div>
+  </div>`;
+
+  const colorId = seatColorBySubject[subject] || SEAT_COLORS[0].id;
+  const swatches = SEAT_COLORS.map(c =>
+    `<button type="button" class="swatch js-swatch" data-color="${c.id}" style="background:${c.hex}"
+       aria-pressed="${c.id === colorId}" title="${c.label}" aria-label="${c.label}"></button>`).join('');
+
+  const seatPanel = `<div class="seat-panel">
+    ${seatGridHTML(list, subject)}
+    <div class="seat-side">
+      <div>
+        <p class="field-lbl">좌석 색 고르기</p>
+        <div class="swatches">${swatches}</div>
+      </div>
+      <div class="seat-legend">
+        <span class="lbl">방문 횟수</span>
+        <span><i class="sw" style="background:${seatHex(subject)};opacity:.35"></i>1회</span>
+        <span><i class="sw" style="background:${seatHex(subject)};opacity:.55"></i>2회</span>
+        <span><i class="sw" style="background:${seatHex(subject)};opacity:.75"></i>3회</span>
+        <span><i class="sw" style="background:${seatHex(subject)}"></i>4회+</span>
+      </div>
+      <button class="btn btn-ghost btn-sm save-shot" disabled title="추후 지원 예정 (PRD_v3 4.1)">이미지로 저장</button>
+    </div>
+  </div>`;
+
+  const liveContent = `${subjectLock}${picker}${tally}${seatPanel}${favoritePairsHTML(list)}${recordsHTML(list)}`;
+
+  return `<section class="card settlement">
+    <div class="settlement-head">
+      <h2>정산판</h2>
+      <p>페어 조합이 아닌 <b>배우별 단순 관람 횟수</b>만 집계합니다 (PRD_v3 4.1). 좌석 색은 자유롭게 고를 수 있고, 방문 횟수만큼 진하게 표시됩니다.</p>
+    </div>
+    <div class="settlement-body gate">
+      <div class="gate-locked">${liveContent}</div>
+      <div class="gate-cta">
+        <p>로그인하면 내가 실제로 본 회차 기준으로<br>관람 횟수와 좌석 기록을 볼 수 있습니다</p>
+        <button class="btn btn-primary btn-sm js-login-cta">로그인하고 정산판 보기</button>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ═══ 페어 즐겨찾기 — 좌석배치도 바로 아래, 정산판 이미지에 실제로 포함되는 블록 ═══ */
+function favoritePairsHTML (list) {
+  const body = favoritePairs.length
+    ? favoritePairs.map((fix, i) => `<div class="record-row">
+        <span class="pair">${pairLabel(fix)}</span>
+        <span class="num">${recordsMatchingFix(list, fix).length}회</span>
+        <button type="button" class="btn btn-ghost btn-sm js-fav-remove" data-i="${i}">빼기</button>
+      </div>`).join('')
+    : `<p class="record-empty">담은 조합이 없습니다. 아래 관극 기록에서 배역별로 배우를 고정하고 즐겨찾기에 담아보세요 (최대 ${FAVORITE_MAX}개) — 담은 조합만 정산판 이미지에 들어갑니다.</p>`;
+
+  return `<div class="pair-section">
+    <div class="records-head"><h3>페어 조합 즐겨찾기 <span class="num" style="color:var(--ink-faint);font-size:12px;">${favoritePairs.length}/${FAVORITE_MAX}</span></h3></div>
+    ${body}
+  </div>`;
+}
+
+/* ═══ 관극 기록 — 배역별로 배우를 하나씩 고정해 그 페어의 기록만 걸러본다 ═══ */
+function recordsHTML (list) {
+  const hasFix = Object.keys(pairFix).length > 0;
+
+  const picker = doubleRoles().map(r => {
+    const chips = r.actors.map(aId => {
+      const on = pairFix[r.id] === aId;
+      return `<button type="button" class="chip js-pair-fix" data-role="${r.id}" data-actor="${aId}" aria-pressed="${on}">${actorName(aId)}</button>`;
+    }).join('');
+    return `<div class="role-row"><span class="role-name">${r.name}</span><div class="chips">${chips}</div></div>`;
+  }).join('');
+
+  const key = pairFixKey(pairFix);
+  const alreadyFav = favoritePairs.some(f => pairFixKey(f) === key);
+  const canFav = hasFix && !alreadyFav && favoritePairs.length < FAVORITE_MAX;
+
+  const pairFixBlock = `<div class="pair-fix">
+    <p class="field-lbl">배역별로 배우를 고정하면 그 페어의 관극 기록만 볼 수 있어요</p>
+    <div class="pair-picker">${picker}</div>
+    <div class="pair-fix-foot">
+      ${hasFix ? `<button type="button" class="btn btn-ghost btn-sm js-pair-clear">고정 풀기</button>` : ''}
+      <button type="button" class="btn btn-ghost btn-sm js-fav-add" ${canFav ? '' : 'disabled'}>
+        ${alreadyFav ? '★ 즐겨찾기에 있음' : `☆ 즐겨찾기에 담기 (${favoritePairs.length}/${FAVORITE_MAX})`}
+      </button>
+    </div>
+  </div>`;
+
+  const records = hasFix ? recordsMatchingFix(list, pairFix) : list;
+  const rows = records.length
+    ? records.map(({ rec, perf }) => `<div class="record-row">
+        <span class="when">${perf.m}월 ${perf.d}일 ${perf.t}</span>
+        <span class="seatinfo">${rec.seat ? `좌석 ${rec.seat}` : '좌석 미정'}</span>
+      </div>`).join('')
+    : hasFix
+      ? `<div class="record-empty">이 조합으로 본 기록이 없습니다.</div>`
+      : `<div class="record-empty">아직 담은 회차가 없습니다. 스케줄 탭에서 "이 회차 봤어요"를 눌러보세요.</div>`;
+
+  return `<div class="records">
+    ${pairFixBlock}
+    <div class="records-head">
+      <h3>관극 기록${hasFix ? ` · ${pairLabel(pairFix)}` : ''} <span class="num" style="color:var(--ink-faint);font-size:12px;">${records.length}건</span></h3>
+    </div>
+    <div class="record-list">${rows}</div>
+  </div>`;
+}
+
+/* ═══ 이벤트 바인딩 ═══ */
+function bind () {
+  const relock = () => { subject = HONG; pairFix = {}; render(); };
+
+  const unlockBtn = $('.js-unlock');
+  if (unlockBtn) unlockBtn.addEventListener('click', () => {
+    subject = coStars()[0] || HONG;
+    pairFix = {};
+    render();
+  });
+  const relockBtn = $('.js-relock');
+  if (relockBtn) relockBtn.addEventListener('click', relock);
+
+  document.querySelectorAll('.js-costar').forEach(b =>
+    b.addEventListener('click', () => { subject = b.dataset.actor; pairFix = {}; render(); }));
+
+  document.querySelectorAll('.js-swatch').forEach(b =>
+    b.addEventListener('click', () => {
+      seatColorBySubject[subject] = b.dataset.color;
+      popSwatch(b);
+      render();
+    }));
+
+  const loginCta = $('.js-login-cta');
+  if (loginCta) loginCta.addEventListener('click', () => setLoggedIn(true));
+
+  document.querySelectorAll('.js-pair-fix').forEach(b =>
+    b.addEventListener('click', () => {
+      const { role, actor } = b.dataset;
+      if (pairFix[role] === actor) delete pairFix[role]; else pairFix[role] = actor;
+      render();
+    }));
+
+  const pairClear = $('.js-pair-clear');
+  if (pairClear) pairClear.addEventListener('click', () => { pairFix = {}; render(); });
+
+  const favAdd = $('.js-fav-add');
+  if (favAdd) favAdd.addEventListener('click', () => {
+    if (!Object.keys(pairFix).length) return;
+    const key = pairFixKey(pairFix);
+    if (favoritePairs.length >= FAVORITE_MAX || favoritePairs.some(f => pairFixKey(f) === key)) return;
+    favoritePairs.push({ ...pairFix });
+    render();
+  });
+
+  document.querySelectorAll('.js-fav-remove').forEach(b =>
+    b.addEventListener('click', () => { favoritePairs.splice(+b.dataset.i, 1); render(); }));
+}
+
+/* ═══ 로그인 데모 토글 — 실제 인증 없음, 상태만 흉내낸다 ═══ */
+function setLoggedIn (v) { loggedIn = v; render(); }
+$('#loginBtn').addEventListener('click', () => setLoggedIn(!loggedIn));
+
+render();
+enter();
+</script>
+
+</body>
+</html>
