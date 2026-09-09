@@ -5,121 +5,288 @@
    데이터를 쓰므로 한 파일로 분리한다. 각 페이지는 이 파일을 먼저 로드한 뒤
    자기 화면 스크립트를 실행한다.
 
-   ⚠️ 이 파일의 값은 전부 플레이스홀더다.
-      강홍석을 제외한 배우 이름, 회차 일정, 배역별 캐스팅, 이벤트, 극장·기간은
-      모두 가상이며 실제 공연 정보가 아니다. 운영자가 캐스팅표/스케줄을
-      (이미지·텍스트로) 제공하면 이 파일만 교체한다 — 화면 코드는 손대지 않는다.
+   데이터 출처: 운영자 제공 〈캐스팅 스케줄〉 4장 (ref/KakaoTalk_20260909_*.jpg).
+     프리뷰 2026-08-16 ~ 현재까지 공개된 마지막 회차 2026-10-23.
+     후속 스케줄이 올라오면 이 파일의 PERFS(및 필요 시 RANGE.max)만 교체한다 —
+     화면 코드는 손대지 않는다.
+
+   ⚠️ 아직 미확인: 실제 막공일(폐막 ~2026-11-15 예정, 마지막 회차 미발표), 배우 사진.
    ═══════════════════════════════════════════════════════════ */
 
-/* ── 작품 ──  TODO: 실데이터 (극장명, 공연 기간, 포스터) */
+/* ── 작품 ── */
 const WORK = {
   title:  '엘리자벳',
-  venue:  '',                                        // TODO: 예) 블루스퀘어 신한카드홀
-  period: { start: '2026-08-01', end: '2026-10-31' } // TODO: 실제 공연 기간
+  run:    '6연',                                     // 한국 초연부터 세어 여섯 번째 시즌
+  venue:  '블루스퀘어 우리은행홀',
+  period: { start: '2026-08-16', end: null },        // end: 마지막 회차 미발표 (폐막 ~2026-11-15 예정) — 발표되면 채운다
+  poster: ''                                         // TODO: 2026 엘리자벳 공식 포스터를 ref/에 넣고 경로만 적기
 };
 
-/* ── 고정 주체 ── 정산판 기본값. "고정 해제" 시에만 공동출연 배우로 전환된다. */
+/* ── 고정 주체 ── 정산판 기본값. "고정 해제" 시에만 공동출연 배우로 전환된다.
+   강홍석은 '루케니' 역. cast 값이 이 상수와 일치할 때 강홍석 회차로 친다. */
 const HONG = 'hong';
 
-/* ── 배우 ── hong 외에는 전부 가상 이름.  TODO: 실제 공동출연진으로 교체
-   photo: 강홍석 썸네일 자리. 비어 있으면 이니셜 플레이스홀더로 그린다.
-          배치·스타일은 디자인 단계에서 결정 (PRD_v3 3.2). */
+/* ── 배우 ── 배역별 캐스팅 풀. photo: 관리자 업로드 자리(비면 이니셜 플레이스홀더). */
 const ACTORS = {
   hong: { name: '강홍석', photo: '' },
-  c1:   { name: '서은우', photo: '' },
-  c2:   { name: '한도현', photo: '' },
-  c3:   { name: '유지안', photo: '' },
-  c4:   { name: '노가람', photo: '' },
-  c5:   { name: '임세라', photo: '' },
-  c6:   { name: '백주원', photo: '' }
+  // 엘리자벳
+  rina: { name: '린아',   photo: '' },
+  ljh:  { name: '이지혜', photo: '' },
+  ljs:  { name: '이지수', photo: '' },
+  pjy:  { name: '박지연', photo: '' },
+  // 토드
+  kjs:  { name: '김준수', photo: '' },
+  kai:  { name: '카이',   photo: '' },
+  kes:  { name: '고은성', photo: '' },
+  sgs:  { name: '서경수', photo: '' },
+  // 루케니
+  pet:  { name: '박은태', photo: '' },
+  ny:   { name: '노윤',   photo: '' },
+  // 요제프
+  myg:  { name: '민영기', photo: '' },
+  pms:  { name: '박민성', photo: '' },
+  // 소피
+  sjy:  { name: '서지영', photo: '' },
+  ja:   { name: '주아',   photo: '' },
+  // 루돌프
+  kws:  { name: '김우성', photo: '' },
+  jys:  { name: '장윤석', photo: '' }
 };
 
-/* ── 배역 ── 엘리자벳 주요 배역. actors = 더블/트리플 캐스팅 풀.
-   강홍석 배역은 '루케니'로 가정해 심는다.  TODO: 실캐스팅 확인
-   (id는 회차 cast 키와 맞물려 있어 그대로 두고, 표시 이름만 배정한다) */
+/* ── 배역 ── 엘리자벳 주요 6배역. actors = 더블/트리플 캐스팅 풀.
+   id는 회차 cast 키와 맞물린다. */
 const ROLES = [
-  { id: 'tod',     name: '루케니',   actors: ['hong', 'c1'] },
-  { id: 'eli',     name: '엘리자벳', actors: ['c2', 'c3'] },
-  { id: 'lucheni', name: '죽음',     actors: ['c4', 'c5'] },
-  { id: 'rudolf',  name: '루돌프',   actors: ['c6'] }
+  { id: 'eli',     name: '엘리자벳', actors: ['rina', 'ljh', 'ljs', 'pjy'] },
+  { id: 'tod',     name: '토드',     actors: ['kjs', 'kai', 'kes', 'sgs'] },
+  { id: 'lucheni', name: '루케니',   actors: ['pet', 'ny', 'hong'] },
+  { id: 'josef',   name: '요제프',   actors: ['myg', 'pms'] },
+  { id: 'sophie',  name: '소피',     actors: ['sjy', 'ja'] },
+  { id: 'rudolf',  name: '루돌프',   actors: ['kws', 'jys'] }
 ];
 
 /* ── 회차 ── 엘리자벳 전체 회차(강홍석 포함/미포함 섞임).
    스케줄 탭은 hongPerfs()로 강홍석 회차만 걸러 보여준다.
-   cast = { 배역id: 배우id },  t = 'HH:MM',  events?/history? 선택.
-   TODO: 실제 회차 일정·캐스팅·이벤트로 교체 */
+   cast = { 배역id: 배우id },  t = 'HH:MM',  events? 선택.
+   시간 표기 변환: 2시→14:00 · 3시→15:00 · 7시→19:00 · 2시30분→14:30 · 7시30분→19:30
+   이벤트: 현재 확정된 건 9/9·9/12·9/13 커튼콜데이(강홍석 회차)뿐. */
 const PERFS = [
   // ── 2026년 8월 ──
-  { y:2026, m:8,  d:12, t:'19:30', cast:{ tod:'hong', eli:'c2', lucheni:'c4', rudolf:'c6' },
-    events:[{ label:'첫공 무대인사', verified:true }] },
-  { y:2026, m:8,  d:15, t:'14:00', cast:{ tod:'c1',   eli:'c3', lucheni:'c5', rudolf:'c6' } },
-  { y:2026, m:8,  d:15, t:'19:00', cast:{ tod:'hong', eli:'c2', lucheni:'c4', rudolf:'c6' } },
-  { y:2026, m:8,  d:22, t:'14:00', cast:{ tod:'hong', eli:'c3', lucheni:'c5', rudolf:'c6' },
-    events:[{ label:'포토타임', verified:true }] },
-  { y:2026, m:8,  d:29, t:'19:00', cast:{ tod:'hong', eli:'c2', lucheni:'c4', rudolf:'c6' } },
+  { y:2026, m:8, d:16, t:'19:00', cast:{ eli:'rina', tod:'kai', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:17, t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:19, t:'14:30', cast:{ eli:'ljs',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:19, t:'19:30', cast:{ eli:'ljh',  tod:'kai', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:20, t:'19:30', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:21, t:'14:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:21, t:'19:30', cast:{ eli:'ljs',  tod:'kai', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:22, t:'14:00', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:22, t:'19:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:23, t:'15:00', cast:{ eli:'rina', tod:'kai', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:25, t:'19:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:26, t:'14:30', cast:{ eli:'rina', tod:'kai', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:26, t:'19:30', cast:{ eli:'ljs',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:27, t:'19:30', cast:{ eli:'ljh',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:28, t:'14:30', cast:{ eli:'ljs',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:28, t:'19:30', cast:{ eli:'rina', tod:'kai', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:8, d:29, t:'14:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:29, t:'19:00', cast:{ eli:'rina', tod:'kai', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:8, d:30, t:'15:00', cast:{ eli:'ljs',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
 
   // ── 2026년 9월 ──
-  { y:2026, m:9,  d:2,  t:'19:30', cast:{ tod:'hong', eli:'c3', lucheni:'c5', rudolf:'c6' } },
-  { y:2026, m:9,  d:5,  t:'14:00', cast:{ tod:'c1',   eli:'c2', lucheni:'c4', rudolf:'c6' } },
-  { y:2026, m:9,  d:6,  t:'14:00', cast:{ tod:'hong', eli:'c2', lucheni:'c4', rudolf:'c6' },
-    history:{ role:'루케니', from:'서은우', to:'강홍석', when:'09.04 18:00' } },
-  { y:2026, m:9,  d:12, t:'19:00', cast:{ tod:'hong', eli:'c3', lucheni:'c5', rudolf:'c6' } },
-  { y:2026, m:9,  d:19, t:'14:00', cast:{ tod:'hong', eli:'c2', lucheni:'c4', rudolf:'c6' },
-    events:[{ label:'커튼콜 촬영', verified:false }] },
-  { y:2026, m:9,  d:23, t:'19:30', cast:{ tod:'c1',   eli:'c3', lucheni:'c5', rudolf:'c6' } },
-  { y:2026, m:9,  d:26, t:'19:00', cast:{ tod:'hong', eli:'c3', lucheni:'c5', rudolf:'c6' } },
+  { y:2026, m:9, d:1,  t:'19:30', cast:{ eli:'ljs',  tod:'kai', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:2,  t:'14:30', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:2,  t:'19:30', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:3,  t:'19:30', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:4,  t:'14:30', cast:{ eli:'ljs',  tod:'kai', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:4,  t:'19:30', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:5,  t:'14:00', cast:{ eli:'ljs',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:5,  t:'19:00', cast:{ eli:'rina', tod:'kai', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:6,  t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:8,  t:'19:30', cast:{ eli:'ljs',  tod:'kai', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:9,  t:'14:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:9,  t:'19:30', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'jys' }, events:[{ label:'커튼콜데이', verified:true }] },
+  { y:2026, m:9, d:10, t:'19:30', cast:{ eli:'ljh',  tod:'kai', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:11, t:'14:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:11, t:'19:30', cast:{ eli:'rina', tod:'kes', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:12, t:'14:00', cast:{ eli:'ljs',  tod:'kai', lucheni:'hong', josef:'pms', sophie:'sjy', rudolf:'kws' }, events:[{ label:'커튼콜데이', verified:true }] },
+  { y:2026, m:9, d:12, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:13, t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'jys' }, events:[{ label:'커튼콜데이', verified:true }] },
+  { y:2026, m:9, d:15, t:'19:30', cast:{ eli:'ljs',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:16, t:'14:30', cast:{ eli:'rina', tod:'kai', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:16, t:'19:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:17, t:'19:30', cast:{ eli:'ljh',  tod:'kai', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:18, t:'14:30', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:18, t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:19, t:'14:00', cast:{ eli:'ljs',  tod:'kai', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:19, t:'19:00', cast:{ eli:'rina', tod:'sgs', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:9, d:20, t:'15:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:9, d:22, t:'19:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:23, t:'14:00', cast:{ eli:'ljh',  tod:'kai', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:23, t:'19:00', cast:{ eli:'ljs',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:24, t:'15:00', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:25, t:'14:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:25, t:'19:00', cast:{ eli:'ljs',  tod:'kai', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:26, t:'14:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:26, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:27, t:'14:00', cast:{ eli:'ljs',  tod:'kai', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:27, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:29, t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:9, d:30, t:'14:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:9, d:30, t:'19:30', cast:{ eli:'rina', tod:'kai', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'jys' } },
 
   // ── 2026년 10월 ──
-  { y:2026, m:10, d:3,  t:'14:00', cast:{ tod:'hong', eli:'c2', lucheni:'c4', rudolf:'c6' } },
-  { y:2026, m:10, d:10, t:'19:00', cast:{ tod:'hong', eli:'c3', lucheni:'c4', rudolf:'c6' } },
-  { y:2026, m:10, d:17, t:'14:00', cast:{ tod:'c1',   eli:'c2', lucheni:'c5', rudolf:'c6' } },
-  { y:2026, m:10, d:25, t:'19:00', cast:{ tod:'hong', eli:'c2', lucheni:'c5', rudolf:'c6' },
-    events:[{ label:'막공', verified:true }, { label:'커튼콜 촬영', verified:true }] }
+  { y:2026, m:10, d:1,  t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:2,  t:'19:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:3,  t:'14:00', cast:{ eli:'rina', tod:'kjs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:3,  t:'19:00', cast:{ eli:'ljh',  tod:'kai', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:4,  t:'14:00', cast:{ eli:'ljs',  tod:'kes', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:4,  t:'19:00', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:5,  t:'14:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:5,  t:'19:00', cast:{ eli:'ljs',  tod:'kai', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:7,  t:'14:30', cast:{ eli:'ljh',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:7,  t:'19:30', cast:{ eli:'rina', tod:'kes', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:8,  t:'19:30', cast:{ eli:'ljh',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:9,  t:'14:00', cast:{ eli:'ljs',  tod:'kai', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:9,  t:'19:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:10, t:'14:00', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:10, t:'19:00', cast:{ eli:'ljs',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:11, t:'15:00', cast:{ eli:'ljh',  tod:'kai', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:13, t:'19:30', cast:{ eli:'rina', tod:'kes', lucheni:'hong', josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:14, t:'14:30', cast:{ eli:'ljs',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:14, t:'19:30', cast:{ eli:'ljh',  tod:'kjs', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:15, t:'19:30', cast:{ eli:'rina', tod:'kai', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:16, t:'14:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:16, t:'19:00', cast:{ eli:'ljs',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:17, t:'14:00', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:17, t:'19:00', cast:{ eli:'ljs',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:18, t:'15:00', cast:{ eli:'ljh',  tod:'kai', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:20, t:'19:30', cast:{ eli:'rina', tod:'kjs', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:21, t:'14:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:21, t:'19:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:22, t:'19:30', cast:{ eli:'rina', tod:'kai', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:23, t:'14:30', cast:{ eli:'ljh',  tod:'kjs', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:23, t:'19:30', cast:{ eli:'pjy',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } }
 ];
 
-const TODAY = { y:2026, m:9, d:3 };
+const TODAY = { y:2026, m:9, d:9 };
 const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:10 } };
 
-/* ── 좌석 ── 실좌표 에디터가 아니라 단순화한 대표 격자 (PRD_v3 4.1, 8장 오픈이슈).
-   실제 배치도는 작품마다 별도 준비. */
-const SEAT_ROWS = ['가', '나', '다', '라', '마'];
-const SEAT_COLS = 8;
+/* ── 좌석 배치도 ── 블루스퀘어 우리은행홀 (ref/seat.jpg 〈등급별 좌석배치도〉 기준).
+   등급색(VIP/R/S/A)은 쓰지 않는다 — 좌석 색은 유저가 고르고 방문 횟수로 진해진다
+   (PRD_v3 4.1 / v2 7.2). 여기 담는 건 "어느 자리가 존재하는가" 뿐이다.
 
-/* 좌석 색 — 유저가 정산판에서 자유롭게 고르는 색 (PRD_v3 4.1 / v2 7.2).
-   DESIGN2.md의 구분색 --cat-*와는 별개(구분색은 버튼·개인선택 UI에 쓰지 않는다). */
+   좌석번호는 층 전체에서 이어진다(좌측→중앙→우측). 블록은 번호로 갈린다.
+     L/C/R = [첫번호, 끝번호] 또는 [첫번호, 끝번호, 시작칸]  (없으면 null)
+     aisles = 통로가 들어가는 좌석번호 (그 번호 뒤에 AISLE_W칸 비움)
+     시작칸을 직접 주면 그 블록만 좌우로 밀 수 있다 — 뒤쪽 열이 안으로 들어오는 배열용.
+   좌석 id = `${층}-${열}-${번호}`  (예: '1-12-20' = 1층 12열 20번) */
+const AISLE_W = 3;   // 통로 폭(칸). 열번호를 넣고도 블록을 2칸까지 밀 수 있어야 한다
+const SEAT_MAP = {
+  venue: '블루스퀘어 우리은행홀',
+  floors: [
+    { id:'1', label:'1층', aisles:[15, 33], cols:50, rows:[
+      { r:'1',  L:[8,15], C:[16,31], R:[34,41] },
+      { r:'2',  L:[7,15], C:[16,32], R:[34,42] },
+      { r:'3',  L:[6,15], C:[16,31], R:[34,43] },
+      { r:'4',  L:[6,15], C:[16,32], R:[34,43] },
+      { r:'5',  L:[5,15], C:[16,31], R:[34,44] },
+      { r:'6',  L:[4,15], C:[16,32], R:[34,45] },
+      { r:'7',  L:[3,15], C:[16,31], R:[34,46] },
+      { r:'8',  L:[1,15], C:[16,31], R:[34,48] },
+      { r:'9',  L:[1,15], C:[16,32], R:[34,48] },
+      { r:'10', L:[1,15], C:[16,31], R:[34,48] },
+      // 11열부터 22열까지 중앙 32번이 한 열 걸러 있다 (홀수열에만)
+      { r:'11', L:[1,15], C:[16,32], R:[34,48] },
+      { r:'12', L:[1,15], C:[16,31], R:[34,48] },
+      { r:'13', L:[1,15], C:[16,32], R:[34,48] },
+      { r:'14', L:[1,15], C:[16,31], R:[34,48] },
+      { r:'15', L:[1,15], C:[16,32], R:[34,48] },
+      { r:'16', L:[1,15], C:[16,31], R:[34,48] },
+      { r:'17', L:[1,15], C:[16,32], R:[34,48] },
+      { r:'18', L:[1,15], C:[16,31], R:[34,48] },
+      { r:'19', L:[1,15], C:[16,32], R:[34,48] },
+      { r:'20', L:[1,15], C:[16,31], R:[34,48] },
+      { r:'21', L:[1,15], C:[16,32], R:[34,48] },
+      { r:'22', L:[1,15], C:[16,31], R:[34,48] },
+      { r:'23', L:['D2','D9',2], C:null, R:['D10','D17',43] }   // 휠체어석
+    ]},
+    // 2층 중앙은 뒤로 갈수록 왼쪽에서 한 칸씩 안으로 들어온다
+    //   1~5열 기준칸 19 · 6~7열 20 · 8~10열 21
+    { id:'2', label:'2층', aisles:[15, 31], cols:48, rows:[
+      { r:'1',  L:[1,15], C:[16,31],     R:[32,46] },
+      { r:'2',  L:[1,15], C:[16,31],     R:[32,46] },
+      { r:'3',  L:[1,15], C:[16,31],     R:[32,46] },
+      { r:'4',  L:[1,15], C:[16,31],     R:[32,46] },
+      { r:'5',  L:[1,15], C:[16,31],     R:[32,46] },
+      { r:'6',  L:[3,15], C:[16,29, 20], R:[32,44] },
+      { r:'7',  L:[3,15], C:[16,28, 20], R:[32,44] },
+      { r:'8',  L:[3,15], C:[16,28, 21], R:[32,44] },
+      { r:'9',  L:[3,15], C:[16,28, 21], R:[32,44] },
+      { r:'10', L:[1,15], C:[16,28, 21], R:[32,46] }
+    ]},
+    // 3층 6열은 중앙이 23번과 24번 사이에서 두 칸 갈라진다 (C / C2)
+    { id:'3', label:'3층', aisles:[16, 32], cols:50, rows:[
+      { r:'1', L:[2,16], C:[17,32], R:[33,47] },
+      { r:'2', L:[2,16], C:[17,32], R:[33,47] },
+      { r:'3', L:[5,16], C:[17,32], R:[33,44] },
+      { r:'4', L:[2,16], C:[17,32], R:[33,47] },
+      { r:'5', L:[2,16], C:[17,32], R:[33,47] },
+      { r:'6', L:[1,16], C:[17,23], C2:[24,30, 29], R:[33,48] }
+    ]}
+  ]
+};
+
+/* 좌석 색 — 유저가 정산판에서 고르는 색 (PRD_v3 4.1 / v2 7.2).
+   앉은 횟수를 "같은 색의 진하기"가 아니라 "아예 다른 색"으로 구분한다.
+   떨어져 있는 좌석끼리는 진하기 차이를 눈으로 못 재기 때문이다.
+   그래서 색상환을 고루 도는 12색을 두고, 유저가 횟수 칸마다 하나씩 끌어다 놓는다. */
 const SEAT_COLORS = [
-  { id:'plum',  hex:'#7A3E73', label:'자두' },
-  { id:'teal',  hex:'#1F7A6C', label:'청록' },
-  { id:'amber', hex:'#9C6B10', label:'호박' },
-  { id:'slate', hex:'#3D5A80', label:'남색' },
-  { id:'moss',  hex:'#556B2F', label:'이끼' },
-  { id:'rose',  hex:'#A6415A', label:'장미' }
+  { id:'red',    hex:'#C1292E', label:'빨강' },
+  { id:'orange', hex:'#E4572E', label:'주황' },
+  { id:'tan',    hex:'#F3A712', label:'귤' },
+  { id:'lemon',  hex:'#F0E76F', label:'노랑' },
+  { id:'lime',   hex:'#A8C256', label:'연두' },
+  { id:'jade',   hex:'#28CC9E', label:'청록' },
+  { id:'sky',    hex:'#4EA5D9', label:'하늘' },
+  { id:'blue',   hex:'#86A8E7', label:'연하늘' },
+  { id:'navy',   hex:'#3D5A99', label:'남색' },
+  { id:'lilac',  hex:'#9C79C6', label:'보라' },
+  { id:'rose',   hex:'#D16BA5', label:'자홍' },
+  { id:'pink',   hex:'#E5717F', label:'분홍' }
 ];
 
-/* ── 개인 관극 기록 ── my_records 테이블의 목업 (PRD_v3 5장).
-   전부 강홍석(죽음) 회차. 새로고침하면 초기화된다. */
-let MY_RECORDS = [
-  { key:'2026|8|12|19:30', seat:'가-3' },
-  { key:'2026|8|22|14:00', seat:'가-3' },
-  { key:'2026|8|29|19:00', seat:'나-5' },
-  { key:'2026|9|6|14:00',  seat:'나-5' },
-  { key:'2026|9|12|19:00', seat:'다-2' },
-  { key:'2026|9|19|14:00', seat:'다-2' }
-];
+/* 앉은 횟수 → 색. 유저가 바꾸기 전 기본 조합 (연하늘 → 청록 → 귤 → 빨강) */
+const VISIT_LEVELS = [1, 2, 3, 4];
+const DEFAULT_VISIT_COLORS = { 1:'blue', 2:'jade', 3:'tan', 4:'red' };
+const visitLabel = n => n >= 4 ? '4회+' : n + '회';
+
+/* ── 개인 관극 기록 ── my_records 테이블의 자리 (PRD_v3 5장).
+   백엔드(Supabase 등)가 붙기 전까지는 브라우저 localStorage 에 담는다.
+   스케줄 탭에서 담은 기록이 정산판에서도 보이려면 이 저장이 반드시 필요하다
+   (두 탭은 별개 페이지라 메모리 배열은 이동하면 사라진다).
+   ⚠️ file:// 로 열면 브라우저가 저장을 막을 수 있다 — 로컬 서버로 열 것. */
+const REC_KEY = 'aebaeryeok.records.v1';
+
+function loadRecords () {
+  try {
+    const list = JSON.parse(localStorage.getItem(REC_KEY) || '[]');
+    return Array.isArray(list) ? list.filter(r => r && r.key) : [];
+  } catch { return []; }
+}
+function saveRecords () {
+  try { localStorage.setItem(REC_KEY, JSON.stringify(MY_RECORDS)); } catch {}
+}
+
+let MY_RECORDS = loadRecords();
 
 /* ═══ 공용 헬퍼 ═══ */
 const $  = s => document.querySelector(s);
 const el = h => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
-const catVar = i => `--cat-${(i % 8) + 1}`;
 
 const perfKey  = p => [p.y, p.m, p.d, p.t].join('|');
 const daysIn   = (y, m) => new Date(y, m, 0).getDate();
 const firstDow = (y, m) => new Date(y, m - 1, 1).getDay();
 const idx      = o => o.y * 12 + o.m;
-const sameP    = (a, b) => a.y === b.y && a.m === b.m && a.d === b.d && a.t === b.t;
-const dow      = p => ['일','월','화','수','목','금','토'][new Date(p.y, p.m - 1, p.d).getDay()] + '요일';
 
-const roleOf     = id => ROLES.find(r => r.id === id);
 const actorName  = id => (ACTORS[id] || {}).name || '—';
 const perfFromKey = key => {
   const [y, m, d, t] = key.split('|');
@@ -140,5 +307,94 @@ const assignedCount = actorId => PERFS.filter(p => Object.values(p.cast).include
 
 const cmpPerf = (a, b) =>
   (a.y - b.y) || (a.m - b.m) || (a.d - b.d) || a.t.localeCompare(b.t);
+
+/* ═══ 좌석 헬퍼 ═══ */
+
+/* [첫번호, 끝번호, 시작칸?] → [{ no, col }]. 'D2'~'D9'처럼 접두 문자도 편다. */
+function seatRun (spec, aisles) {
+  if (!spec) return [];
+  const [from, to, at] = spec;
+  const m = String(from).match(/^([A-Za-z]*)(\d+)$/);
+  const prefix = m[1], start = +m[2];
+  const end = +String(to).match(/(\d+)$/)[1];
+  return Array.from({ length: end - start + 1 }, (_, i) => {
+    const n = start + i;
+    return {
+      no: prefix + n,
+      col: at ? at + i : n + aisles.filter(a => n > a).length * AISLE_W
+    };
+  });
+}
+
+/* 구역 → 블록 키. C2는 중앙이 갈라진 열의 뒷 토막이다 (3층 6열). */
+const ZONE_KEYS = { L:['L'], C:['C', 'C2'], R:['R'] };
+
+/* 한 열의 좌석 전체 (좌·중앙·우 순) */
+const seatsInRow = (floor, row) =>
+  ['L', 'C', 'C2', 'R'].flatMap(b => seatRun(row[b], floor.aisles));
+
+const floorById = id => SEAT_MAP.floors.find(f => f.id === id);
+
+/* 좌석 id ↔ 사람이 읽는 이름 */
+const seatId    = (floorId, row, no) => `${floorId}-${row}-${no}`;
+const seatLabel = id => {
+  const [f, r, no] = String(id).split('-');
+  return `${f}층 ${r}열 ${no}번`;
+};
+
+/* ── 배치도 렌더 메타 ──
+   좌석 col(1-indexed, 통로에서 AISLE_W칸 빔) → 그리드 칸 gc = col + LABEL_W.
+   양 끝에 열번호 칸을 LABEL_W 만큼 비워 두 자리 숫자(23열)가 잘리지 않게 한다.
+   labelGc = 열번호를 찍을 자리 [왼끝, 통로1, 통로2, 오른끝] — 통로는 AISLE_W칸을 걸친다. */
+const LABEL_W = 2;
+
+function floorGrid (floor) {
+  let maxCol = 0;
+  floor.rows.forEach(row =>
+    seatsInRow(floor, row).forEach(s => { if (s.col > maxCol) maxCol = s.col; }));
+  // 통로 첫 칸 (블록이 최대 2칸 안으로 밀려도 겹치지 않는 자리)
+  const aisleGc = floor.aisles.map(a =>
+    a + floor.aisles.filter(x => x < a).length * AISLE_W + 1 + LABEL_W);
+  return {
+    cols: maxCol + LABEL_W * 2,
+    labelGc: [1, ...aisleGc, maxCol + LABEL_W + 1]
+  };
+}
+
+/* 한 열을 그리드 셀 목록으로. no = 표시용 숫자(D2 → '2'), gc = grid-column */
+const seatRowCells = (floor, row) =>
+  seatsInRow(floor, row).map(s => ({
+    id: seatId(floor.id, row.r, s.no),
+    no: String(s.no).match(/(\d+)$/)[1],
+    gc: s.col + LABEL_W
+  }));
+
+/* ── 구역 드릴다운 (스케줄 탭 좌석 선택) ── */
+const SEAT_ZONES = [{ k:'L', label:'좌측' }, { k:'C', label:'중앙' }, { k:'R', label:'우측' }];
+const zoneLabel  = k => (SEAT_ZONES.find(z => z.k === k) || {}).label || k;
+const seatNum    = v => +String(v).match(/(\d+)$/)[1];
+
+/* 특정 층·구역·열의 좌석들 */
+const seatsAt = (floor, zoneKey, row) =>
+  ZONE_KEYS[zoneKey].flatMap(k => seatRun(row[k], floor.aisles)).map(s => ({
+    id: seatId(floor.id, row.r, s.no),
+    no: String(s.no).match(/(\d+)$/)[1]
+  }));
+
+/* 좌석 id → { floor, row, zone } (기존 기록 자리로 바로 이동할 때) */
+function seatWhere (id) {
+  const [fid, rlab, no] = String(id).split('-');
+  const floor = floorById(fid);
+  const row = floor && floor.rows.find(r => r.r === rlab);
+  if (!row) return null;
+  const n = seatNum(no);
+  for (const zone of ['L', 'C', 'R']) {
+    for (const k of ZONE_KEYS[zone]) {
+      const spec = row[k];
+      if (spec && n >= seatNum(spec[0]) && n <= seatNum(spec[1])) return { fid, rlab, zone };
+    }
+  }
+  return { fid, rlab, zone: 'C' };
+}
 
 const isPast = p => (p.y * 10000 + p.m * 100 + p.d) < (TODAY.y * 10000 + TODAY.m * 100 + TODAY.d);

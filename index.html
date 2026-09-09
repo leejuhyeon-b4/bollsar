@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>애배력 — 강홍석 스케줄</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+KR:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ref/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
    애배력 — 스케줄 탭 (PRD_v3 3장)
@@ -21,37 +19,54 @@
 :root {
   --paper:#e9e3d5; --paper-2:#e3dccb; --paper-3:#ded7c6;
   --ink:#17150f;
-  --ink-72:rgba(23,21,15,.72); --ink-60:rgba(23,21,15,.6);
-  --ink-55:rgba(23,21,15,.55); --ink-45:rgba(23,21,15,.45);
+  /* 텍스트용 — 종이색(--paper) 위에서 최소 WCAG AA 근처 대비를 확보한 값 */
+  --ink-72:rgba(23,21,15,.75); --ink-60:rgba(23,21,15,.66);
+  --ink-55:rgba(23,21,15,.62); --ink-45:rgba(23,21,15,.56);
+  /* 아래 둘은 선·테두리 전용 (텍스트에 쓰지 말 것) */
   --ink-40:rgba(23,21,15,.4);  --ink-28:rgba(23,21,15,.28);
   --ink-14:rgba(23,21,15,.14);
   --accent:#8f2e22;
 
-  --fraktur:"UnifrakturMaguntia","Playfair Display","Noto Serif KR",serif;
-  --display:"Playfair Display","Noto Serif KR",serif;
-  --serif:"Noto Serif KR",serif;
-  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  /* 신문 종이 질감 — SVG 난류로 만든 구김(음영)과 잉크 그레인. 외부 이미지 없음 */
+  --crumple:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='560'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.017' numOctaves='5' seed='9' stitchTiles='stitch' result='t'/><feDiffuseLighting in='t' lighting-color='%23fff' surfaceScale='3.2' diffuseConstant='1'><feDistantLight azimuth='58' elevation='56'/></feDiffuseLighting></filter><rect width='560' height='560' filter='url(%23p)'/><rect width='560' height='560' fill='%23fff' opacity='.5'/></svg>");
+  --grain:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' fill='%23fff'/><rect width='150' height='150' filter='url(%23g)' opacity='.3'/></svg>");
+
+  /* 폰트는 ref/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
+     본문은 시스템 고딕(윈도우 맑은 고딕 / 맥 애플 SD 고딕)이 작은 크기에서 가장 또렷하다.
+     헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다.
+     더 개성을 원하면 --body 첫 항목을 "Gothic A1" 로 바꾸면 된다 (ref/fonts.css 에 포함). */
+  --fraktur:"UnifrakturMaguntia","Hahmlet","Batang",serif;
+  --display:"Playfair Display","Hahmlet","Malgun Gothic","Apple SD Gothic Neo",serif;
+  --body:"Malgun Gothic","Apple SD Gothic Neo","Gothic A1","Noto Sans KR",sans-serif;
+  --mono:"IBM Plex Mono","D2Coding",ui-monospace,monospace;
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
 
+/* 구겨진 신문지 — 잉크 그레인(위) → 구김 음영 → 빛 결 → 가장자리 그늘 순으로 겹친다.
+   위 두 겹만 multiply라 종이색만 어두워지고 본문 글자 대비에는 영향이 없다. */
 body {
-  background:var(--paper); color:var(--ink);
-  font-family:var(--serif); font-size:14px; line-height:1.6;
+  background-color:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:14px; line-height:1.6;
   -webkit-font-smoothing:antialiased;
   background-image:
+    var(--grain),
+    var(--crumple),
     radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,.5), rgba(0,0,0,0) 55%),
     radial-gradient(100% 50% at 50% 100%, rgba(90,78,55,.14), rgba(0,0,0,0) 70%);
-  background-attachment:fixed;
+  background-size:150px 150px, 560px 560px, auto, auto;
+  background-repeat:repeat, repeat, no-repeat, no-repeat;
+  background-blend-mode:multiply, multiply, normal, normal;
+  background-attachment:scroll, scroll, fixed, fixed;
 }
 [hidden] { display:none !important; }
 .mono { font-family:var(--mono); }
 a { color:var(--accent); text-decoration:none; }
 
+/* 지면 컬럼은 배경을 두지 않는다 — body의 구김 결이 그대로 이어지게. */
 .np-shell {
   max-width:600px; margin:0 auto; min-height:100vh;
   padding:0 18px; display:flex; flex-direction:column;
-  background:rgba(233,227,213,.55);
 }
 @media (min-width:640px) { .np-shell { border-inline:1px solid var(--ink-14); } }
 
@@ -64,7 +79,7 @@ a { color:var(--accent); text-decoration:none; }
   padding:4px 8px; cursor:pointer;
 }
 .np-login:hover { background:var(--ink); color:var(--paper); }
-.np-wordmark { font-family:var(--fraktur); font-weight:400; font-size:31px; line-height:1; letter-spacing:.01em; margin:2px 0 4px; }
+.np-wordmark { font-family:var(--fraktur); font-weight:400; font-size:29px; line-height:1.05; letter-spacing:.01em; margin:2px 0 4px; text-wrap:balance; }
 .np-byline {
   display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
   padding-top:6px; border-top:1px solid var(--ink-40);
@@ -73,6 +88,11 @@ a { color:var(--accent); text-decoration:none; }
 .np-byline > :first-child { text-align:left; }
 .np-byline > :last-child { text-align:right; }
 .np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:500; }
+.np-mast-slug {
+  margin-top:7px; padding-top:6px; border-top:1px solid var(--ink-14);
+  font-family:var(--body); font-size:9px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--ink-55); line-height:1.55;
+}
 
 /* ═══ 탭 ═══ */
 .np-nav {
@@ -98,13 +118,36 @@ a { color:var(--accent); text-decoration:none; }
 .np-vt button + button { border-left:1px solid var(--ink-40); }
 .np-vt button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
 
-/* ═══ 다가오는 회차 (지면 헤드라인) ═══ */
-.np-lead { padding:14px 0 13px; border-bottom:1px solid var(--ink-28); }
+/* ═══ 다가오는 회차 (지면 헤드라인 + 컷 사진) ═══ */
+.np-lead {
+  display:grid; grid-template-columns:minmax(0,1fr) clamp(108px, 31%, 176px);
+  gap:15px; align-items:start;
+  padding:14px 0 13px; border-bottom:1px solid var(--ink-28);
+}
 .np-lead-kick { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--accent); text-transform:uppercase; }
 .np-lead-ttl { font-family:var(--display); font-weight:900; font-size:22px; line-height:1.14; letter-spacing:-.01em; margin:4px 0 5px; }
 .np-lead-deck { font-size:12px; line-height:1.62; color:var(--ink-72); text-wrap:pretty; }
 .np-lead-meta { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; font-family:var(--mono); font-size:9px; letter-spacing:.05em; color:var(--ink-60); }
 .np-lead-meta .dday { background:var(--ink); color:var(--paper); padding:2px 6px; white-space:nowrap; }
+
+/* ── 컷 사진 + 송곳 구멍 ──
+   루케니(강홍석) 사진을 신문 컷처럼 흑백으로 깔고, 그 위를 송곳 실루엣 모양으로
+   종이가 뚫린 것처럼 흰색으로 도려낸다. 마스크는 ref/c-hole-mask.png. */
+.np-lead-fig { margin:0; }
+.np-cut {
+  position:relative; overflow:hidden; aspect-ratio:4/5;
+  border:1px solid var(--ink-40); background:var(--paper-3);
+}
+/* height:126% + 위 정렬 = 아래 20%(엘리자벳 로고·Luigi Lucheni 자막)를 잘라낸다 */
+.np-cut img {
+  position:absolute; left:0; top:0;
+  display:block; width:100%; height:126%;
+  object-fit:cover; object-position:47% 0;
+}
+.np-lead-fig figcaption {
+  margin-top:5px; font-family:var(--mono); font-size:8px;
+  letter-spacing:.07em; line-height:1.5; color:var(--ink-55);
+}
 
 /* ═══ 달 이동 ═══ */
 .np-month { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 0 0; }
@@ -135,37 +178,42 @@ a { color:var(--accent); text-decoration:none; }
 .np-cell .n { font-family:var(--display); font-size:13px; font-weight:600; line-height:1; color:var(--ink); }
 .np-cell.sun .n { color:rgba(143,46,34,.8); }
 .np-cell.today .n { color:var(--accent); font-weight:900; border-bottom:2px solid var(--accent); }
-.np-cell.sel { background:var(--ink); }
-.np-cell.sel .n, .np-cell.sel .np-cell-t { color:var(--paper); }
+.np-cell.went { outline:2px solid var(--ink); outline-offset:-2px; }
 .np-cell-photo {
-  width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 22%;
-  filter:grayscale(1) contrast(1.12); border:1px solid var(--ink-28); background:var(--paper-3);
+  width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 28%;
+  border:1px solid var(--ink-28); background:var(--paper-3);
 }
-.np-cell.sel .np-cell-photo { border-color:var(--paper); }
 .np-cell-t { font-family:var(--mono); font-size:8px; letter-spacing:.01em; color:var(--ink-72); line-height:1.2; }
+.np-cell-ev {
+  max-width:100%; margin-top:1px; padding:0 3px;
+  font-family:var(--mono); font-size:7.5px; letter-spacing:0; line-height:1.45;
+  color:var(--accent); border:1px solid rgba(143,46,34,.45);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 
-/* ═══ 지면 섹션 (선택한 날 / 목록) ═══ */
-.np-sec { margin-top:14px; border-top:3px double var(--ink); padding-top:11px; }
-.np-sec-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
-.np-sec-head h3 { font-family:var(--display); font-weight:700; font-size:15px; letter-spacing:.01em; }
-.np-sec-head .cnt { font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--ink-55); }
+/* ═══ 지면 섹션 (목록형) ═══ */
 .np-sec-body { margin-top:8px; }
 
 .np-entry {
-  display:grid; grid-template-columns:56px 1fr; gap:11px;
+  display:grid; grid-template-columns:52px 38px 1fr; gap:10px; align-items:start;
   width:100%; text-align:left; background:none; border:0;
   border-top:1px solid var(--ink-14); padding:11px 0;
-  font-family:var(--serif); cursor:pointer;
+  font-family:var(--body); cursor:pointer;
 }
 .np-entry:first-of-type { border-top:0; }
 .np-entry:active { opacity:.55; }
 .np-entry .lc { text-align:right; border-right:1px solid var(--ink-14); padding-right:9px; }
-.np-entry .lc .big { font-family:var(--mono); font-size:13px; font-weight:500; letter-spacing:-.01em; }
+.np-entry .lc .big { font-family:var(--display); font-size:17px; font-weight:600; letter-spacing:-.01em; }
 .np-entry .lc .sm { font-family:var(--mono); font-size:8px; letter-spacing:.08em; color:var(--ink-55); margin-top:2px; }
-.np-entry.daycol .lc .big { font-family:var(--display); font-size:17px; font-weight:600; }
+.np-entry-photo {
+  width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 28%;
+  border:1px solid var(--ink-28); background:var(--paper-3); margin-top:1px;
+}
 .np-entry .tags { display:flex; flex-wrap:wrap; align-items:center; gap:5px 6px; }
 .np-entry .cat { font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); font-style:normal; text-transform:uppercase; }
 .np-entry.went .cat { color:var(--accent); }
+/* 담은 회차 — 달력·목록 모두 굵은 테두리로 표시 (레이아웃은 밀지 않게 outline) */
+.np-entry.went { outline:2px solid var(--ink); outline-offset:-2px; }
 .np-entry .ttl { display:block; font-weight:700; font-size:14px; line-height:1.35; letter-spacing:-.01em; margin:3px 0; }
 .np-entry .place { display:block; font-size:11px; color:var(--ink-60); }
 .np-entry.past { opacity:.5; }
@@ -178,7 +226,7 @@ a { color:var(--accent); text-decoration:none; }
 
 .np-empty { border-top:1px solid var(--ink-14); padding:24px 0; text-align:center; }
 .np-empty .h { font-family:var(--display); font-style:italic; font-size:15px; color:var(--ink-55); }
-.np-empty .s { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-40); margin-top:5px; }
+.np-empty .s { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-55); margin-top:5px; }
 
 .np-past {
   display:block; width:100%; padding:11px; margin-top:2px;
@@ -211,32 +259,56 @@ a { color:var(--accent); text-decoration:none; }
 .np-sheet-back { position:absolute; inset:0; background:rgba(15,14,10,.55); }
 .np-sheet {
   position:absolute; left:0; right:0; bottom:0; max-width:600px; margin:0 auto;
-  background:var(--paper); border-top:3px double var(--ink);
+  background-color:var(--paper);
+  background-image:var(--grain), var(--crumple);
+  background-size:150px 150px, 560px 560px;
+  background-blend-mode:multiply, multiply;
+  border-top:3px double var(--ink);
   padding:14px 20px 22px; max-height:84vh; overflow-y:auto;
 }
 .np-sheet-head { display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; color:var(--ink-55); text-transform:uppercase; }
 .np-x { border:0; background:none; font-family:var(--mono); font-size:13px; cursor:pointer; color:var(--ink); }
 .np-sheet-ttl { font-family:var(--display); font-weight:900; font-size:22px; line-height:1.16; letter-spacing:-.01em; margin:7px 0 2px; }
 .np-sheet-sub { font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-60); }
+.np-sheet-kicker { display:flex; flex-wrap:wrap; align-items:center; gap:5px 6px; margin-top:9px; }
+.np-sheet-kicker .cat { font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase; font-style:normal; }
+.np-sheet-show { font-family:var(--display); font-weight:700; font-size:15px; line-height:1.35; margin:7px 0 3px; }
+.np-sheet-show span { font-weight:400; font-size:13px; color:var(--ink-60); }
+.np-sheet-switch { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.np-sw {
+  border:1px solid var(--ink-40); background:none; color:var(--ink-60); cursor:pointer;
+  font-family:var(--mono); font-size:9px; letter-spacing:.06em; padding:5px 11px;
+}
+.np-sw.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 .np-hr { height:1px; background:var(--ink-28); margin:10px 0; }
 .np-cast { width:100%; border-collapse:collapse; font-size:13px; }
-.np-cast th, .np-cast td { text-align:left; padding:7px 0; border-bottom:1px solid var(--ink-14); }
-.np-cast th { width:82px; font-weight:400; color:var(--ink-55); font-family:var(--mono); font-size:10px; letter-spacing:.08em; }
+.np-cast caption {
+  caption-side:top; text-align:left; padding-bottom:5px;
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase;
+}
+.np-cast caption span { color:var(--ink-55); letter-spacing:.02em; text-transform:none; }
+.np-cast th, .np-cast td { text-align:left; padding:7px 0; border-bottom:1px solid var(--ink-14); vertical-align:top; }
+.np-cast th { width:70px; font-weight:400; color:var(--ink-55); font-family:var(--mono); font-size:10px; letter-spacing:.08em; }
 .np-cast .you { font-weight:700; }
-.np-cast .you::after {
+.np-cast .on { font-weight:inherit; }
+.np-cast .you .on::after {
   content:"강홍석"; margin-left:6px;
   font-family:var(--mono); font-size:8px; font-weight:500; letter-spacing:.04em;
   color:var(--paper); background:var(--ink); padding:1px 5px;
 }
+.np-cast .alt {
+  display:block; margin-top:3px; font-weight:400;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.02em; color:var(--ink-60);
+}
 .np-badges { display:flex; flex-wrap:wrap; gap:5px; margin-top:12px; }
 .np-badge { font-family:var(--mono); font-size:8.5px; letter-spacing:.05em; border:1px solid var(--ink-28); padding:2px 6px; color:var(--ink-60); }
 .np-badge.unv { color:var(--accent); border-color:rgba(143,46,34,.4); }
-.np-noev { margin-top:12px; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-40); }
+.np-noev { margin-top:12px; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-55); }
 .np-hist { margin-top:12px; padding:10px 12px; background:var(--paper-3); border-left:3px solid var(--accent); font-size:11.5px; line-height:1.5; }
 .np-hist b { display:block; margin-bottom:3px; color:var(--accent); font-family:var(--mono); font-size:9px; letter-spacing:.08em; }
 .np-hist span { display:block; margin-top:3px; font-family:var(--mono); font-size:8px; color:var(--ink-55); }
 .np-check { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
-.np-check .hint { font-family:var(--mono); font-size:8px; letter-spacing:.04em; color:var(--ink-45); }
+.np-check .hint { font-family:var(--mono); font-size:8.5px; letter-spacing:.04em; color:var(--ink-55); }
 .np-btn {
   border:1px solid var(--ink); background:none; color:var(--ink); cursor:pointer;
   font-family:var(--mono); font-size:10px; letter-spacing:.1em; padding:10px 14px;
@@ -244,22 +316,22 @@ a { color:var(--accent); text-decoration:none; }
 .np-btn.solid { background:var(--ink); color:var(--paper); }
 .np-btn.ghost { border-color:var(--ink-40); }
 .np-btn:disabled { opacity:.4; cursor:not-allowed; }
-.np-sheet-foot { margin-top:12px; text-align:center; font-family:var(--mono); font-size:8px; letter-spacing:.06em; color:var(--ink-40); }
+.np-sheet-foot { margin-top:12px; text-align:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; color:var(--ink-55); }
 
-/* ═══ 좌석 선택 모달 ═══ */
-.modal-backdrop { position:fixed; inset:0; z-index:50; background:rgba(15,14,10,.55); display:flex; align-items:center; justify-content:center; padding:20px; }
-.modal { background:var(--paper); border:1px solid var(--ink); max-width:400px; width:100%; max-height:86vh; overflow:auto; padding:20px; }
-.modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-.modal-head h3 { font-family:var(--display); font-weight:700; font-size:16px; }
-.modal-head .sub { font-family:var(--mono); font-size:8.5px; letter-spacing:.04em; color:var(--ink-55); margin-top:3px; }
-.modal-close { border:0; background:none; cursor:pointer; color:var(--ink); font-family:var(--mono); font-size:14px; }
-.modal .field-lbl { font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; color:var(--ink-55); margin:14px 0 8px; line-height:1.6; }
-.seatgrid { display:flex; flex-direction:column; gap:4px; overflow-x:auto; }
-.seatgrid .row { display:flex; gap:4px; align-items:center; }
-.seatgrid .rowlabel { width:16px; font-family:var(--mono); font-size:9px; color:var(--ink-40); text-align:center; }
-.seat { width:26px; height:26px; border:1px solid var(--ink-28); background:var(--paper-3); cursor:pointer; padding:0; }
-.seat:hover { border-color:var(--ink); }
-.seat.mine { background:var(--ink); border-color:var(--ink); }
+/* ── 좌석 선택 — 층 · 열 · 번호 선택지 ── */
+.np-seatsel { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:10px; }
+.np-seatsel .lbl { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-55); text-transform:uppercase; }
+.np-seatsel select {
+  border:1px solid var(--ink-40); background:var(--paper-3); color:var(--ink); cursor:pointer;
+  font-family:var(--mono); font-size:11px; padding:7px 9px; border-radius:0;
+}
+.np-seatsel select:hover { border-color:var(--ink); }
+/* 좌석 배치도 — 좌석번호를 그대로 grid-column으로 써서 실제 부채꼴 배열을 만든다 */
+.stage-bar {
+  margin:12px 0 10px; padding:5px 0; text-align:center;
+  background:var(--ink-14); border:1px solid var(--ink-28);
+  font-family:var(--mono); font-size:9px; letter-spacing:.4em; color:var(--ink-60);
+}
 
 /* ═══ 등장 애니메이션 대기 ═══ */
 .pre-anim .np-mast > *, .pre-anim .np-nav > *, .pre-anim .np-main > * { opacity:0; }
@@ -267,15 +339,18 @@ a { color:var(--accent); text-decoration:none; }
 /* ═══ 반응형 ═══ */
 @media (max-width:600px) {
   .np-shell { padding:0 14px; }
-  .np-wordmark { font-size:23px; }
+  .np-wordmark { font-size:21px; }
   .np-cell { min-height:68px; }
   .np-cell-photo { width:30px; height:30px; }
-  .np-entry { grid-template-columns:48px 1fr; gap:9px; }
+  .np-entry { grid-template-columns:44px 32px 1fr; gap:9px; }
+  .np-entry-photo { width:32px; height:32px; }
+  .np-lead { gap:12px; }
+  .np-lead-ttl { font-size:19px; }
 }
 </style>
 
 <!-- 등장 애니메이션이 깜빡이지 않도록 본문보다 먼저 GSAP을 받아 둔다. -->
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script src="ref/gsap.min.js"></script>
 <script>
 (function () {
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -290,8 +365,9 @@ a { color:var(--accent); text-decoration:none; }
 <div class="np-shell">
   <header class="np-mast" id="mast">
     <button class="np-login" id="loginBtn">로그인</button>
-    <h1 class="np-wordmark">Neue Fan Zeitung</h1>
-    <div class="np-byline"><span id="todayStamp"></span><span class="by-name">강홍석</span><span>NO. 1</span></div>
+    <h1 class="np-wordmark">Neue Zürcher Zeitung</h1>
+    <div class="np-byline"><span>애배력</span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
+    <p class="np-mast-slug">Austrian Empress Elizabeth &middot; Hotel in Ghenf &middot; &ldquo;View Rivage&rdquo;</p>
   </header>
 
   <nav class="np-nav" aria-label="주 메뉴">
@@ -303,7 +379,7 @@ a { color:var(--accent); text-decoration:none; }
 
   <footer class="np-foot">
     <p>© <span class="mono">2026</span> 애배력 — 회차별 캐스팅과 이벤트 정보는 제작사 공식 공지를 1차 출처로 합니다.
-       현재 표시되는 일정·캐스팅은 준비 중인 예시 데이터입니다.</p>
+       일정·캐스팅은 배우 및 제작사 사정으로 사전 공지 없이 변경될 수 있습니다.</p>
   </footer>
 </div>
 
@@ -313,20 +389,6 @@ a { color:var(--accent); text-decoration:none; }
   <div class="np-sheet" role="dialog" aria-modal="true" aria-label="회차 상세" id="sheetBody"></div>
 </div>
 
-<!-- 좌석 선택 모달 -->
-<div class="modal-backdrop" id="seatModal" hidden>
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="seatModalTitle">
-    <div class="modal-head">
-      <div>
-        <h3 id="seatModalTitle">좌석 선택</h3>
-        <p class="sub" id="seatModalSub"></p>
-      </div>
-      <button type="button" class="modal-close" id="seatModalClose" aria-label="닫기">✕</button>
-    </div>
-    <p class="field-lbl">앉았던 좌석을 골라주세요 — 대표 좌석 그리드입니다. 실제 배치도는 작품마다 별도 준비됩니다.</p>
-    <div id="seatModalGrid"></div>
-  </div>
-</div>
 
 <!-- 공용 데이터 · 헬퍼 (정산판 탭과 공유) -->
 <script src="data.js"></script>
@@ -346,34 +408,34 @@ const EASE = { out:'expo.out', in:'power2.out', pop:'back.out(1.5)' };
 if (MOTION) gsap.defaults({ ease:EASE.out, duration:.36 });
 
 const MONTH_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const WD = ['일','월','화','수','목','금','토'];
-const dowShort = p => WD[new Date(p.y, p.m - 1, p.d).getDay()];
+const WD_NAME = ['일','월','화','수','목','금','토'];   // getDay() 인덱스용
+const WD = ['월','화','수','목','금','토','일'];        // 달력 표시 순서 — 월요일 시작
+const wcol = d => (d + 6) % 7;                          // getDay() → 달력 열 위치 (0=월 … 6=일)
+const dowShort = p => WD_NAME[new Date(p.y, p.m - 1, p.d).getDay()];
 
 /* ═══════════════════════════════════════════════════════════
    상태
    ═══════════════════════════════════════════════════════════ */
 let view = 'calendar';                 // 'calendar' | 'list' — 달력형이 이 탭의 중심
 let ym = { y:TODAY.y, m:TODAY.m };      // 달력형에서 보고 있는 달
-let selDay = 1;                         // 달력형에서 선택된 날 (지면 섹션 대상)
 let showPast = false;                   // 목록형에서 지난 회차 펼침 여부
 let sheetKey = null;                    // 열린 상세 시트의 perfKey
-let loggedIn = false;
+/* 개발 기본값 = 로그인됨. 실제 인증(Supabase 등)이 붙기 전까지 게이트로 막히면
+   관극 체크·좌석 선택을 볼 수 없어서 열어둔다. 마스트헤드 버튼으로 로그아웃 상태도 확인 가능.
+   ⚠️ 실제 인증 연결할 때 false 로 되돌릴 것. */
+let loggedIn = true;
 let skipAnim = false;
 let gridFrom = 'start';
 
 const inMonth = p => p.y === ym.y && p.m === ym.m;
 const monthPerfs = () => hongPerfs().filter(inMonth).sort(cmpPerf);
 
-/* 달력 셀 안에 넣는 배우 사진 (강홍석 · 엘리자벳 프로모션).
-   TODO: 관리자 업로드 사진으로 교체 (PRD_v3 3.1 / 3.2) — 그때 이 경로만 바꾸면 된다. */
-const PHOTO = 'ref/news.jpg';
+/* 달력 셀 안에 넣는 배우 사진 (강홍석 · 엘리자벳 루케니 공식 프로필).
+   관리자 업로드 사진으로 교체 시 이 경로만 바꾸면 된다 (PRD_v3 3.1 / 3.2). */
+const PHOTO = 'ref/KakaoTalk_20260909_174603341.jpg';
 
-function defaultSelDay () {
-  const days = [...new Set(monthPerfs().map(p => p.d))].sort((a, b) => a - b);
-  if (!days.length) return 1;
-  if (ym.y === TODAY.y && ym.m === TODAY.m) return days.find(d => d >= TODAY.d) || days[days.length - 1];
-  return days[0];
-}
+/* 헤드라인 옆 컷 사진 — 루케니 무대컷. 송곳 실루엣이 이 위를 뚫고 지나간다. */
+const LEAD_PHOTO = 'ref/KakaoTalk_20260909_174603341_01.jpg';
 
 /* ═══════════════════════════════════════════════════════════
    렌더
@@ -408,35 +470,39 @@ function leadHTML () {
   else deck = `${ACTORS[HONG].name} 출연 예정 회차입니다. 새 캐스팅·이벤트가 공개되면 이 자리에 먼저 실립니다.`;
 
   return `<section class="np-lead">
-    <div class="np-lead-kick">다가오는 회차</div>
-    <h2 class="np-lead-ttl">뮤지컬 &lsquo;${WORK.title}&rsquo;${role ? ` ${role} 역` : ''}</h2>
-    <p class="np-lead-deck">${deck}</p>
-    <div class="np-lead-meta">
-      <span class="dday">${dday}</span>
-      <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${WORK.venue ? ' · ' + WORK.venue : ''}</span>
+    <div class="np-lead-text">
+      <div class="np-lead-kick">다가오는 회차</div>
+      <h2 class="np-lead-ttl">뮤지컬 &lsquo;${WORK.title}&rsquo;${role ? ` ${role} 역` : ''}</h2>
+      <p class="np-lead-deck">${deck}</p>
+      <div class="np-lead-meta">
+        <span class="dday">${dday}</span>
+        <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${WORK.venue ? ' · ' + WORK.venue : ''}</span>
+      </div>
     </div>
+    <figure class="np-lead-fig">
+      <div class="np-cut">
+        <img src="${LEAD_PHOTO}" alt="${ACTORS[HONG].name} — ${role || '루케니'} 무대컷" loading="lazy">
+      </div>
+      <figcaption>Luigi Lucheni · ${ACTORS[HONG].name}</figcaption>
+    </figure>
   </section>`;
 }
 
-/* ── 지면 기사 한 줄 (달력 지면 / 목록 공용) ── */
-function entryHTML (p, mode, extra) {
+/* ── 지면 기사 한 줄 (목록형) ── */
+function entryHTML (p, extra) {
   const key = perfKey(p);
   const role = (hongRole(p) || {}).name || '';
   const went = loggedIn && !!recordFor(p);
-  const daycol = mode === 'day';
 
   const badges = [
     ...(p.events || []).map(e => `<em class="np-mini${e.verified ? '' : ' unv'}">${e.label}${e.verified ? '' : ' · 미검증'}</em>`),
     p.history ? `<em class="np-mini hist">캐스팅 변경</em>` : '',
-    went ? `<em class="np-mini went">✓ 봤어요</em>` : ''
+    went ? `<em class="np-mini went">✓ 담음</em>` : ''
   ].filter(Boolean).join('');
 
-  const lc = daycol
-    ? `<div class="lc"><div class="big">${p.d}</div><div class="sm">${p.m}월 ${dowShort(p)}</div></div>`
-    : `<div class="lc"><div class="big">${p.t}</div><div class="sm">${dowShort(p)}요일</div></div>`;
-
-  return `<button type="button" class="np-entry${daycol ? ' daycol' : ''}${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}">
-    ${lc}
+  return `<button type="button" class="np-entry${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}">
+    <div class="lc"><div class="big">${p.d}</div><div class="sm">${p.m}월 ${dowShort(p)}</div></div>
+    <img class="np-entry-photo" src="${PHOTO}" alt="" loading="lazy">
     <div>
       <div class="tags"><em class="cat">뮤지컬 회차</em>${badges}</div>
       <span class="ttl">${WORK.title}${role ? ` — ${role} 역` : ''}</span>
@@ -451,7 +517,7 @@ function calendarHTML () {
   const byDay = {};
   list.forEach(p => (byDay[p.d] = byDay[p.d] || []).push(p));
 
-  const first = firstDow(ym.y, ym.m);
+  const first = wcol(firstDow(ym.y, ym.m));   // 월요일 시작 기준 앞 여백
   const dim = daysIn(ym.y, ym.m);
   const totalCells = Math.ceil((first + dim) / 7) * 7;
 
@@ -460,13 +526,15 @@ function calendarHTML () {
     const day = i - first + 1;
     if (day < 1 || day > dim) { cells += `<div class="np-cell pad"></div>`; continue; }
     const dItems = (byDay[day] || []).sort((a, b) => a.t.localeCompare(b.t));
-    const isSel = day === selDay;
     const isToday = ym.y === TODAY.y && ym.m === TODAY.m && day === TODAY.d;
-    const isSun = (i % 7) === 0;
-    const cls = ['np-cell', isSel ? 'sel' : '', isToday ? 'today' : '', isSun ? 'sun' : ''].join(' ').trim();
+    const isSun = (i % 7) === 6;   // 일요일 = 마지막 열
+    const dWent = loggedIn && dItems.some(p => recordFor(p));   // 담은 회차가 있는 날
+    const cls = ['np-cell', isToday ? 'today' : '', isSun ? 'sun' : '', dWent ? 'went' : ''].join(' ').replace(/\s+/g, ' ').trim();
+    const dEvents = dItems.flatMap(p => p.events || []);
     const inner = dItems.length
       ? `<img class="np-cell-photo" src="${PHOTO}" alt="${ACTORS[HONG].name}" loading="lazy">
-         <span class="np-cell-t">${dItems.map(p => p.t).join('·')}</span>`
+         <span class="np-cell-t">${dItems.map(p => p.t).join('·')}</span>
+         ${dEvents.length ? `<span class="np-cell-ev">${dEvents[0].label}${dEvents.length > 1 ? ' +' + (dEvents.length - 1) : ''}</span>` : ''}`
       : '';
     cells += `<div class="${cls}" data-day="${day}">
       <span class="n">${day}</span>
@@ -474,12 +542,7 @@ function calendarHTML () {
     </div>`;
   }
 
-  const dow = WD.map((w, i) => `<div class="${i === 0 ? 'sun' : ''}">${w}</div>`).join('');
-
-  const dayList = (byDay[selDay] || []).sort((a, b) => a.t.localeCompare(b.t));
-  const entries = dayList.length
-    ? dayList.map(p => entryHTML(p, 'time')).join('')
-    : `<div class="np-empty"><div class="h">No entries filed.</div><div class="s">이 날은 ${ACTORS[HONG].name} 공연이 없습니다</div></div>`;
+  const dow = WD.map((w, i) => `<div class="${i === 6 ? 'sun' : ''}">${w}</div>`).join('');
 
   return `
   ${leadHTML()}
@@ -496,14 +559,6 @@ function calendarHTML () {
       <div class="np-dow">${dow}</div>
       <div class="np-grid">${cells}</div>
     </div>
-  </section>
-
-  <section class="np-sec">
-    <div class="np-sec-head">
-      <h3>${ym.m}월 ${selDay}일의 지면</h3>
-      <span class="cnt">${dayList.length} ENTRIES</span>
-    </div>
-    <div class="np-sec-body">${entries}</div>
   </section>
 
   <section class="np-book">
@@ -523,12 +578,12 @@ function listHTML () {
   const past = all.filter(isPast);
 
   const rows = upcoming.length
-    ? upcoming.map(p => entryHTML(p, 'day')).join('')
+    ? upcoming.map(p => entryHTML(p)).join('')
     : `<div class="np-empty"><div class="h">No upcoming entries.</div><div class="s">새 캐스팅표가 공개되면 반영됩니다</div></div>`;
 
   const pastBlock = past.length
     ? `<button type="button" class="np-past" id="pastToggle">${showPast ? '▲ 지난 회차 접기' : `▼ 지난 회차 ${past.length}건`}</button>` +
-      (showPast ? past.map(p => entryHTML(p, 'day', 'past')).join('') : '')
+      (showPast ? past.map(p => entryHTML(p, 'past')).join('') : '')
     : '';
 
   return `<section>
@@ -547,10 +602,28 @@ function sheetHTML (p) {
   const diff = Math.round((new Date(p.y, p.m - 1, p.d) - new Date(TODAY.y, TODAY.m - 1, TODAY.d)) / 86400000);
   const dday = diff === 0 ? 'D-DAY' : diff > 0 ? 'D-' + diff : 'D+' + Math.abs(diff);
 
+  const sameDay = hongPerfs().filter(q => q.y === p.y && q.m === p.m && q.d === p.d).sort(cmpPerf);
+  const dayNav = sameDay.length > 1
+    ? `<div class="np-sheet-switch">${sameDay.map(q => {
+        const k = perfKey(q);
+        return `<button type="button" class="np-sw js-sw${k === perfKey(p) ? ' on' : ''}" data-key="${k}">${q.t}</button>`;
+      }).join('')}</div>`
+    : '';
+
+  const role = (hongRole(p) || {}).name || '';
+  const went = loggedIn && !!recordFor(p);
+  const kicker = [
+    '<em class="cat">뮤지컬 회차</em>',
+    p.history ? '<em class="np-mini hist">캐스팅 변경</em>' : '',
+    went ? '<em class="np-mini went">✓ 담음</em>' : ''
+  ].filter(Boolean).join('');
+
   const rows = ROLES.map(r => {
     const a = p.cast[r.id];
     if (!a) return '';
-    return `<tr><th>${r.name}</th><td class="${a === HONG ? 'you' : ''}">${actorName(a)}</td></tr>`;
+    const alts = r.actors.filter(x => x !== a);
+    const altHTML = alts.length ? `<span class="alt">${alts.map(actorName).join(' · ')}</span>` : '';
+    return `<tr><th>${r.name}</th><td class="${a === HONG ? 'you' : ''}"><span class="on">${actorName(a)}</span>${altHTML}</td></tr>`;
   }).join('');
 
   const events = p.events || [];
@@ -566,30 +639,36 @@ function sheetHTML (p) {
   const rec = recordFor(p);
   const check = loggedIn
     ? `<div class="np-check">
-        <button type="button" class="np-btn ${rec ? 'solid' : ''} js-check" aria-pressed="${!!rec}">${rec ? '✓ 이 회차 봤어요' : '이 회차 봤어요'}</button>
-        ${rec
-          ? `<button type="button" class="np-btn ghost js-seat">${rec.seat ? `좌석 ${rec.seat} · 변경` : '좌석 선택'}</button>`
-          : `<span class="hint">눌러서 관극 기록을 남기세요</span>`}
-      </div>`
+        <button type="button" class="np-btn ${rec ? 'solid' : ''} js-check" aria-pressed="${!!rec}">${rec ? '✓ 이 회차 담음' : '이 회차 담기'}</button>
+        ${rec ? '' : `<span class="hint">눌러서 관극 기록을 남기세요</span>`}
+      </div>
+      ${rec ? seatSelectHTML(rec) : ''}`
     : `<div class="np-check">
-        <button type="button" class="np-btn ghost" disabled>이 회차 봤어요</button>
+        <button type="button" class="np-btn ghost" disabled>이 회차 담기</button>
         <span class="hint">로그인하면 관극 기록과 좌석을 남길 수 있습니다</span>
       </div>`;
 
   return `
     <div class="np-sheet-head">
-      <span>회차 · ${p.m}월 ${p.d}일 ${dowShort(p)}요일</span>
+      <span>${dowShort(p)}요일 · ${dday}</span>
       <button type="button" class="np-x js-close" aria-label="닫기">✕</button>
     </div>
-    <h3 class="np-sheet-ttl">${WORK.title}</h3>
+    <h3 class="np-sheet-ttl">${p.m}월 ${p.d}일 ${dowShort(p)}요일의 지면</h3>
+    <div class="np-sheet-kicker">${kicker}</div>
+    <p class="np-sheet-show">${WORK.title}${role ? ` <span>— ${role} 역</span>` : ''}</p>
     <p class="np-sheet-sub">${p.t} 시작${WORK.venue ? ' · ' + WORK.venue : ''}</p>
+    ${dayNav}
     <div class="np-hr"></div>
-    <table class="np-cast"><tbody>${rows}</tbody></table>
+    <table class="np-cast">
+      <caption>이 회차 캐스팅 <span>· 회색은 배역별 다른 캐스팅</span></caption>
+      <tbody>${rows}</tbody>
+    </table>
     ${evHTML}${hist}${check}
-    <p class="np-sheet-foot">${dday} · 티켓/방청 정보는 공식 채널을 확인하세요</p>`;
+    <p class="np-sheet-foot">티켓·방청 정보는 공식 채널을 확인하세요</p>`;
 }
 
 function openSheet (p) {
+  const wasOpen = !$('#sheet').hidden;   // 재바인딩(회차 전환·체크 갱신)이면 등장 애니메이션 생략
   sheetKey = perfKey(p);
   const wrap = $('#sheet');
   const body = $('#sheetBody');
@@ -597,19 +676,25 @@ function openSheet (p) {
   wrap.hidden = false;
 
   body.querySelector('.js-close').addEventListener('click', closeSheet);
+  body.querySelectorAll('.js-sw').forEach(b => b.addEventListener('click', () => {
+    const np = perfFromKey(b.dataset.key);
+    if (np) openSheet(np);          // 같은 날 다른 회차로 전환
+  }));
   const c = body.querySelector('.js-check');
   if (c) c.addEventListener('click', () => {
     toggleCheck(p);
     const np = perfFromKey(sheetKey);
     if (np) openSheet(np);          // 시트 안 체크 상태 갱신
   });
-  const s = body.querySelector('.js-seat');
-  if (s) s.addEventListener('click', () => openSeatModal(p));
+  [['.js-sf', 'floor'], ['.js-sr', 'row'], ['.js-sn', 'no']].forEach(([sel, which]) => {
+    const el = body.querySelector(sel);
+    if (el) el.addEventListener('change', () => applySeatSelect(p, which));
+  });
 
   document.removeEventListener('keydown', escCloseSheet);
   document.addEventListener('keydown', escCloseSheet);
 
-  if (!MOTION) return;
+  if (!MOTION || wasOpen) return;
   gsap.fromTo('#sheetBack', { opacity:0 }, { opacity:1, duration:.18, ease:EASE.out });
   gsap.fromTo('#sheetBody', { yPercent:100 }, { yPercent:0, duration:.34, ease:EASE.out });
 }
@@ -632,6 +717,7 @@ function toggleCheck (p) {
   const existing = MY_RECORDS.find(r => r.key === key);
   if (existing) MY_RECORDS = MY_RECORDS.filter(r => r.key !== key);
   else MY_RECORDS.push({ key, seat:null });
+  saveRecords();
   skipAnim = true;
   render();
 }
@@ -640,57 +726,49 @@ function setSeatForPerf (p, seatId) {
   const rec = MY_RECORDS.find(r => r.key === perfKey(p));
   if (!rec) return;
   rec.seat = seatId;
+  saveRecords();
   skipAnim = true;
   render();
 }
 
-/* ═══ 좌석 선택 모달 ═══ */
-function seatModalGridHTML (perf) {
-  const mySeat = (recordFor(perf) || {}).seat;
-  const rows = SEAT_ROWS.map(r => {
-    let cells = '';
-    for (let c = 1; c <= SEAT_COLS; c++) {
-      const id = `${r}-${c}`;
-      cells += `<button type="button" class="seat${id === mySeat ? ' mine' : ''}" data-seat="${id}" aria-label="${r}열 ${c}번" title="${r}열 ${c}번"></button>`;
-    }
-    return `<div class="row"><span class="rowlabel">${r}</span>${cells}</div>`;
-  }).join('');
-  return `<div class="seatgrid">${rows}</div>`;
+/* ═══ 좌석 선택 — 층 · 열 · 번호 세 개의 선택지.
+   층을 바꾸면 열 목록이, 열을 바꾸면 번호 목록이 그 층·열의 실제 좌석으로 갱신된다.
+   여기서 고른 id가 정산판 배치도에 그대로 칠해진다. ═══ */
+function seatSelectHTML (rec) {
+  const w = rec.seat ? seatWhere(rec.seat) : null;
+  const floor = floorById(w ? w.fid : '1') || SEAT_MAP.floors[0];
+  const row   = floor.rows.find(r => r.r === (w && w.rlab)) || floor.rows[0];
+  const seats = seatsInRow(floor, row);
+  const curNo = rec.seat ? String(rec.seat).split('-')[2] : null;
+
+  const opt = (v, label, on) => `<option value="${v}"${on ? ' selected' : ''}>${label}</option>`;
+
+  return `<div class="np-seatsel">
+    <span class="lbl">좌석</span>
+    <select class="js-sf" aria-label="층">${
+      SEAT_MAP.floors.map(f => opt(f.id, f.label, f.id === floor.id)).join('')}</select>
+    <select class="js-sr" aria-label="열">${
+      floor.rows.map(r => opt(r.r, r.r + '열', r.r === row.r)).join('')}</select>
+    <select class="js-sn" aria-label="번호">${
+      seats.map(s => opt(s.no, s.no + '번', String(s.no) === curNo)).join('')}</select>
+  </div>`;
 }
 
-function openSeatModal (perf) {
-  const modal = $('#seatModal');
-  $('#seatModalSub').textContent = `${WORK.title} · ${perf.m}월 ${perf.d}일 ${perf.t}`;
-  $('#seatModalGrid').innerHTML = seatModalGridHTML(perf);
-  $('#seatModalGrid').querySelectorAll('.seat').forEach(seat => {
-    seat.addEventListener('click', () => {
-      setSeatForPerf(perf, seat.dataset.seat);
-      closeSeatModal();
-      if (sheetKey) { const np = perfFromKey(sheetKey); if (np) openSheet(np); }
-    });
-  });
-
-  modal.hidden = false;
-  document.removeEventListener('keydown', escCloseModal);
-  document.addEventListener('keydown', escCloseModal);
-  $('#seatModalClose').focus();
-
-  if (!MOTION) return;
-  gsap.fromTo(modal, { opacity:0 }, { opacity:1, duration:.2, ease:EASE.out });
-  gsap.fromTo(modal.querySelector('.modal'),
-    { opacity:0, y:12, scale:.97 }, { opacity:1, y:0, scale:1, duration:.3, ease:EASE.out });
+/* 선택이 바뀌면 그 자리를 기록에 바로 반영하고 시트를 다시 그린다.
+   floor/row 가 바뀌면 하위 목록이 달라지므로 첫 좌석으로 맞춰 준다. */
+function applySeatSelect (perf, changed) {
+  const fid = $('.js-sf').value;
+  const floor = floorById(fid);
+  let rlab = $('.js-sr').value;
+  if (changed === 'floor' || !floor.rows.some(r => r.r === rlab)) rlab = floor.rows[0].r;
+  const row = floor.rows.find(r => r.r === rlab);
+  const seats = seatsInRow(floor, row);
+  let no = $('.js-sn').value;
+  if (changed !== 'no' || !seats.some(s => String(s.no) === no)) no = seats[0].no;
+  setSeatForPerf(perf, seatId(fid, rlab, no));
+  const np = perfFromKey(sheetKey);
+  if (np) openSheet(np);
 }
-
-function closeSeatModal () {
-  const modal = $('#seatModal');
-  if (modal.hidden) return;
-  document.removeEventListener('keydown', escCloseModal);
-  const done = () => { modal.hidden = true; };
-  if (!MOTION) return done();
-  gsap.to(modal.querySelector('.modal'), { opacity:0, y:8, scale:.98, duration:.18, ease:EASE.in });
-  gsap.to(modal, { opacity:0, duration:.18, ease:EASE.in, onComplete:done });
-}
-function escCloseModal (e) { if (e.key === 'Escape') closeSeatModal(); }
 
 /* ═══════════════════════════════════════════════════════════
    이벤트 바인딩
@@ -704,7 +782,6 @@ function moveMonth (step) {
   sheetKey = null;
   closeSheet();
   gridFrom = step < 0 ? 'end' : 'start';
-  selDay = defaultSelDay();
   render();
 }
 
@@ -718,9 +795,9 @@ function bind () {
   }));
 
   $$('.np-cell[data-day]').forEach(c => c.addEventListener('click', () => {
-    selDay = +c.dataset.day;
-    skipAnim = true;
-    render();
+    const day = +c.dataset.day;
+    const dPerfs = monthPerfs().filter(p => p.d === day).sort(cmpPerf);
+    if (dPerfs.length) openSheet(dPerfs[0]);   // 회차 있는 날 → 상세 모달 (같은 날 여러 회차면 모달 안에서 전환)
   }));
 
   $$('.np-entry').forEach(e => e.addEventListener('click', () => {
@@ -757,15 +834,12 @@ function animateBody () {
 
 /* ═══ 로그인 데모 토글 — 실제 인증 없음 ═══ */
 $('#loginBtn').addEventListener('click', () => { loggedIn = !loggedIn; skipAnim = true; render(); });
-$('#seatModalClose').addEventListener('click', closeSeatModal);
-$('#seatModal').addEventListener('click', e => { if (e.target.id === 'seatModal') closeSeatModal(); });
 $('#sheetBack').addEventListener('click', closeSheet);
 
 /* ═══ 초기화 ═══ */
 $('#todayStamp').textContent =
-  `${TODAY.y}년 ${TODAY.m}월 ${TODAY.d}일 ${WD[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]}요일`;
+  `${TODAY.y}년 ${TODAY.m}월 ${TODAY.d}일 ${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]}요일`;
 
-selDay = defaultSelDay();
 skipAnim = true;
 render();
 enter();
