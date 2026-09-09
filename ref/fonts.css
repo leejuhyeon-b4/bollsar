@@ -1,0 +1,86 @@
+/* 애배력 로컬 폰트 — 이 PC는 웹폰트 CDN(구글·jsDelivr)이 막혀 있어
+   woff2 를 저장소에 직접 넣고 상대경로로 부른다. (경로 기준: 이 파일 위치 = ref/)
+   HTML: <link rel="stylesheet" href="ref/fonts.css">
+
+   ⚠️ 지금은 비교용으로 후보를 다 담아 5MB 가량이다.
+      본문·헤드라인 폰트가 확정되면 안 쓰는 woff2 는 지운다. */
+
+/* ═══ 라틴 — 신문 정체성 (전부 20KB대) ═══ */
+@font-face { font-family:'UnifrakturMaguntia'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/unifraktur-400.woff2') format('woff2'); }
+
+@font-face { font-family:'Playfair Display'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('fonts/playfair-700.woff2') format('woff2'); }
+@font-face { font-family:'Playfair Display'; font-style:normal; font-weight:900; font-display:swap;
+  src:url('fonts/playfair-900.woff2') format('woff2'); }
+@font-face { font-family:'Playfair Display'; font-style:italic; font-weight:700; font-display:swap;
+  src:url('fonts/playfair-700i.woff2') format('woff2'); }
+
+@font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:500; font-display:swap;
+  src:url('fonts/plexmono-500.woff2') format('woff2'); }
+@font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:600; font-display:swap;
+  src:url('fonts/plexmono-600.woff2') format('woff2'); }
+
+/* ═══ 한글 명조·바탕 — 신문 지면 느낌 ═══ */
+
+/* KoPub 바탕 — 한국출판인회의가 출판·인쇄 조판용으로 만든 서체.
+   한국 책·신문 본문 바탕체의 사실상 표준이다. 상업 이용 무료.
+   원본이 3MB라 한글(AC00-D7A3)+라틴만 남겨 1MB로 서브셋했다. */
+@font-face { font-family:'KoPubWorld Batang'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/kopubbatang-400.woff2') format('woff2'); }
+@font-face { font-family:'KoPubWorld Batang'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('fonts/kopubbatang-700.woff2') format('woff2'); }
+
+/* Hahmlet — 획 대비가 큰 편집용 세리프. 가장 개성적 */
+@font-face { font-family:'Hahmlet'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/hahmlet-400.woff2') format('woff2'); }
+@font-face { font-family:'Hahmlet'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('fonts/hahmlet-700.woff2') format('woff2'); }
+
+/* Nanum Myeongjo — 전통 신문 명조. 800 굵기가 있어 헤드라인이 강하다 */
+@font-face { font-family:'Nanum Myeongjo'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/nanummyeongjo-400.woff2') format('woff2'); }
+@font-face { font-family:'Nanum Myeongjo'; font-style:normal; font-weight:800; font-display:swap;
+  src:url('fonts/nanummyeongjo-800.woff2') format('woff2'); }
+
+/* Gowun Batang — 따뜻하고 부드러운 바탕체. 책 느낌 */
+@font-face { font-family:'Gowun Batang'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/gowunbatang-400.woff2') format('woff2'); }
+@font-face { font-family:'Gowun Batang'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('fonts/gowunbatang-700.woff2') format('woff2'); }
+
+/* Song Myung — 납활자 인쇄 느낌. 옛 신문 */
+@font-face { font-family:'Song Myung'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/songmyung-400.woff2') format('woff2'); }
+
+/* ═══ 한글 고딕 — 또렷함 ═══ */
+
+/* Gothic A1 — 기하학적, 살짝 각진 */
+@font-face { font-family:'Gothic A1'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/gothica1-400.woff2') format('woff2'); }
+@font-face { font-family:'Gothic A1'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('fonts/gothica1-700.woff2') format('woff2'); }
+
+/* Nanum Gothic — 가장 무난하고 깔끔한 고딕 */
+@font-face { font-family:'Nanum Gothic'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/nanumgothic-400.woff2') format('woff2'); }
+@font-face { font-family:'Nanum Gothic'; font-style:normal; font-weight:700; font-display:swap;
+  src:url('fonts/nanumgothic-700.woff2') format('woff2'); }
+
+/* Gowun Dodum — 획 굵기가 균일한 부드러운 고딕 */
+@font-face { font-family:'Gowun Dodum'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/gowundodum-400.woff2') format('woff2'); }
+
+/* ═══ 제목 전용 — 본문에 쓰지 말 것 ═══ */
+
+/* Do Hyeon — 굵고 단단한 디스플레이 */
+@font-face { font-family:'Do Hyeon'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/dohyeon-400.woff2') format('woff2'); }
+
+/* Black Han Sans — 초굵은 제호용 */
+@font-face { font-family:'Black Han Sans'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/blackhansans-400.woff2') format('woff2'); }
+
+/* Jua — 둥글둥글 친근한 */
+@font-face { font-family:'Jua'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/jua-400.woff2') format('woff2'); }
