@@ -3,7 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>정산판 — 애배력</title>
+<title>정산판 — 엘리자벳 2026</title>
+<meta name="description" content="내가 본 뮤지컬 엘리자벳 2026 회차·좌석 기록과 관람 정산 · 좌석 배치도 · 페어 조합 즐겨찾기">
+
+<!-- ⚠️ GA4 측정 ID(G-XXXXXXXXXX)만 본인 것으로 교체하세요 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="정산판 — 엘리자벳 2026">
+<meta property="og:description" content="내가 본 엘리자벳 회차·좌석을 좌석 배치도에 기록하고 관람 횟수를 정산">
+<meta property="og:image" content="https://hong-orcin.vercel.app/og-image.png">
+<meta property="og:url" content="https://hong-orcin.vercel.app/settlement.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
 <link rel="stylesheet" href="ref/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -32,13 +51,13 @@
   --grain:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' fill='%23fff'/><rect width='150' height='150' filter='url(%23g)' opacity='.3'/></svg>");
 
   /* 폰트는 ref/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
-     본문은 시스템 고딕(윈도우 맑은 고딕 / 맥 애플 SD 고딕)이 작은 크기에서 가장 또렷하다.
-     헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다.
-     더 개성을 원하면 --body 첫 항목을 "Gothic A1" 로 바꾸면 된다 (ref/fonts.css 에 포함). */
+     본문은 카페24 써라운드 에어 — 둥근 획의 고딕. 못 받으면 시스템 고딕으로 폴백.
+     헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다. */
   --fraktur:"UnifrakturMaguntia","Hahmlet","Batang",serif;
   --display:"Playfair Display","Hahmlet","Malgun Gothic","Apple SD Gothic Neo",serif;
-  --body:"Malgun Gothic","Apple SD Gothic Neo","Gothic A1","Noto Sans KR",sans-serif;
-  --mono:"IBM Plex Mono","D2Coding",ui-monospace,monospace;
+  --body:"Cafe24 Ssurround Air","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  /* 숫자·라틴은 IBM Plex Mono, 그 안의 한글은 본문과 같은 카페24 써라운드 에어로 폴백 */
+  --mono:"IBM Plex Mono","Cafe24 Ssurround Air","D2Coding",ui-monospace,monospace;
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -73,7 +92,7 @@ a { color:var(--accent); text-decoration:none; }
 .np-login {
   position:absolute; right:0; top:14px;
   border:1px solid var(--ink-40); background:none; color:var(--ink);
-  font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+  font-family:var(--mono); font-size:12px; letter-spacing:.12em;
   padding:4px 8px; cursor:pointer;
 }
 .np-login:hover { background:var(--ink); color:var(--paper); }
@@ -81,14 +100,14 @@ a { color:var(--accent); text-decoration:none; }
 .np-byline {
   display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
   padding-top:6px; border-top:1px solid var(--ink-40);
-  font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--ink-60);
+  font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--ink-60);
 }
 .np-byline > :first-child { text-align:left; }
 .np-byline > :last-child { text-align:right; }
 .np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:500; }
 .np-mast-slug {
   margin-top:7px; padding-top:6px; border-top:1px solid var(--ink-14);
-  font-family:var(--body); font-size:9px; letter-spacing:.11em;
+  font-family:var(--body); font-size:12px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--ink-55); line-height:1.55;
 }
 
@@ -96,7 +115,7 @@ a { color:var(--accent); text-decoration:none; }
 .np-nav {
   flex:none; display:flex; gap:18px; justify-content:center;
   padding:9px 0; border-bottom:1px solid var(--ink-28);
-  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
 }
 .np-nav [aria-current] { color:var(--ink); border-bottom:2px solid var(--accent); padding-bottom:3px; }
 .np-nav a { color:var(--ink-55); }
@@ -105,7 +124,7 @@ a { color:var(--accent); text-decoration:none; }
 .np-main { flex:1; padding:14px 0 28px; }
 
 .np-foot { flex:none; border-top:3px double var(--ink); padding:12px 0 26px; }
-.np-foot p { font-family:var(--mono); font-size:8.5px; line-height:1.7; letter-spacing:.03em; color:var(--ink-55); }
+.np-foot p { font-family:var(--mono); font-size:12px; line-height:1.7; letter-spacing:.03em; color:var(--ink-55); }
 
 /* ═══ 지면 헤드 — 포스터 + 제호 ═══ */
 .st-head {
@@ -116,26 +135,26 @@ a { color:var(--accent); text-decoration:none; }
   width:64px; height:64px; border-radius:50%; flex:none;
   border:1px solid var(--ink-40); background:var(--paper-3) center/cover no-repeat;
 }
-.st-kick { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--accent); text-transform:uppercase; }
+.st-kick { font-family:var(--mono); font-size:12px; letter-spacing:.2em; color:var(--accent); text-transform:uppercase; }
 .st-title { font-family:var(--display); font-weight:900; font-size:26px; line-height:1.12; letter-spacing:-.01em; margin:4px 0 5px; }
-.st-meta { font-family:var(--mono); font-size:9px; letter-spacing:.04em; color:var(--ink-60); line-height:1.6; }
+.st-meta { font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--ink-60); line-height:1.6; }
 
 /* ═══ 섹션 ═══ */
 .st-sec { margin-top:16px; border-top:3px double var(--ink); padding-top:12px; }
 .st-sec-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:9px; }
 .st-sec-head h2, .st-sec-head h3 { font-family:var(--display); font-weight:700; font-size:15px; letter-spacing:.01em; }
-.st-sec-head .cnt { font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--ink-55); }
-.st-note { font-family:var(--mono); font-size:9px; line-height:1.7; letter-spacing:.02em; color:var(--ink-55); }
-.field-lbl { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-55); text-transform:uppercase; margin:0 0 7px; }
+.st-sec-head .cnt { font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--ink-55); }
+.st-note { font-family:var(--mono); font-size:12px; line-height:1.7; letter-spacing:.02em; color:var(--ink-55); }
+.field-lbl { font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--ink-55); text-transform:uppercase; margin:0 0 7px; }
 
 /* ═══ 버튼 ═══ */
 .np-btn {
   border:1px solid var(--ink); background:none; color:var(--ink); cursor:pointer;
-  font-family:var(--mono); font-size:10px; letter-spacing:.1em; padding:9px 14px;
+  font-family:var(--mono); font-size:12px; letter-spacing:.1em; padding:9px 14px;
 }
 .np-btn.solid { background:var(--ink); color:var(--paper); }
 .np-btn.ghost { border-color:var(--ink-40); }
-.np-btn.sm { font-size:9px; padding:6px 10px; }
+.np-btn.sm { font-size:12px; padding:6px 10px; }
 .np-btn:disabled { opacity:.4; cursor:not-allowed; }
 .np-btn:not(:disabled):hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 
@@ -144,7 +163,7 @@ a { color:var(--accent); text-decoration:none; }
 .st-pin .pin { font-size:15px; line-height:1; }
 .st-toggle {
   border:1px solid var(--ink-40); background:none; color:var(--ink-60); cursor:pointer;
-  font-family:var(--mono); font-size:10px; letter-spacing:.08em; padding:6px 13px;
+  font-family:var(--mono); font-size:12px; letter-spacing:.08em; padding:6px 13px;
 }
 .st-toggle[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 
@@ -163,15 +182,14 @@ a { color:var(--accent); text-decoration:none; }
 .st-floor + .st-floor { margin-top:18px; padding-top:14px; border-top:1px dashed var(--ink-28); }
 .st-floor-lbl {
   display:inline-block; margin-bottom:6px; padding:2px 8px;
-  border:1px solid var(--ink-40); font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--ink-60);
+  border:1px solid var(--ink-40); font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--ink-60);
 }
 .stage-bar {
   margin:2px 0 9px; padding:4px 0; text-align:center;
   background:var(--ink-14); border:1px solid var(--ink-28);
-  font-family:var(--mono); font-size:8.5px; letter-spacing:.4em; color:var(--ink-60);
+  font-family:var(--mono); font-size:12px; letter-spacing:.4em; color:var(--ink-60);
 }
-/* 배치도는 읽기 전용 — 누르는 곳이 아니므로 손가락 커서를 쓰지 않는다.
-   자리 번호는 길게 눌러 위쪽 readout 으로 확인한다. */
+/* 배치도는 읽기 전용 — 누르는 곳이 아니므로 손가락 커서를 쓰지 않는다. */
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; }
 .seatrow { display:grid; align-items:center; }
 .seat {
@@ -180,57 +198,83 @@ a { color:var(--accent); text-decoration:none; }
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1;
 }
-/* 열번호 — 양 끝과 좌·우 통로에 상시 표시 */
 .seatrow .rl {
-  font-family:var(--mono); font-size:min(7px, calc(var(--seat) * 1.05)); line-height:1;
+  font-family:var(--mono); font-size:calc(var(--seat) * .6); line-height:1;
   color:var(--ink-55); text-align:center; white-space:nowrap; align-self:center;
 }
 
-/* 가장 넓은 층(58칸)이 지면 폭에 꽉 차도록 칸 크기를 역산한다 — 가로 스크롤 없음.
-   칸 사이 여백을 없애 좌석을 최대한 크게 잡고, 1px 검은 테두리가 격자선 역할을 한다.
-   핀치 줌은 브라우저가 통째로 확대하므로 테두리·글자가 같이 커진다(깨지지 않음). */
+/* 데스크톱: 가장 넓은 층(54칸)을 지면 폭에 맞춰 역산 — 가로 스크롤 없음.
+   모든 좌석 테두리는 1px 검정(격자선 역할). 방문 좌석은 번호를 진하게 표시. */
 .is-fit .seatmap {
-  --map-w:calc(min(600px, 100vw) - var(--pad) * 2 - 4px);
-  --seat:calc(var(--map-w) / 58);
+  --map-w:calc(min(600px, 100vw) - 4px);
+  --seat:calc(var(--map-w) / 54);
   gap:0; overflow-x:hidden;
+  margin-inline:calc(var(--pad) * -1);
+  align-items:center;
 }
 .is-fit .seatrow { gap:0; }
 .is-fit .seat {
-  overflow:hidden;                                /* 5의 배수 번호가 칸 밖으로 나가지 않게 */
-  font-size:min(6.5px, calc(var(--seat) * .78)); color:rgba(23,21,15,.55);
+  overflow:hidden;
+  font-size:calc(var(--seat) * .58); font-weight:700;
+  color:var(--ink-28);                             /* 5의 배수 방향표시 — 옅게 */
+}
+.is-fit .seat.on { color:var(--ink); }             /* 방문 좌석 — 번호 진하게 */
+.is-fit .seat.nofill { background:var(--ink-14); }
+.is-fit .map-hint { display:none; }
+
+/* 모바일: 좌석을 15px 고정 크기로 키우고 배치도만 좌우 스크롤 — 작아서 뭉개지던 문제 해결 */
+@media (max-width:600px) {
+  .is-fit .seatmap {
+    --seat:15px;
+    overflow-x:auto; overflow-y:hidden;
+    align-items:start;
+    padding-bottom:7px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .is-fit .map-hint {
+    display:block; font-family:var(--mono); font-size:12px;
+    color:var(--ink-55); margin:0 0 7px; letter-spacing:.02em;
+  }
 }
 
-/* ═══ 앉은 횟수별 색 고르기 ═══ */
-.lv-picker { margin-top:14px; }
+/* ═══ 앉은 횟수별 색 고르기 — 팔레트와 함께 좌석배치도 위로 ═══ */
+.lv-picker { margin:6px 0 12px; }
 .lv-picker .held { color:var(--accent); font-weight:700; }
-.lv-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.lv-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-width:200px; }
 .lv-slot {
-  border:2px dashed var(--ink-40); background:var(--paper-3);
-  padding:8px 4px; text-align:center; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  background:none; border:0; padding:4px 0; cursor:pointer;
 }
-.lv-slot:hover, .lv-slot.over { border-color:var(--ink); border-style:solid; background:var(--paper-2); }
-.lv-slot .chip {
-  display:block; height:24px; margin-bottom:5px;
+.lv-slot > * { pointer-events:none; }             /* 드래그 오버 깜빡임 방지 — 이벤트는 슬롯이 받는다 */
+.lv-slot .chip {                                  /* 색 칸 — 원형 */
+  width:24px; height:24px; border-radius:50%;
   border:1px solid var(--ink);                    /* 색칩 테두리도 검정 — 옅게 쓰지 않는다 */
 }
-.lv-slot .lv { font-family:var(--mono); font-size:9px; letter-spacing:.04em; color:var(--ink-60); }
+.lv-slot.empty .chip {                            /* 색을 안 고르면 점선 원형 빈칸 */
+  border:2px dashed var(--ink-40); background:none;
+}
+.lv-slot:hover .chip { border-color:var(--ink); border-style:solid; }
+.lv-slot.over .chip { border-color:var(--ink); border-style:solid; outline:2px solid var(--accent); outline-offset:2px; }
+.lv-slot .lv { font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--ink-60); }
 
-.palette { display:grid; grid-template-columns:repeat(12,1fr); gap:5px; }
+/* 팔레트 — 좌석배치도 헤더에서 장소명 옆 여백에 작게 */
+.st-map-head { align-items:center; gap:6px 12px; flex-wrap:wrap; }
+.palette { display:flex; flex-wrap:wrap; gap:6px; }
 .palette .pal {
-  aspect-ratio:1; min-height:26px; padding:0; cursor:grab;
-  border:1px solid var(--ink);
+  width:15px; height:15px; padding:0; cursor:grab;
+  border:1px solid var(--ink); border-radius:50%;
 }
 .palette .pal:active { cursor:grabbing; }
-.palette .pal[aria-pressed="true"] { outline:3px solid var(--accent); outline-offset:1px; }
-@media (max-width:600px) { .palette { grid-template-columns:repeat(6,1fr); } }
+.palette .pal[aria-pressed="true"] { outline:2px solid var(--accent); outline-offset:2px; }
 
 /* ═══ 칩 (배역별 고정) ═══ */
 .role-row { display:flex; align-items:baseline; gap:10px; padding:5px 0; flex-wrap:wrap; }
-.role-name { flex:none; width:62px; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-55); }
+.role-name { flex:none; width:62px; font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-55); }
 .chips { display:flex; flex-wrap:wrap; gap:5px; flex:1; }
 .chip {
   border:1px solid var(--ink-40); background:none; color:var(--ink-60); cursor:pointer;
-  font-family:var(--mono); font-size:9px; letter-spacing:.04em; padding:5px 10px;
+  font-family:var(--mono); font-size:12px; letter-spacing:.04em; padding:5px 10px;
 }
 .chip[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 
@@ -240,24 +284,24 @@ a { color:var(--accent); text-decoration:none; }
   padding:8px 0; font-size:12.5px; border-top:1px solid var(--ink-14);
 }
 .rec-row:first-child { border-top:0; }
-.rec-row .when { font-family:var(--mono); font-size:11px; flex:none; }
-.rec-row .seatinfo { font-family:var(--mono); font-size:10px; color:var(--ink-60); }
+.rec-row .when { font-family:var(--mono); font-size:12px; flex:none; }
+.rec-row .seatinfo { font-family:var(--mono); font-size:12px; color:var(--ink-60); }
 .rec-row .pair { font-weight:700; }
-.rec-row .num { margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--ink-60); flex:none; }
-.rec-empty { font-family:var(--mono); font-size:9px; line-height:1.7; color:var(--ink-55); padding:10px 0; }
+.rec-row .num { margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--ink-60); flex:none; }
+.rec-empty { font-family:var(--mono); font-size:12px; line-height:1.7; color:var(--ink-55); padding:10px 0; }
 
 /* 기록 한 칸 — 회차·좌석 한 줄, 그 아래 캐스팅. 삭제 모드일 때만 오른쪽 위에 ✕ */
 .rec-card { position:relative; padding:9px 26px 9px 0; border-top:1px solid var(--ink-14); }
 .rec-card:first-child { border-top:0; }
 .rec-card .top { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
 .rec-card .cast {
-  margin-top:3px; font-size:11.5px; line-height:1.55; color:var(--ink-60); text-wrap:pretty;
+  margin-top:3px; font-size:12px; line-height:1.55; color:var(--ink-60); text-wrap:pretty;
 }
 .rec-card .cast b { font-weight:700; color:var(--ink); }
 .rec-x {
   position:absolute; top:6px; right:0; width:20px; height:20px; padding:0; cursor:pointer;
   border:1px solid var(--accent); background:none; color:var(--accent);
-  font-family:var(--mono); font-size:10px; line-height:1;
+  font-family:var(--mono); font-size:12px; line-height:1;
 }
 .rec-x:hover { background:var(--accent); color:var(--paper); }
 .head-tools { display:flex; align-items:center; gap:8px; }
@@ -266,7 +310,7 @@ a { color:var(--accent); text-decoration:none; }
 .rec-add-row { display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
 .rec-add select {
   border:1px solid var(--ink-40); background:var(--paper-3); color:var(--ink); cursor:pointer;
-  font-family:var(--mono); font-size:10px; padding:7px 8px; border-radius:0;
+  font-family:var(--mono); font-size:12px; padding:7px 8px; border-radius:0;
 }
 
 .pair-fix { padding-bottom:12px; border-bottom:1px solid var(--ink-14); margin-bottom:10px; }
@@ -274,8 +318,8 @@ a { color:var(--accent); text-decoration:none; }
 
 /* ═══ 저장 버튼 ═══ */
 .st-save { margin-top:18px; padding-top:14px; border-top:3px double var(--ink); text-align:center; }
-.st-save .np-btn { width:100%; padding:13px; font-size:11px; }
-.st-save .cap { display:block; margin-top:6px; font-family:var(--mono); font-size:8px; letter-spacing:.05em; color:var(--ink-55); }
+.st-save .np-btn { width:100%; padding:13px; font-size:12px; }
+.st-save .cap { display:block; margin-top:6px; font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--ink-55); }
 
 /* ═══ 로그인 게이트 ═══ */
 .gate { position:relative; }
@@ -286,7 +330,7 @@ body.logged-in .gate-locked { filter:none; opacity:1; pointer-events:auto; }
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:11px; text-align:center; padding:20px;
 }
-.gate-cta p { font-family:var(--mono); font-size:9.5px; line-height:1.8; color:var(--ink-60); max-width:34ch; }
+.gate-cta p { font-family:var(--mono); font-size:12px; line-height:1.8; color:var(--ink-60); max-width:34ch; }
 body.logged-in .gate-cta { display:none; }
 
 /* ═══ 등장 애니메이션 대기 ═══ */
@@ -319,7 +363,7 @@ body.logged-in .gate-cta { display:none; }
   <header class="np-mast" id="mast">
     <button class="np-login" id="loginBtn">로그인</button>
     <h1 class="np-wordmark">Neue Zürcher Zeitung</h1>
-    <div class="np-byline"><span>애배력</span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
+    <div class="np-byline"><span></span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
     <p class="np-mast-slug">Austrian Empress Elizabeth &middot; Hotel in Ghenf &middot; &ldquo;View Rivage&rdquo;</p>
   </header>
 
@@ -329,12 +373,6 @@ body.logged-in .gate-cta { display:none; }
   </nav>
 
   <main class="np-main" id="wrap"></main>
-
-
-  <footer class="np-foot">
-    <p>© <span class="mono">2026</span> 애배력 — 관람 집계는 내가 직접 남긴 관극 기록만 셉니다.
-       좌석 배치도는 제작사 공개 〈등급별 좌석배치도〉를 옮긴 것으로 실제 판매 도면과 다를 수 있습니다.</p>
-  </footer>
 </div>
 
 <!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
@@ -384,7 +422,7 @@ let newRow      = null;        //              — 열
 let newNo       = null;        //              — 번호
 let pairFix     = {};         // { roleId: actorId }
 let favoritePairs = [];
-const FAVORITE_MAX = 3;
+const FAVORITE_MAX = 4;
 
 /* ═══ 집계 ═══ */
 function myRecords () {
@@ -404,9 +442,13 @@ function seatVisitCounts (list) {
   return map;
 }
 
-/* 앉은 횟수 → 색. 진하기 대신 아예 다른 색을 써서 떨어진 좌석끼리도 바로 구분된다. */
+/* 앉은 횟수 → 색. 진하기 대신 아예 다른 색을 써서 떨어진 좌석끼리도 바로 구분된다.
+   유저가 그 횟수 칸에 색을 안 골랐으면 null (좌석은 회색으로, 색 칸은 점선 빈칸으로). */
 const colorHex = id => (SEAT_COLORS.find(c => c.id === id) || SEAT_COLORS[0]).hex;
-const visitHex = n => colorHex(visitColors[Math.min(n, 4)]);
+const visitHex = n => {
+  const id = visitColors[Math.min(n, 4)];
+  return id ? colorHex(id) : null;
+};
 
 /* 배역별 고정 조합 헬퍼 */
 const doubleRoles = () => ROLES.filter(r => r.actors.length > 1);
@@ -472,23 +514,21 @@ function bodyHTML () {
     ${pin}
     ${tally}
     <div class="st-sec">
-      <div class="st-sec-head">
-        <h3>좌석 배치도</h3>
+      <div class="st-sec-head st-map-head">
         <span class="cnt">${SEAT_MAP.venue}</span>
+        ${paletteHTML()}
       </div>
+      ${slotsHTML()}
       ${seatMapHTML(list)}
-      ${colorPickerHTML()}
     </div>
-    ${favoritePairsHTML(list)}
     ${recordsHTML(list)}
+    ${favoritePairsHTML(list)}
     <div class="st-save">
-      <button type="button" class="np-btn solid js-save">이미지로 저장하기</button>
-      <span class="cap">준비 중 — 버튼만 먼저 올려둡니다</span>
+      <span class="cap">준비 중</span>
     </div>`;
 
   return `<section class="st-sec">
     <div class="st-sec-head"><h2>정산판</h2></div>
-    <p class="st-note">좌석 색은 자유롭게 고를 수 있고, 방문 횟수만큼 진하게 표시됩니다.</p>
     <div class="gate" style="margin-top:14px">
       <div class="gate-locked">${live}</div>
       <div class="gate-cta">
@@ -499,27 +539,32 @@ function bodyHTML () {
   </section>`;
 }
 
-/* ── 앉은 횟수별 색 고르기 ──
-   팔레트에서 색을 끌어다 횟수 칸에 놓으면 확정. 터치 기기에선 드래그가 잘 안 먹어서
+/* ── 색 팔레트 (좌석배치도 헤더 · 장소명 옆 여백에) ──
+   팔레트에서 색을 끌어다 아래 횟수 칸에 놓으면 확정. 터치 기기에선 드래그가 잘 안 먹어서
    "색을 한 번 눌러 든 다음 칸을 누르는" 방식도 같이 받는다. ── */
-function colorPickerHTML () {
-  const slots = VISIT_LEVELS.map(n => `
-    <div class="lv-slot js-slot" data-lv="${n}" style="--c:${visitHex(n)}">
-      <span class="chip" style="background:${visitHex(n)}"></span>
-      <span class="lv">${visitLabel(n)}</span>
-    </div>`).join('');
-
-  const palette = SEAT_COLORS.map(c => `
-    <button type="button" class="pal js-pal" draggable="true" data-color="${c.id}"
+function paletteHTML () {
+  return `<div class="palette" role="group" aria-label="좌석 색 팔레트">${
+    SEAT_COLORS.map(c => `<button type="button" class="pal js-pal" draggable="true" data-color="${c.id}"
       style="background:${c.hex}" title="${c.label}" aria-label="${c.label}"
-      aria-pressed="${c.id === heldColor}"></button>`).join('');
+      aria-pressed="${c.id === heldColor}"></button>`).join('')}</div>`;
+}
+
+/* ── 앉은 횟수별 색 칸 (드롭 타깃) ── */
+function slotsHTML () {
+  const slots = VISIT_LEVELS.map(n => {
+    const hex = visitHex(n);
+    return `
+    <div class="lv-slot js-slot${hex ? '' : ' empty'}" data-lv="${n}"${hex ? ` style="--c:${hex}"` : ''}>
+      <span class="chip"${hex ? ` style="background:${hex}"` : ''}></span>
+      <span class="lv">${visitLabel(n)}</span>
+    </div>`;
+  }).join('');
 
   return `<div class="lv-picker">
     <p class="field-lbl">앉은 횟수별 색 ${heldColor
-      ? `<b class="held">— ${(SEAT_COLORS.find(c => c.id === heldColor) || {}).label} 들고 있음 · 칸을 누르세요</b>`
-      : '— 색을 칸으로 끌어다 놓으세요'}</p>
+      ? `<b class="held">— ${(SEAT_COLORS.find(c => c.id === heldColor) || {}).label} 들고 있음 · 칸을 누르세요.</b>`
+      : '— 위 팔레트에서 색을 칸으로 끌어다 놓으세요.'}</p>
     <div class="lv-slots">${slots}</div>
-    <div class="palette">${palette}</div>
   </div>`;
 }
 
@@ -531,21 +576,22 @@ function seatMapHTML (list) {
   const floors = SEAT_MAP.floors.map(floor => {
     const g = floorGrid(floor);
 
-    // 열번호를 양 끝과 좌·우 통로 네 곳에 상시 인쇄한다 (실제 좌석도와 같은 방식)
+    // 열번호는 좌·우 통로 두 곳에만 인쇄한다 (양 끝 열번호는 없앰 — 좌석을 폭에 꽉 채우려고)
     const labelsFor = r => g.labelGc.map((gc, i) => {
-      const edge = i === 0 || i === g.labelGc.length - 1;
-      return `<span class="rl" style="grid-column:${gc}/span ${edge ? LABEL_W : AISLE_W}">${r}</span>`;
+      if (i === 0 || i === g.labelGc.length - 1) return '';
+      return `<span class="rl" style="grid-column:${gc}/span ${AISLE_W}">${r}</span>`;
     }).join('');
 
     const rows = floor.rows.map(row => {
       const cells = seatRowCells(floor, row).map(c => {
         const n = counts.get(c.id) || 0;
-        const style = `grid-column:${c.gc}` + (n ? `;background:${visitHex(n)}` : '');
+        const fill = n ? visitHex(n) : null;
+        const style = `grid-column:${c.gc}` + (fill ? `;background:${fill}` : '');
         const label = `${seatLabel(c.id)}${n ? ' · ' + n + '회' : ''}`;
-        // 칸이 작아 번호를 다 넣으면 못 읽는다 — 5의 배수만 옅게
-        return `<span class="seat${n ? ' on' : ''}" style="${style}"
+        // 방문 좌석은 항상 번호를, 나머지는 5의 배수만 옅게 (칸이 작아 다 넣으면 못 읽는다)
+        return `<span class="seat${n ? ' on' : ''}${n && !fill ? ' nofill' : ''}" style="${style}"
                   role="img" aria-label="${label}"
-                >${+c.no % 5 === 0 ? c.no : ''}</span>`;
+                >${(n || +c.no % 5 === 0) ? c.no : ''}</span>`;
       }).join('');
       return `<div class="seatrow" style="grid-template-columns:repeat(${g.cols},var(--seat))">${labelsFor(row.r)}${cells}</div>`;
     }).join('');
@@ -557,32 +603,37 @@ function seatMapHTML (list) {
     </div>`;
   }).join('');
 
-  return `<div class="is-fit">${floors}</div>`;
+  return `<div class="is-fit"><p class="map-hint">← 좌우로 밀어서 전체 보기 →</p>${floors}</div>`;
 }
 
-/* ── 페어 조합 즐겨찾기 ── */
-function favoritePairsHTML (list) {
-  const body = favoritePairs.length
-    ? favoritePairs.map((fix, i) => `<div class="rec-row">
-        <span class="pair">${pairLabel(fix)}</span>
-        <span class="num">${recordsMatchingFix(list, fix).length}회</span>
-        <button type="button" class="np-btn ghost sm js-fav-remove" data-i="${i}">빼기</button>
+/* ── 관극 기록 (실제로 본 회차 목록) ── */
+function recordsHTML (list) {
+  const rows = list.length
+    ? list.map(({ rec, perf }) => `<div class="rec-card">
+        <div class="top">
+          <span class="when">${perf.m}.${perf.d} ${perf.t}</span>
+          <span class="seatinfo">${rec.seat ? seatLabel(rec.seat) : '좌석 미정'}</span>
+        </div>
+        <div class="cast">${castLine(perf)}</div>
+        ${delMode ? `<button type="button" class="rec-x js-rec-del" data-key="${rec.key}" aria-label="이 기록 삭제">✕</button>` : ''}
       </div>`).join('')
-    : `<p class="rec-empty">담은 조합이 없습니다. 아래 관극 기록에서 배역별로 배우를 고정하고 즐겨찾기에 담아보세요 (최대 ${FAVORITE_MAX}개) — 담은 조합만 정산판 이미지에 들어갑니다.</p>`;
+    : `<p class="rec-empty">아직 담은 회차가 없습니다. 아래 &ldquo;기록 추가&rdquo;에서 회차와 좌석을 넣거나, 스케줄 탭에서 &ldquo;이 회차 담기&rdquo;를 눌러보세요.</p>`;
 
-  return `<div class="st-sec">
+  return `<div class="st-sec" id="records">
     <div class="st-sec-head">
-      <h3>페어 조합 즐겨찾기</h3>
-      <span class="cnt">${favoritePairs.length}/${FAVORITE_MAX}</span>
+      <h3>관극 기록</h3>
+      <div class="head-tools">
+        <span class="cnt">${list.length}건</span>
+        ${list.length ? `<button type="button" class="np-btn ghost sm js-del-mode" aria-pressed="${delMode}">${delMode ? '완료' : '삭제'}</button>` : ''}
+      </div>
     </div>
-    ${body}
+    <div>${rows}</div>
+    ${addRecordHTML()}
   </div>`;
 }
 
-/* ── 관극 기록 ── */
-function recordsHTML (list) {
-  const hasFix = Object.keys(pairFix).length > 0;
-
+/* ── 페어 조합 즐겨찾기 (배역별 상대 배우 조합을 골라 담아 둔다) ── */
+function favoritePairsHTML (list) {
   const picker = doubleRoles().map(r => {
     const chips = r.actors.map(aId => {
       const on = pairFix[r.id] === aId;
@@ -591,46 +642,36 @@ function recordsHTML (list) {
     return `<div class="role-row"><span class="role-name">${r.name}</span><div class="chips">${chips}</div></div>`;
   }).join('');
 
-  const key = pairFixKey(pairFix);
-  const alreadyFav = favoritePairs.some(f => pairFixKey(f) === key);
-  const canFav = hasFix && !alreadyFav && favoritePairs.length < FAVORITE_MAX;
+  const hasFix    = Object.keys(pairFix).length > 0;
+  const alreadyFav = favoritePairs.some(f => pairFixKey(f) === pairFixKey(pairFix));
+  const canFav     = hasFix && !alreadyFav && favoritePairs.length < FAVORITE_MAX;
 
-  const pairBlock = `<div class="pair-fix">
-    <p class="field-lbl">배역별 고정</p>
+  const composer = `<div class="pair-fix">
+    <p class="field-lbl">배역별 상대 배우 고르기</p>
     ${picker}
     <div class="pair-foot">
-      ${hasFix ? `<button type="button" class="np-btn ghost sm js-pair-clear">고정 풀기</button>` : ''}
+      ${hasFix ? `<button type="button" class="np-btn ghost sm js-pair-clear">선택 해제</button>` : ''}
       <button type="button" class="np-btn ghost sm js-fav-add" ${canFav ? '' : 'disabled'}>
-        ${alreadyFav ? '★ 즐겨찾기에 있음' : `☆ 즐겨찾기에 담기`}
+        ${alreadyFav ? '★ 이미 담음' : '☆ 이 조합 담기'}
       </button>
     </div>
   </div>`;
 
-  const records = hasFix ? recordsMatchingFix(list, pairFix) : list;
-  const rows = records.length
-    ? records.map(({ rec, perf }) => `<div class="rec-card">
-        <div class="top">
-          <span class="when">${perf.m}.${perf.d} ${perf.t}</span>
-          <span class="seatinfo">${rec.seat ? seatLabel(rec.seat) : '좌석 미정'}</span>
-        </div>
-        <div class="cast">${castLine(perf)}</div>
-        ${delMode ? `<button type="button" class="rec-x js-rec-del" data-key="${rec.key}" aria-label="이 기록 삭제">✕</button>` : ''}
+  const saved = favoritePairs.length
+    ? favoritePairs.map((fix, i) => `<div class="rec-row">
+        <span class="pair">${pairLabel(fix)}</span>
+        <span class="num">${recordsMatchingFix(list, fix).length}회</span>
+        <button type="button" class="np-btn ghost sm js-fav-remove" data-i="${i}">빼기</button>
       </div>`).join('')
-    : hasFix
-      ? `<p class="rec-empty">이 조합으로 본 기록이 없습니다.</p>`
-      : `<p class="rec-empty">아직 담은 회차가 없습니다. 아래 &ldquo;기록 추가&rdquo;에서 회차와 좌석을 넣거나, 스케줄 탭에서 &ldquo;이 회차 담기&rdquo;를 눌러보세요.</p>`;
+    : `<p class="rec-empty">위에서 배역별로 상대 배우를 고르고 ☆ 로 담으세요 (최대 ${FAVORITE_MAX}개). 담은 조합만 정산판 이미지에 들어갑니다.</p>`;
 
-  return `<div class="st-sec" id="records">
+  return `<div class="st-sec">
     <div class="st-sec-head">
-      <h3>관극 기록${hasFix ? ` · ${pairLabel(pairFix)}` : ''}</h3>
-      <div class="head-tools">
-        <span class="cnt">${records.length}건</span>
-        ${records.length ? `<button type="button" class="np-btn ghost sm js-del-mode" aria-pressed="${delMode}">${delMode ? '완료' : '삭제'}</button>` : ''}
-      </div>
+      <h3>페어 조합 즐겨찾기</h3>
+      <span class="cnt">${favoritePairs.length}/${FAVORITE_MAX}</span>
     </div>
-    ${pairBlock}
-    <div>${rows}</div>
-    ${addRecordHTML()}
+    ${composer}
+    ${saved}
   </div>`;
 }
 
@@ -778,7 +819,7 @@ $('#loginBtn').addEventListener('click', () => setLoggedIn(!loggedIn));
 
 /* ═══ 초기화 ═══ */
 $('#todayStamp').textContent =
-  `${TODAY.y}년 ${TODAY.m}월 ${TODAY.d}일 ${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]}요일`;
+  `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
 
 render();
 enter();

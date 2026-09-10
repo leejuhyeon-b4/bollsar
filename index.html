@@ -3,7 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>애배력 — 강홍석 스케줄</title>
+<title>강홍석 스케줄 — 엘리자벳 2026</title>
+<meta name="description" content="뮤지컬 엘리자벳 2026 강홍석(루케니) 출연 회차 달력 · 회차별 캐스팅 · 커튼콜데이 등 이벤트">
+
+<!-- ⚠️ GA4 측정 ID(G-XXXXXXXXXX)만 본인 것으로 교체하세요 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="강홍석 스케줄 — 엘리자벳 2026">
+<meta property="og:description" content="뮤지컬 엘리자벳 2026 강홍석(루케니) 출연 회차 달력과 회차별 캐스팅">
+<meta property="og:image" content="https://hong-orcin.vercel.app/og-image.png">
+<meta property="og:url" content="https://hong-orcin.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
 <link rel="stylesheet" href="ref/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -32,13 +51,13 @@
   --grain:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' fill='%23fff'/><rect width='150' height='150' filter='url(%23g)' opacity='.3'/></svg>");
 
   /* 폰트는 ref/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
-     본문은 시스템 고딕(윈도우 맑은 고딕 / 맥 애플 SD 고딕)이 작은 크기에서 가장 또렷하다.
-     헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다.
-     더 개성을 원하면 --body 첫 항목을 "Gothic A1" 로 바꾸면 된다 (ref/fonts.css 에 포함). */
+     본문은 카페24 써라운드 에어 — 둥근 획의 고딕. 못 받으면 시스템 고딕으로 폴백.
+     헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다. */
   --fraktur:"UnifrakturMaguntia","Hahmlet","Batang",serif;
   --display:"Playfair Display","Hahmlet","Malgun Gothic","Apple SD Gothic Neo",serif;
-  --body:"Malgun Gothic","Apple SD Gothic Neo","Gothic A1","Noto Sans KR",sans-serif;
-  --mono:"IBM Plex Mono","D2Coding",ui-monospace,monospace;
+  --body:"Cafe24 Ssurround Air","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  /* 숫자·라틴은 IBM Plex Mono, 그 안의 한글은 본문과 같은 카페24 써라운드 에어로 폴백 */
+  --mono:"IBM Plex Mono","Cafe24 Ssurround Air","D2Coding",ui-monospace,monospace;
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }
@@ -75,7 +94,7 @@ a { color:var(--accent); text-decoration:none; }
 .np-login {
   position:absolute; right:0; top:14px;
   border:1px solid var(--ink-40); background:none; color:var(--ink);
-  font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+  font-family:var(--mono); font-size:12px; letter-spacing:.12em;
   padding:4px 8px; cursor:pointer;
 }
 .np-login:hover { background:var(--ink); color:var(--paper); }
@@ -83,14 +102,14 @@ a { color:var(--accent); text-decoration:none; }
 .np-byline {
   display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
   padding-top:6px; border-top:1px solid var(--ink-40);
-  font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--ink-60);
+  font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--ink-60);
 }
 .np-byline > :first-child { text-align:left; }
 .np-byline > :last-child { text-align:right; }
 .np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:500; }
 .np-mast-slug {
   margin-top:7px; padding-top:6px; border-top:1px solid var(--ink-14);
-  font-family:var(--body); font-size:9px; letter-spacing:.11em;
+  font-family:var(--body); font-size:12px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--ink-55); line-height:1.55;
 }
 
@@ -98,7 +117,7 @@ a { color:var(--accent); text-decoration:none; }
 .np-nav {
   flex:none; display:flex; gap:18px; justify-content:center;
   padding:9px 0; border-bottom:1px solid var(--ink-28);
-  font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
 }
 .np-nav [aria-current] { color:var(--ink); border-bottom:2px solid var(--accent); padding-bottom:3px; }
 .np-nav a { color:var(--ink-55); }
@@ -107,13 +126,13 @@ a { color:var(--accent); text-decoration:none; }
 .np-main { flex:1; padding:14px 0 28px; }
 
 .np-foot { flex:none; border-top:3px double var(--ink); padding:12px 0 26px; }
-.np-foot p { font-family:var(--mono); font-size:8.5px; line-height:1.7; letter-spacing:.03em; color:var(--ink-55); }
+.np-foot p { font-family:var(--mono); font-size:12px; line-height:1.7; letter-spacing:.03em; color:var(--ink-55); }
 
 /* ═══ 뷰 토글 ═══ */
 .np-vt { display:flex; width:max-content; margin:0 auto 4px; border:1px solid var(--ink-40); }
 .np-vt button {
   border:0; background:none; color:var(--ink-55); cursor:pointer;
-  font-family:var(--mono); font-size:10px; letter-spacing:.14em; padding:6px 16px;
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; padding:6px 16px;
 }
 .np-vt button + button { border-left:1px solid var(--ink-40); }
 .np-vt button[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
@@ -124,10 +143,10 @@ a { color:var(--accent); text-decoration:none; }
   gap:15px; align-items:start;
   padding:14px 0 13px; border-bottom:1px solid var(--ink-28);
 }
-.np-lead-kick { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; color:var(--accent); text-transform:uppercase; }
+.np-lead-kick { font-family:var(--mono); font-size:12px; letter-spacing:.2em; color:var(--accent); text-transform:uppercase; }
 .np-lead-ttl { font-family:var(--display); font-weight:900; font-size:22px; line-height:1.14; letter-spacing:-.01em; margin:4px 0 5px; }
 .np-lead-deck { font-size:12px; line-height:1.62; color:var(--ink-72); text-wrap:pretty; }
-.np-lead-meta { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; font-family:var(--mono); font-size:9px; letter-spacing:.05em; color:var(--ink-60); }
+.np-lead-meta { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--ink-60); }
 .np-lead-meta .dday { background:var(--ink); color:var(--paper); padding:2px 6px; white-space:nowrap; }
 
 /* ── 컷 사진 + 송곳 구멍 ──
@@ -145,7 +164,7 @@ a { color:var(--accent); text-decoration:none; }
   object-fit:cover; object-position:47% 0;
 }
 .np-lead-fig figcaption {
-  margin-top:5px; font-family:var(--mono); font-size:8px;
+  margin-top:5px; font-family:var(--mono); font-size:12px;
   letter-spacing:.07em; line-height:1.5; color:var(--ink-55);
 }
 
@@ -158,14 +177,14 @@ a { color:var(--accent); text-decoration:none; }
 .np-month button:disabled { opacity:.3; cursor:not-allowed; }
 .np-month .m-mid { text-align:center; flex:1; }
 .np-month .m-ttl { font-family:var(--display); font-weight:700; font-style:italic; font-size:19px; line-height:1; }
-.np-month .m-sub { font-family:var(--mono); font-size:8.5px; letter-spacing:.18em; color:var(--ink-55); margin-top:2px; text-transform:uppercase; }
+.np-month .m-sub { font-family:var(--mono); font-size:12px; letter-spacing:.18em; color:var(--ink-55); margin-top:2px; text-transform:uppercase; }
 
 /* ═══ 달력 격자 ═══ */
 .np-cal { margin-top:10px; border-top:2px solid var(--ink); border-bottom:1px solid var(--ink-28); }
-.np-dow { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--ink-28); }
-.np-dow div { text-align:center; padding:5px 0; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-60); }
+.np-dow { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); border-bottom:1px solid var(--ink-28); }
+.np-dow div { text-align:center; padding:5px 0; font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-60); }
 .np-dow .sun { color:var(--accent); }
-.np-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.np-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); }
 .np-cell {
   min-height:82px; padding:6px 2px 6px; text-align:center;
   display:flex; flex-direction:column; align-items:center; gap:3px;
@@ -183,10 +202,10 @@ a { color:var(--accent); text-decoration:none; }
   width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 28%;
   border:1px solid var(--ink-28); background:var(--paper-3);
 }
-.np-cell-t { font-family:var(--mono); font-size:8px; letter-spacing:.01em; color:var(--ink-72); line-height:1.2; }
+.np-cell-t { font-family:var(--mono); font-size:12px; letter-spacing:.01em; color:var(--ink-72); line-height:1.2; }
 .np-cell-ev {
   max-width:100%; margin-top:1px; padding:0 3px;
-  font-family:var(--mono); font-size:7.5px; letter-spacing:0; line-height:1.45;
+  font-family:var(--mono); font-size:12px; letter-spacing:0; line-height:1.45;
   color:var(--accent); border:1px solid rgba(143,46,34,.45);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
@@ -204,21 +223,21 @@ a { color:var(--accent); text-decoration:none; }
 .np-entry:active { opacity:.55; }
 .np-entry .lc { text-align:right; border-right:1px solid var(--ink-14); padding-right:9px; }
 .np-entry .lc .big { font-family:var(--display); font-size:17px; font-weight:600; letter-spacing:-.01em; }
-.np-entry .lc .sm { font-family:var(--mono); font-size:8px; letter-spacing:.08em; color:var(--ink-55); margin-top:2px; }
+.np-entry .lc .sm { font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--ink-55); margin-top:2px; }
 .np-entry-photo {
   width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 28%;
   border:1px solid var(--ink-28); background:var(--paper-3); margin-top:1px;
 }
 .np-entry .tags { display:flex; flex-wrap:wrap; align-items:center; gap:5px 6px; }
-.np-entry .cat { font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); font-style:normal; text-transform:uppercase; }
+.np-entry .cat { font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--ink-55); font-style:normal; text-transform:uppercase; }
 .np-entry.went .cat { color:var(--accent); }
 /* 담은 회차 — 달력·목록 모두 굵은 테두리로 표시 (레이아웃은 밀지 않게 outline) */
 .np-entry.went { outline:2px solid var(--ink); outline-offset:-2px; }
 .np-entry .ttl { display:block; font-weight:700; font-size:14px; line-height:1.35; letter-spacing:-.01em; margin:3px 0; }
-.np-entry .place { display:block; font-size:11px; color:var(--ink-60); }
+.np-entry .place { display:block; font-size:12px; color:var(--ink-60); }
 .np-entry.past { opacity:.5; }
 .np-mini {
-  font-family:var(--mono); font-size:8px; letter-spacing:.04em; font-style:normal;
+  font-family:var(--mono); font-size:12px; letter-spacing:.04em; font-style:normal;
   border:1px solid var(--ink-28); padding:1px 5px; color:var(--ink-60);
 }
 .np-mini.unv, .np-mini.hist { color:var(--accent); border-color:rgba(143,46,34,.4); }
@@ -226,12 +245,12 @@ a { color:var(--accent); text-decoration:none; }
 
 .np-empty { border-top:1px solid var(--ink-14); padding:24px 0; text-align:center; }
 .np-empty .h { font-family:var(--display); font-style:italic; font-size:15px; color:var(--ink-55); }
-.np-empty .s { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-55); margin-top:5px; }
+.np-empty .s { font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--ink-55); margin-top:5px; }
 
 .np-past {
   display:block; width:100%; padding:11px; margin-top:2px;
   background:none; border:0; border-top:1px solid var(--ink-28);
-  font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--ink-55); cursor:pointer;
+  font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--ink-55); cursor:pointer;
 }
 .np-past:hover { color:var(--ink); }
 
@@ -246,13 +265,13 @@ a { color:var(--accent); text-decoration:none; }
   text-decoration:none; color:var(--ink);
 }
 .np-book-btn:hover { background:var(--ink); color:var(--paper); }
-.np-book-btn .lbl { font-family:var(--mono); font-size:8px; letter-spacing:.2em; color:var(--ink-55); text-transform:uppercase; }
+.np-book-btn .lbl { font-family:var(--mono); font-size:12px; letter-spacing:.2em; color:var(--ink-55); text-transform:uppercase; }
 .np-book-btn:hover .lbl { color:var(--paper); }
 .np-book-btn b { font-family:var(--display); font-weight:700; font-size:16px; }
 
 .np-listhead { display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:4px 0 2px; }
 .np-listhead h3 { font-family:var(--display); font-weight:700; font-size:15px; }
-.np-listhead .cnt { font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--ink-55); }
+.np-listhead .cnt { font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--ink-55); }
 
 /* ═══ 회차 상세 (하단 시트) ═══ */
 .np-sheet-wrap { position:fixed; inset:0; z-index:40; }
@@ -266,71 +285,71 @@ a { color:var(--accent); text-decoration:none; }
   border-top:3px double var(--ink);
   padding:14px 20px 22px; max-height:84vh; overflow-y:auto;
 }
-.np-sheet-head { display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.16em; color:var(--ink-55); text-transform:uppercase; }
+.np-sheet-head { display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:12px; letter-spacing:.16em; color:var(--ink-55); text-transform:uppercase; }
 .np-x { border:0; background:none; font-family:var(--mono); font-size:13px; cursor:pointer; color:var(--ink); }
 .np-sheet-ttl { font-family:var(--display); font-weight:900; font-size:22px; line-height:1.16; letter-spacing:-.01em; margin:7px 0 2px; }
-.np-sheet-sub { font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-60); }
+.np-sheet-sub { font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-60); }
 .np-sheet-kicker { display:flex; flex-wrap:wrap; align-items:center; gap:5px 6px; margin-top:9px; }
-.np-sheet-kicker .cat { font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase; font-style:normal; }
+.np-sheet-kicker .cat { font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase; font-style:normal; }
 .np-sheet-show { font-family:var(--display); font-weight:700; font-size:15px; line-height:1.35; margin:7px 0 3px; }
 .np-sheet-show span { font-weight:400; font-size:13px; color:var(--ink-60); }
 .np-sheet-switch { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
 .np-sw {
   border:1px solid var(--ink-40); background:none; color:var(--ink-60); cursor:pointer;
-  font-family:var(--mono); font-size:9px; letter-spacing:.06em; padding:5px 11px;
+  font-family:var(--mono); font-size:12px; letter-spacing:.06em; padding:5px 11px;
 }
 .np-sw.on { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 .np-hr { height:1px; background:var(--ink-28); margin:10px 0; }
 .np-cast { width:100%; border-collapse:collapse; font-size:13px; }
 .np-cast caption {
   caption-side:top; text-align:left; padding-bottom:5px;
-  font-family:var(--mono); font-size:8.5px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase;
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase;
 }
 .np-cast caption span { color:var(--ink-55); letter-spacing:.02em; text-transform:none; }
 .np-cast th, .np-cast td { text-align:left; padding:7px 0; border-bottom:1px solid var(--ink-14); vertical-align:top; }
-.np-cast th { width:70px; font-weight:400; color:var(--ink-55); font-family:var(--mono); font-size:10px; letter-spacing:.08em; }
+.np-cast th { width:70px; font-weight:400; color:var(--ink-55); font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
 .np-cast .you { font-weight:700; }
 .np-cast .on { font-weight:inherit; }
 .np-cast .you .on::after {
   content:"강홍석"; margin-left:6px;
-  font-family:var(--mono); font-size:8px; font-weight:500; letter-spacing:.04em;
+  font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.04em;
   color:var(--paper); background:var(--ink); padding:1px 5px;
 }
 .np-cast .alt {
   display:block; margin-top:3px; font-weight:400;
-  font-family:var(--mono); font-size:9.5px; letter-spacing:.02em; color:var(--ink-60);
+  font-family:var(--mono); font-size:12px; letter-spacing:.02em; color:var(--ink-60);
 }
 .np-badges { display:flex; flex-wrap:wrap; gap:5px; margin-top:12px; }
-.np-badge { font-family:var(--mono); font-size:8.5px; letter-spacing:.05em; border:1px solid var(--ink-28); padding:2px 6px; color:var(--ink-60); }
+.np-badge { font-family:var(--mono); font-size:12px; letter-spacing:.05em; border:1px solid var(--ink-28); padding:2px 6px; color:var(--ink-60); }
 .np-badge.unv { color:var(--accent); border-color:rgba(143,46,34,.4); }
-.np-noev { margin-top:12px; font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:var(--ink-55); }
-.np-hist { margin-top:12px; padding:10px 12px; background:var(--paper-3); border-left:3px solid var(--accent); font-size:11.5px; line-height:1.5; }
-.np-hist b { display:block; margin-bottom:3px; color:var(--accent); font-family:var(--mono); font-size:9px; letter-spacing:.08em; }
-.np-hist span { display:block; margin-top:3px; font-family:var(--mono); font-size:8px; color:var(--ink-55); }
+.np-noev { margin-top:12px; font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-55); }
+.np-hist { margin-top:12px; padding:10px 12px; background:var(--paper-3); border-left:3px solid var(--accent); font-size:12px; line-height:1.5; }
+.np-hist b { display:block; margin-bottom:3px; color:var(--accent); font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
+.np-hist span { display:block; margin-top:3px; font-family:var(--mono); font-size:12px; color:var(--ink-55); }
 .np-check { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px; }
-.np-check .hint { font-family:var(--mono); font-size:8.5px; letter-spacing:.04em; color:var(--ink-55); }
+.np-check .hint { font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--ink-55); }
 .np-btn {
   border:1px solid var(--ink); background:none; color:var(--ink); cursor:pointer;
-  font-family:var(--mono); font-size:10px; letter-spacing:.1em; padding:10px 14px;
+  font-family:var(--mono); font-size:12px; letter-spacing:.1em; padding:10px 14px;
 }
 .np-btn.solid { background:var(--ink); color:var(--paper); }
 .np-btn.ghost { border-color:var(--ink-40); }
 .np-btn:disabled { opacity:.4; cursor:not-allowed; }
-.np-sheet-foot { margin-top:12px; text-align:center; font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; color:var(--ink-55); }
+.np-sheet-foot { margin-top:12px; text-align:center; font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-55); }
 
 /* ── 좌석 선택 — 층 · 열 · 번호 선택지 ── */
 .np-seatsel { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:10px; }
-.np-seatsel .lbl { font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; color:var(--ink-55); text-transform:uppercase; }
+.np-seatsel .lbl { font-family:var(--mono); font-size:12px; letter-spacing:.1em; color:var(--ink-55); text-transform:uppercase; }
 .np-seatsel select {
   border:1px solid var(--ink-40); background:var(--paper-3); color:var(--ink); cursor:pointer;
-  font-family:var(--mono); font-size:11px; padding:7px 9px; border-radius:0;
+  font-family:var(--mono); font-size:12px; padding:7px 9px; border-radius:0;
 }
 .np-seatsel select:hover { border-color:var(--ink); }
 /* 좌석 배치도 — 좌석번호를 그대로 grid-column으로 써서 실제 부채꼴 배열을 만든다 */
 .stage-bar {
   margin:12px 0 10px; padding:5px 0; text-align:center;
   background:var(--ink-14); border:1px solid var(--ink-28);
-  font-family:var(--mono); font-size:9px; letter-spacing:.4em; color:var(--ink-60);
+  font-family:var(--mono); font-size:12px; letter-spacing:.4em; color:var(--ink-60);
 }
 
 /* ═══ 등장 애니메이션 대기 ═══ */
@@ -366,7 +385,7 @@ a { color:var(--accent); text-decoration:none; }
   <header class="np-mast" id="mast">
     <button class="np-login" id="loginBtn">로그인</button>
     <h1 class="np-wordmark">Neue Zürcher Zeitung</h1>
-    <div class="np-byline"><span>애배력</span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
+    <div class="np-byline"><span></span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
     <p class="np-mast-slug">Austrian Empress Elizabeth &middot; Hotel in Ghenf &middot; &ldquo;View Rivage&rdquo;</p>
   </header>
 
@@ -378,7 +397,7 @@ a { color:var(--accent); text-decoration:none; }
   <main class="np-main" id="wrap"></main>
 
   <footer class="np-foot">
-    <p>© <span class="mono">2026</span> 애배력 — 회차별 캐스팅과 이벤트 정보는 제작사 공식 공지를 1차 출처로 합니다.
+    <p>© <span class="mono">2026</span> · 회차별 캐스팅과 이벤트 정보는 제작사 공식 공지를 1차 출처로 합니다.
        일정·캐스팅은 배우 및 제작사 사정으로 사전 공지 없이 변경될 수 있습니다.</p>
   </footer>
 </div>
@@ -629,7 +648,7 @@ function sheetHTML (p) {
   const events = p.events || [];
   const evHTML = events.length
     ? `<div class="np-badges">${events.map(e => `<span class="np-badge${e.verified ? '' : ' unv'}">${e.label}${e.verified ? '' : ' · 미검증'}</span>`).join('')}</div>`
-    : `<p class="np-noev">이벤트 정보 없음 · 제보는 추후 지원</p>`;
+    : `<p class="np-noev">이벤트 정보 없음</p>`;
 
   const hist = p.history
     ? `<div class="np-hist"><b>캐스팅 변경</b>${p.history.role} 역 ${p.history.from} → ${p.history.to}
@@ -663,8 +682,7 @@ function sheetHTML (p) {
       <caption>이 회차 캐스팅 <span>· 회색은 배역별 다른 캐스팅</span></caption>
       <tbody>${rows}</tbody>
     </table>
-    ${evHTML}${hist}${check}
-    <p class="np-sheet-foot">티켓·방청 정보는 공식 채널을 확인하세요</p>`;
+    ${evHTML}${hist}${check}`;
 }
 
 function openSheet (p) {
@@ -838,7 +856,7 @@ $('#sheetBack').addEventListener('click', closeSheet);
 
 /* ═══ 초기화 ═══ */
 $('#todayStamp').textContent =
-  `${TODAY.y}년 ${TODAY.m}월 ${TODAY.d}일 ${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]}요일`;
+  `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
 
 skipAnim = true;
 render();

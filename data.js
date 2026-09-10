@@ -18,7 +18,7 @@ const WORK = {
   title:  '엘리자벳',
   run:    '6연',                                     // 한국 초연부터 세어 여섯 번째 시즌
   venue:  '블루스퀘어 우리은행홀',
-  period: { start: '2026-08-16', end: null },        // end: 마지막 회차 미발표 (폐막 ~2026-11-15 예정) — 발표되면 채운다
+  period: { start: '2026-08-16', end: '2026-11-15' },  // 폐막 2026.11.15
   poster: ''                                         // TODO: 2026 엘리자벳 공식 포스터를 ref/에 넣고 경로만 적기
 };
 
@@ -238,25 +238,22 @@ const SEAT_MAP = {
 /* 좌석 색 — 유저가 정산판에서 고르는 색 (PRD_v3 4.1 / v2 7.2).
    앉은 횟수를 "같은 색의 진하기"가 아니라 "아예 다른 색"으로 구분한다.
    떨어져 있는 좌석끼리는 진하기 차이를 눈으로 못 재기 때문이다.
-   그래서 색상환을 고루 도는 12색을 두고, 유저가 횟수 칸마다 하나씩 끌어다 놓는다. */
+   빨주노초파남보 무지개 순 파스텔 8색을 두고, 유저가 횟수 칸마다 하나씩 끌어다 놓는다. */
 const SEAT_COLORS = [
-  { id:'red',    hex:'#C1292E', label:'빨강' },
-  { id:'orange', hex:'#E4572E', label:'주황' },
-  { id:'tan',    hex:'#F3A712', label:'귤' },
-  { id:'lemon',  hex:'#F0E76F', label:'노랑' },
-  { id:'lime',   hex:'#A8C256', label:'연두' },
-  { id:'jade',   hex:'#28CC9E', label:'청록' },
-  { id:'sky',    hex:'#4EA5D9', label:'하늘' },
-  { id:'blue',   hex:'#86A8E7', label:'연하늘' },
-  { id:'navy',   hex:'#3D5A99', label:'남색' },
-  { id:'lilac',  hex:'#9C79C6', label:'보라' },
-  { id:'rose',   hex:'#D16BA5', label:'자홍' },
-  { id:'pink',   hex:'#E5717F', label:'분홍' }
+  { id:'rose',   hex:'#EBA0A6', label:'빨강' },
+  { id:'amber',  hex:'#F0BE93', label:'주황' },
+  { id:'gold',   hex:'#EFDD97', label:'노랑' },
+  { id:'moss',   hex:'#B4D49E', label:'초록' },
+  { id:'teal',   hex:'#9BD7C8', label:'청록' },
+  { id:'slate',  hex:'#A6C3E6', label:'파랑' },
+  { id:'indigo', hex:'#A9ABDF', label:'남색' },
+  { id:'plum',   hex:'#CBABDD', label:'보라' }
 ];
 
-/* 앉은 횟수 → 색. 유저가 바꾸기 전 기본 조합 (연하늘 → 청록 → 귤 → 빨강) */
+/* 앉은 횟수 → 색. 기본값은 비워 둔다 — 유저가 팔레트에서 칸으로 끌어다 놓기 전엔
+   색 칸이 점선 원형(빈칸)으로 남는다. */
 const VISIT_LEVELS = [1, 2, 3, 4];
-const DEFAULT_VISIT_COLORS = { 1:'blue', 2:'jade', 3:'tan', 4:'red' };
+const DEFAULT_VISIT_COLORS = {};
 const visitLabel = n => n >= 4 ? '4회+' : n + '회';
 
 /* ── 개인 관극 기록 ── my_records 테이블의 자리 (PRD_v3 5장).
@@ -344,9 +341,10 @@ const seatLabel = id => {
 
 /* ── 배치도 렌더 메타 ──
    좌석 col(1-indexed, 통로에서 AISLE_W칸 빔) → 그리드 칸 gc = col + LABEL_W.
-   양 끝에 열번호 칸을 LABEL_W 만큼 비워 두 자리 숫자(23열)가 잘리지 않게 한다.
-   labelGc = 열번호를 찍을 자리 [왼끝, 통로1, 통로2, 오른끝] — 통로는 AISLE_W칸을 걸친다. */
-const LABEL_W = 2;
+   양 끝 열번호는 없앴다(LABEL_W=0) — 좌석을 지면 폭에 꽉 채우기 위해.
+   열번호는 좌·우 통로 자리에만 인쇄한다.
+   labelGc = [왼끝(미사용), 통로1, 통로2, 오른끝(미사용)] — 통로는 AISLE_W칸을 걸친다. */
+const LABEL_W = 0;
 
 function floorGrid (floor) {
   let maxCol = 0;

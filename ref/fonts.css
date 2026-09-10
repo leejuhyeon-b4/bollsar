@@ -53,6 +53,16 @@
 @font-face { font-family:'Song Myung'; font-style:normal; font-weight:400; font-display:swap;
   src:url('fonts/songmyung-400.woff2') format('woff2'); }
 
+/* Cafe24 Ssurround Air — 카페24 써라운드 에어. 둥근 획의 본문용 고딕 (상업 이용 무료).
+   원본 usWeightClass=300(Light)이라 weight 범위를 300~400으로 열어 본문(400)에도 매칭되게 한다.
+   설치돼 있으면 local() 로 먼저 잡는다. */
+@font-face {
+  font-family:'Cafe24 Ssurround Air';
+  font-style:normal; font-weight:300 400; font-display:swap;
+  src:local('Cafe24 Ssurround air'), local('Cafe24Ssurroundair'),
+      url('fonts/cafe24ssurroundair-400.woff2') format('woff2');
+}
+
 /* ═══ 한글 고딕 — 또렷함 ═══ */
 
 /* Gothic A1 — 기하학적, 살짝 각진 */
