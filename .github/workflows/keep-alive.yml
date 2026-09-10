@@ -1,0 +1,31 @@
+name: Supabase keep-alive
+
+# Supabase 무료 티어는 7일 동안 요청이 없으면 프로젝트를 일시정지한다.
+# 대략 5일에 한 번 아무 요청이나 보내서 깨어 있게 유지한다.
+
+on:
+  schedule:
+    # 매월 1·6·11·16·21·26·31일 06:00 UTC (≈ 5일 간격, 최대 공백 6일 < 7일)
+    - cron: '0 6 */5 * *'
+  workflow_dispatch:        # Actions 탭에서 수동 실행
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query one row from Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::error::SUPABASE_URL / SUPABASE_KEY secret 이 설정돼 있지 않습니다."
+            exit 1
+          fi
+          # records 테이블에서 1행만 조회 (RLS로 결과는 비어도 DB에 붙으므로 활동으로 집계됨)
+          curl --fail --silent --show-error --max-time 30 \
+            "$SUPABASE_URL/rest/v1/records?select=perf_key&limit=1" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY"
+          echo
+          echo "keep-alive ok ($(date -u +%FT%TZ))"
