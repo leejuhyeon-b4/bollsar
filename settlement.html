@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9e3d5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="애배력">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="ref/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="ref/apple-touch-icon.png">
 <title>정산판 — 엘리자벳 2026</title>
 <meta name="description" content="내가 본 뮤지컬 엘리자벳 2026 회차·좌석 기록과 관람 정산 · 좌석 배치도 · 페어 조합 즐겨찾기">
 
@@ -857,6 +865,16 @@ enter();
 
 /* Supabase 로그인 — 세션 확인되면 콜백으로 재렌더 (게이트 열림/닫힘) */
 mountAuth(isIn => { loggedIn = isIn; render(); });
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (error) {
+      console.warn('[애배력] 서비스 워커 등록 실패:', error);
+    });
+  });
+}
 </script>
 
 </body>

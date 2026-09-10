@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9e3d5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="애배력">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="ref/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="ref/apple-touch-icon.png">
 <title>강홍석 스케줄 — 엘리자벳 2026</title>
 <meta name="description" content="뮤지컬 엘리자벳 2026 강홍석(루케니) 출연 회차 달력 · 회차별 캐스팅 · 커튼콜데이 등 이벤트">
 
@@ -898,6 +906,16 @@ enter();
 
 /* Supabase 로그인 — 세션이 확인되면 콜백으로 재렌더 */
 mountAuth(isIn => { loggedIn = isIn; skipAnim = true; render(); });
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (error) {
+      console.warn('[애배력] 서비스 워커 등록 실패:', error);
+    });
+  });
+}
 </script>
 
 </body>
