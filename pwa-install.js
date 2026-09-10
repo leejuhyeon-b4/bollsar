@@ -2,7 +2,6 @@
   'use strict';
 
   const NEVER_KEY = 'hongcal.install.never.v1';
-  const SESSION_KEY = 'hongcal.install.hidden';
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
@@ -33,11 +32,10 @@
 
   window.addEventListener('appinstalled', function () {
     installPrompt = null;
-    hideModal(false);
+    hideModal();
   });
 
   window.addEventListener('load', function () {
-    if (readStorage(sessionStorage, SESSION_KEY) === '1') return;
     fallbackTimer = window.setTimeout(function () {
       setMode(isIOS ? 'ios' : 'manual');
       showModal();
@@ -129,15 +127,15 @@
     document.body.appendChild(wrap);
 
     wrap.querySelectorAll('[data-pwa-close]').forEach(function (button) {
-      button.addEventListener('click', function () { hideModal(true); });
+      button.addEventListener('click', hideModal);
     });
     wrap.querySelector('[data-pwa-never]').addEventListener('click', function () {
       writeStorage(localStorage, NEVER_KEY, '1');
-      hideModal(false);
+      hideModal();
     });
     wrap.querySelector('[data-pwa-install]').addEventListener('click', installApp);
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && wrap && !wrap.hidden) hideModal(true);
+      if (event.key === 'Escape' && wrap && !wrap.hidden) hideModal();
     });
   }
 
@@ -171,13 +169,12 @@
     installPrompt = null;
     await prompt.prompt();
     const choice = await prompt.userChoice;
-    if (choice.outcome === 'accepted') hideModal(false);
+    if (choice.outcome === 'accepted') hideModal();
     else setMode('manual');
   }
 
   function showModal () {
-    if (!wrap || !wrap.hidden || isStandalone || readStorage(localStorage, NEVER_KEY) === '1'
-      || readStorage(sessionStorage, SESSION_KEY) === '1') return;
+    if (!wrap || !wrap.hidden || isStandalone || readStorage(localStorage, NEVER_KEY) === '1') return;
     if (fallbackTimer) window.clearTimeout(fallbackTimer);
     previousFocus = document.activeElement;
     wrap.hidden = false;
@@ -188,11 +185,10 @@
     }, 0);
   }
 
-  function hideModal (forSession) {
+  function hideModal () {
     if (!wrap) return;
     wrap.hidden = true;
     document.documentElement.classList.remove('pwa-modal-open');
-    if (forSession) writeStorage(sessionStorage, SESSION_KEY, '1');
     if (previousFocus && previousFocus.focus) previousFocus.focus();
   }
 

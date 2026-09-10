@@ -104,6 +104,13 @@ a { color:var(--accent); text-decoration:none; }
 
 /* ═══ 마스트헤드 ═══ */
 .np-mast { position:relative; flex:none; padding:18px 0 10px; text-align:center; border-bottom:3px double var(--ink); }
+.np-login {
+  position:absolute; right:0; top:14px;
+  border:1px solid var(--ink-40); background:none; color:var(--ink);
+  font-family:var(--mono); font-size:12px; letter-spacing:.12em;
+  min-height:40px; padding:4px 10px; cursor:pointer;
+}
+.np-login:hover { background:var(--ink); color:var(--paper); }
 .np-wordmark { font-family:var(--fraktur); font-weight:400; font-size:29px; line-height:1.05; letter-spacing:.01em; margin:2px 0 4px; text-wrap:balance; }
 .np-byline {
   display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
@@ -372,6 +379,8 @@ a { color:var(--accent); text-decoration:none; }
 
 /* ═══ 반응형 ═══ */
 @media (max-width:600px) {
+  .np-mast { padding-top:56px; }
+  .np-login { top:6px; min-height:44px; }
   .np-shell { padding:0 14px; }
   .np-wordmark { font-size:21px; }
   .np-cell { min-height:68px; }
@@ -398,6 +407,7 @@ a { color:var(--accent); text-decoration:none; }
 
 <div class="np-shell">
   <header class="np-mast" id="mast">
+    <button type="button" class="np-login" id="loginBtn">로그인</button>
     <h1 class="np-wordmark">Neue Zürcher Zeitung</h1>
     <div class="np-byline"><span></span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
     <p class="np-mast-slug">Austrian Empress Elizabeth &middot; Hotel in Ghenf &middot; &ldquo;View Rivage&rdquo;</p>
@@ -474,6 +484,7 @@ const LEAD_PHOTO = 'ref/KakaoTalk_20260909_174603341_01.jpg';
    ═══════════════════════════════════════════════════════════ */
 function render () {
   document.body.classList.toggle('logged-in', loggedIn);
+  $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
   $('#wrap').innerHTML = viewTabsHTML() + (view === 'calendar' ? calendarHTML() : listHTML());
   bind();
   animateBody();
