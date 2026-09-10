@@ -269,6 +269,15 @@ a { color:var(--accent); text-decoration:none; }
 .np-book-btn:hover .lbl { color:var(--paper); }
 .np-book-btn b { font-family:var(--display); font-weight:700; font-size:16px; }
 
+/* 공식 채널 3칸 (예매 버튼 아래) */
+.np-links {
+  padding:12px 0; border-bottom:1px solid var(--ink-28);
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+}
+.np-links .np-book-btn { padding:10px 4px; gap:2px; }
+.np-links .np-book-btn .lbl { font-size:12px; letter-spacing:.08em; }
+.np-links .np-book-btn b { font-size:14px; }
+
 .np-listhead { display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:4px 0 2px; }
 .np-listhead h3 { font-family:var(--display); font-weight:700; font-size:15px; }
 .np-listhead .cnt { font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--ink-55); }
@@ -587,6 +596,18 @@ function calendarHTML () {
     <a class="np-book-btn" href="https://tickets.interpark.com/goods/26009314" target="_blank" rel="noopener">
       <span class="lbl">엘리자벳 예매</span><b>NOL 티켓</b>
     </a>
+  </section>
+
+  <section class="np-links">
+    <a class="np-book-btn" href="https://www.instagram.com/bollsar0211" target="_blank" rel="noopener" data-ext="actor-instagram">
+      <span class="lbl">배우 공식</span><b>인스타</b>
+    </a>
+    <a class="np-book-btn" href="https://cafe.daum.net/Bollsar" target="_blank" rel="noopener" data-ext="actor-fancafe">
+      <span class="lbl">배우 공식</span><b>팬카페</b>
+    </a>
+    <a class="np-book-btn" href="https://www.instagram.com/emk_musical" target="_blank" rel="noopener" data-ext="emk-instagram">
+      <span class="lbl">제작사 EMK</span><b>인스타</b>
+    </a>
   </section>`;
 }
 
@@ -830,8 +851,10 @@ function bind () {
     openSheet(p);
   }));
 
-  $$('.np-book-btn').forEach(a => a.addEventListener('click', () =>
-    track('click_booking', { vendor:(a.querySelector('b') || {}).textContent || '' })));
+  $$('.np-book-btn').forEach(a => a.addEventListener('click', () => {
+    if (a.dataset.ext) track('click_link', { target:a.dataset.ext });
+    else track('click_booking', { vendor:(a.querySelector('b') || {}).textContent || '' });
+  }));
 
   $$('.js-month').forEach(b => b.addEventListener('click', () => moveMonth(+b.dataset.step)));
 
