@@ -298,11 +298,19 @@ const authStorage = {
   removeItem (k) { try { localStorage.removeItem(k); sessionStorage.removeItem(k); } catch {} }
 };
 
-const SB = (typeof supabase !== 'undefined' && supabase.createClient)
-  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+let SB = null;
+try {
+  if (typeof supabase !== 'undefined' && supabase.createClient) {
+    SB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage }
-    })
-  : null;
+    });
+  } else {
+    console.warn('[auth] supabase-js 를 불러오지 못했습니다 — 로그인 비활성, 로컬 저장만.');
+  }
+} catch (e) {
+  console.error('[auth] Supabase 클라이언트 생성 실패:', e);
+  SB = null;
+}
 
 let AUTH_USER = null;   // Supabase user or null
 
@@ -595,11 +603,17 @@ function injectAuthCSS () {
 
 function mountAuth (onAuth) {
   const btn = document.getElementById('loginBtn');
-  if (!SB) {                       // 서버 연결 불가 — 로컬 전용으로만 동작
-    if (btn) btn.hidden = true;
-    onAuth(false);
-    return;
-  }
+
+  /* 로그인 버튼 핸들러부터 건다 — 아래에서 뭐가 터져도 버튼은 항상 반응하게 */
+  if (btn) btn.addEventListener('click', async () => {
+    try {
+      if (!SB) { alert('로그인 서버에 연결하지 못했어요.\n새로고침하거나 잠시 후 다시 시도해 주세요.'); return; }
+      if (AUTH_USER) await authSignOut();
+      else openAuthModal();
+    } catch (e) { console.error('[auth] login button:', e); }
+  });
+
+  if (!SB) { onAuth(false); return; }   // 서버 연결 불가 — 로컬 저장만
   injectAuthCSS();
 
   const wrap = document.createElement('div');
@@ -655,18 +669,15 @@ function mountAuth (onAuth) {
   wrap.querySelector('.auth-x').addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !wrap.hidden) close(); });
 
-  if (btn) btn.addEventListener('click', async () => {
-    if (AUTH_USER) { await authSignOut(); }
-    else openTo('login');
-  });
-
   async function handle (session) {
     AUTH_USER = session ? session.user : null;
-    if (AUTH_USER) { await pullRecords(); await mergeLocalIntoCloud(); }
-    else { MY_RECORDS = loadLocalRecords(); }
+    try {
+      if (AUTH_USER) { await pullRecords(); await mergeLocalIntoCloud(); }
+      else { MY_RECORDS = loadLocalRecords(); }
+    } catch (e) { console.warn('[auth] record sync:', e); }
     onAuth(!!AUTH_USER);
   }
-  SB.auth.getSession().then(({ data }) => handle(data.session));
+  SB.auth.getSession().then(({ data }) => handle(data.session)).catch(e => { console.warn('[auth] getSession:', e); onAuth(false); });
   SB.auth.onAuthStateChange((_evt, session) => handle(session));
 }
 
