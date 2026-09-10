@@ -399,6 +399,7 @@ body.logged-in .gate-cta { display:none; }
 </div>
 
 <!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 <script src="data.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -433,8 +434,8 @@ function enter () {
 /* ═══════════════════════════════════════════════════════════
    상태
    ═══════════════════════════════════════════════════════════ */
-/* 개발 기본값 = 로그인됨 (index.html 과 동일). 실제 인증 붙이면 false 로 되돌릴 것 */
-let loggedIn    = true;
+/* 로그인 상태는 Supabase 세션이 결정한다 (data.js mountAuth). 시작은 로그아웃 → 게이트. */
+let loggedIn    = false;
 let hongOnly    = true;    // 📌 기본값 — 강홍석 회차만. 한 번 더 누르면 전 회차.
 let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id } — 유저가 끌어다 바꾼다
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
@@ -811,6 +812,7 @@ function bind () {
 
   $$('.js-rec-del').forEach(b => b.addEventListener('click', () => {
     MY_RECORDS = MY_RECORDS.filter(r => r.key !== b.dataset.key);
+    removeRecordRemote(b.dataset.key);
     track('delete_record', { perf:b.dataset.key });
     saveRecords();
     if (!MY_RECORDS.length) delMode = false;
@@ -818,7 +820,7 @@ function bind () {
   }));
 
   const cta = $('.js-login-cta');
-  if (cta) cta.addEventListener('click', () => setLoggedIn(true));
+  if (cta) cta.addEventListener('click', () => openAuthModal());
 
   $$('.js-pair-fix').forEach(b => b.addEventListener('click', () => {
     const { role, actor } = b.dataset;
@@ -846,16 +848,15 @@ function bind () {
   if (save) save.addEventListener('click', () => alert('이미지 저장은 준비 중입니다.'));
 }
 
-/* ═══ 로그인 데모 토글 — 실제 인증 없음 ═══ */
-function setLoggedIn (v) { loggedIn = v; render(); }
-$('#loginBtn').addEventListener('click', () => setLoggedIn(!loggedIn));
-
 /* ═══ 초기화 ═══ */
 $('#todayStamp').textContent =
   `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
 
 render();
 enter();
+
+/* Supabase 로그인 — 세션 확인되면 콜백으로 재렌더 (게이트 열림/닫힘) */
+mountAuth(isIn => { loggedIn = isIn; render(); });
 </script>
 
 </body>

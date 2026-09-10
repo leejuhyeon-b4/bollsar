@@ -423,6 +423,7 @@ a { color:var(--accent); text-decoration:none; }
 
 
 <!-- 공용 데이터 · 헬퍼 (정산판 탭과 공유) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
 <script src="data.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -452,10 +453,8 @@ let view = 'calendar';                 // 'calendar' | 'list' — 달력형이 �
 let ym = { y:TODAY.y, m:TODAY.m };      // 달력형에서 보고 있는 달
 let showPast = false;                   // 목록형에서 지난 회차 펼침 여부
 let sheetKey = null;                    // 열린 상세 시트의 perfKey
-/* 개발 기본값 = 로그인됨. 실제 인증(Supabase 등)이 붙기 전까지 게이트로 막히면
-   관극 체크·좌석 선택을 볼 수 없어서 열어둔다. 마스트헤드 버튼으로 로그아웃 상태도 확인 가능.
-   ⚠️ 실제 인증 연결할 때 false 로 되돌릴 것. */
-let loggedIn = true;
+/* 로그인 상태는 Supabase 세션이 결정한다 (data.js mountAuth). 시작은 로그아웃. */
+let loggedIn = false;
 let skipAnim = false;
 let gridFrom = 'start';
 
@@ -604,10 +603,10 @@ function calendarHTML () {
 
   <section class="np-links">
     <a class="np-book-btn" href="https://www.instagram.com/bollsar0211" target="_blank" rel="noopener" data-ext="actor-instagram">
-      <span class="lbl">배우 공식</span><b>인스타</b>
+      <span class="lbl">배우님 공식</span><b>인스타</b>
     </a>
     <a class="np-book-btn" href="https://cafe.daum.net/Bollsar" target="_blank" rel="noopener" data-ext="actor-fancafe">
-      <span class="lbl">배우 공식</span><b>팬카페</b>
+      <span class="lbl">배우님 공식</span><b>팬카페</b>
     </a>
     <a class="np-book-btn" href="https://www.instagram.com/emk_musical" target="_blank" rel="noopener" data-ext="emk-instagram">
       <span class="lbl">제작사 EMK</span><b>인스타</b>
@@ -754,11 +753,11 @@ function closeSheet () {
 }
 function escCloseSheet (e) { if (e.key === 'Escape') closeSheet(); }
 
-/* ═══ 관극 기록 (my_records 목업) ═══ */
+/* ═══ 관극 기록 ═══ */
 function toggleCheck (p) {
   const key = perfKey(p);
   const existing = MY_RECORDS.find(r => r.key === key);
-  if (existing) MY_RECORDS = MY_RECORDS.filter(r => r.key !== key);
+  if (existing) { MY_RECORDS = MY_RECORDS.filter(r => r.key !== key); removeRecordRemote(key); }
   else MY_RECORDS.push({ key, seat:null });
   track(existing ? 'unsave_perf' : 'save_perf', { perf:key, role:(hongRole(p) || {}).name || '' });
   saveRecords();
@@ -887,8 +886,6 @@ function animateBody () {
   gridFrom = 'start';
 }
 
-/* ═══ 로그인 데모 토글 — 실제 인증 없음 ═══ */
-$('#loginBtn').addEventListener('click', () => { loggedIn = !loggedIn; skipAnim = true; render(); });
 $('#sheetBack').addEventListener('click', closeSheet);
 
 /* ═══ 초기화 ═══ */
@@ -898,6 +895,9 @@ $('#todayStamp').textContent =
 skipAnim = true;
 render();
 enter();
+
+/* Supabase 로그인 — 세션이 확인되면 콜백으로 재렌더 */
+mountAuth(isIn => { loggedIn = isIn; skipAnim = true; render(); });
 </script>
 
 </body>

@@ -256,24 +256,131 @@ const VISIT_LEVELS = [1, 2, 3, 4];
 const DEFAULT_VISIT_COLORS = {};
 const visitLabel = n => n >= 4 ? '4회+' : n + '회';
 
-/* ── 개인 관극 기록 ── my_records 테이블의 자리 (PRD_v3 5장).
-   백엔드(Supabase 등)가 붙기 전까지는 브라우저 localStorage 에 담는다.
-   스케줄 탭에서 담은 기록이 정산판에서도 보이려면 이 저장이 반드시 필요하다
-   (두 탭은 별개 페이지라 메모리 배열은 이동하면 사라진다).
-   ⚠️ file:// 로 열면 브라우저가 저장을 막을 수 있다 — 로컬 서버로 열 것. */
-const REC_KEY = 'aebaeryeok.records.v1';
+/* ═══════════════════════════════════════════════════════════
+   Supabase — 아이디/비번 로그인 + 관극 기록 동기화
 
-function loadRecords () {
+   ⚠️ Supabase 대시보드에서 먼저 해둘 것:
+   1) Authentication → Providers → Email → "Confirm email" 끄기 (필수).
+      아이디를 `<id>@bollsar.local` 가짜 이메일로 저장하므로 확인 메일이 안 감.
+   2) "Allow new users to sign up" 켜져 있어야 함 (기본값).
+   3) SQL Editor 에서 아래 실행:
+
+      create table if not exists public.records (
+        user_id    uuid not null references auth.users(id) on delete cascade,
+        perf_key   text not null,
+        seat       text,
+        updated_at timestamptz not null default now(),
+        primary key (user_id, perf_key)
+      );
+      alter table public.records enable row level security;
+      create policy "records private to owner" on public.records
+        for all to authenticated
+        using (auth.uid() = user_id) with check (auth.uid() = user_id);
+   ═══════════════════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://ymzxbfyupsnyaqqawoyc.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_bx73KKDi7lZkeaDoGnndrA_GySTgosF';
+/* 아이디를 `<id>@ID_EMAIL_DOMAIN` 가짜 이메일로 만들어 Supabase Auth 에 넣는다.
+   Supabase 가 "email invalid" 를 뱉으면 이 도메인만 바꾸면 된다 (MX 있는 도메인 필요할 수 있음). */
+const ID_EMAIL_DOMAIN = 'bollsar.app';
+const REC_KEY      = 'aebaeryeok.records.v1';
+const REMEMBER_KEY = 'bollsar.auth.remember';
+
+/* 자동 로그인 체크박스: 켜짐 = localStorage(영구), 꺼짐 = sessionStorage(탭 닫으면 끝) */
+const authStorage = {
+  getItem (k) { try { return localStorage.getItem(k) ?? sessionStorage.getItem(k); } catch { return null; } },
+  setItem (k, v) {
+    try {
+      const keep = localStorage.getItem(REMEMBER_KEY) !== '0';
+      (keep ? localStorage : sessionStorage).setItem(k, v);
+      (keep ? sessionStorage : localStorage).removeItem(k);
+    } catch {}
+  },
+  removeItem (k) { try { localStorage.removeItem(k); sessionStorage.removeItem(k); } catch {} }
+};
+
+const SB = (typeof supabase !== 'undefined' && supabase.createClient)
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage }
+    })
+  : null;
+
+let AUTH_USER = null;   // Supabase user or null
+
+const idToEmail = id => `${String(id).trim().toLowerCase()}@${ID_EMAIL_DOMAIN}`;
+const idOk = id => /^[a-z0-9][a-z0-9._-]{2,19}$/i.test(String(id || '').trim());
+
+function authMsg (e) {
+  const m = ((e && e.message) || '').toLowerCase();
+  if (m.includes('invalid login')) return '아이디 또는 비밀번호가 맞지 않습니다.';
+  if (m.includes('already') && m.includes('regist')) return '이미 있는 아이디입니다.';
+  if (m.includes('user already')) return '이미 있는 아이디입니다.';
+  if (m.includes('password')) return '비밀번호는 6자 이상이어야 합니다.';
+  if (m.includes('rate') && m.includes('limit')) return '잠시 후 다시 시도해 주세요.';
+  if (m.includes('signups not allowed')) return '지금은 회원가입을 받지 않습니다.';
+  return (e && e.message) || '알 수 없는 오류가 났어요.';
+}
+
+async function authSignIn (id, pw, remember) {
+  if (!SB) return { message: '서버에 연결할 수 없습니다.' };
+  localStorage.setItem(REMEMBER_KEY, remember ? '1' : '0');
+  const { error } = await SB.auth.signInWithPassword({ email: idToEmail(id), password: pw });
+  return error ? { message: authMsg(error) } : null;
+}
+async function authSignUp (id, pw, remember) {
+  if (!SB) return { message: '서버에 연결할 수 없습니다.' };
+  localStorage.setItem(REMEMBER_KEY, remember ? '1' : '0');
+  const { data, error } = await SB.auth.signUp({ email: idToEmail(id), password: pw });
+  if (error) return { message: authMsg(error) };
+  if (!data.session) return { message: '가입은 됐지만 자동 로그인이 안 됐어요. 로그인 탭에서 다시 시도해 주세요. (대시보드에서 이메일 확인을 껐는지 확인)' };
+  return null;
+}
+async function authSignOut () { if (SB) await SB.auth.signOut(); }
+
+/* ── 관극 기록 저장소 ──
+   MY_RECORDS 는 항상 동기적으로 읽는 메모리 배열. 로그인 상태면 Supabase 가
+   1차 소스이고 localStorage 는 오프라인 캐시, 아니면 localStorage 만 쓴다. */
+function loadLocalRecords () {
   try {
     const list = JSON.parse(localStorage.getItem(REC_KEY) || '[]');
     return Array.isArray(list) ? list.filter(r => r && r.key) : [];
   } catch { return []; }
 }
-function saveRecords () {
-  try { localStorage.setItem(REC_KEY, JSON.stringify(MY_RECORDS)); } catch {}
+function loadRecords () { return loadLocalRecords(); }   // 하위 호환
+
+let MY_RECORDS = loadLocalRecords();
+
+async function pullRecords () {
+  if (!SB || !AUTH_USER) return;
+  const { data, error } = await SB.from('records').select('perf_key, seat');
+  if (error) { console.warn('[records] pull:', error.message); return; }
+  MY_RECORDS = (data || []).map(r => ({ key: r.perf_key, seat: r.seat }));
 }
 
-let MY_RECORDS = loadRecords();
+/* 로그인 직후: 로컬에만 있던 기록을 클라우드로 합쳐 올린다 (기기 이전용) */
+async function mergeLocalIntoCloud () {
+  if (!SB || !AUTH_USER) return;
+  const local = loadLocalRecords();
+  if (!local.length) return;
+  const have = new Set(MY_RECORDS.map(r => r.key));
+  const add = local.filter(r => !have.has(r.key));
+  if (!add.length) return;
+  MY_RECORDS = MY_RECORDS.concat(add);
+  await saveRecords();
+}
+
+async function saveRecords () {
+  try { localStorage.setItem(REC_KEY, JSON.stringify(MY_RECORDS)); } catch {}
+  if (!SB || !AUTH_USER) return;
+  const rows = MY_RECORDS.map(r => ({ user_id: AUTH_USER.id, perf_key: r.key, seat: r.seat }));
+  if (!rows.length) return;
+  const { error } = await SB.from('records').upsert(rows, { onConflict: 'user_id,perf_key' });
+  if (error) console.warn('[records] save:', error.message);
+}
+async function removeRecordRemote (key) {
+  if (!SB || !AUTH_USER) return;
+  const { error } = await SB.from('records').delete().eq('user_id', AUTH_USER.id).eq('perf_key', key);
+  if (error) console.warn('[records] delete:', error.message);
+}
 
 /* ═══ 공용 헬퍼 ═══ */
 const $  = s => document.querySelector(s);
@@ -402,3 +509,166 @@ function seatWhere (id) {
 }
 
 const isPast = p => (p.y * 10000 + p.m * 100 + p.d) < (TODAY.y * 10000 + TODAY.m * 100 + TODAY.d);
+
+
+/* ═══════════════════════════════════════════════════════════
+   로그인 / 회원가입 모달 (스케줄·정산판 공용)
+   각 페이지에서 mountAuth(onAuth) 한 번 호출.
+   onAuth(true|false) 로 로그인 상태 변화를 페이지에 알린다.
+   ═══════════════════════════════════════════════════════════ */
+let _openAuth = null;
+function openAuthModal () { if (_openAuth) _openAuth(); }
+
+function authFormHTML (mode) {
+  const signup = mode === 'signup';
+  return `
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab${signup ? '' : ' on'}" data-mode="login">로그인</button>
+      <button type="button" class="auth-tab${signup ? ' on' : ''}" data-mode="signup">회원가입</button>
+    </div>
+    <form id="authForm" autocomplete="on">
+      <label class="auth-f"><span>아이디</span>
+        <input name="username" type="text" autocomplete="username" autocapitalize="none"
+               spellcheck="false" placeholder="영문·숫자 3~20자" required></label>
+      <label class="auth-f"><span>비밀번호</span>
+        <input name="pw" type="password" minlength="6"
+               autocomplete="${signup ? 'new-password' : 'current-password'}" placeholder="6자 이상" required></label>
+      ${signup ? `<label class="auth-f"><span>비밀번호 확인</span>
+        <input name="pw2" type="password" minlength="6" autocomplete="new-password"
+               placeholder="한 번 더" required></label>` : ''}
+      <label class="auth-remember"><input name="remember" type="checkbox" checked><span>자동 로그인</span></label>
+      <p class="auth-err" id="authErr" role="alert"></p>
+      <button type="submit" class="auth-submit">${signup ? '가입하고 시작' : '로그인'}</button>
+      ${signup ? `<p class="auth-note">아이디·비밀번호 찾기 기능은 없어요. 비밀번호는 꼭 기억하거나 저장해 두세요.</p>` : ''}
+    </form>`;
+}
+
+function injectAuthCSS () {
+  if (document.getElementById('authCSS')) return;
+  const s = document.createElement('style');
+  s.id = 'authCSS';
+  s.textContent = `
+    #authWrap { position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .auth-back { position:absolute; inset:0; background:rgba(15,14,10,.55); }
+    .auth-box {
+      position:relative; width:100%; max-width:320px;
+      background:var(--paper); border:1px solid var(--ink);
+      border-top:3px double var(--ink); border-bottom:3px double var(--ink);
+      padding:22px 22px 20px;
+    }
+    .auth-x {
+      position:absolute; right:10px; top:8px; border:0; background:none; cursor:pointer;
+      font-family:var(--mono); font-size:14px; color:var(--ink);
+    }
+    .auth-tabs { display:flex; gap:0; margin-bottom:16px; border:1px solid var(--ink-40); }
+    .auth-tab {
+      flex:1; border:0; background:none; cursor:pointer; padding:8px 0;
+      font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-55);
+    }
+    .auth-tab + .auth-tab { border-left:1px solid var(--ink-40); }
+    .auth-tab.on { background:var(--ink); color:var(--paper); }
+    .auth-f { display:block; margin-bottom:11px; }
+    .auth-f span {
+      display:block; margin-bottom:4px;
+      font-family:var(--mono); font-size:12px; letter-spacing:.06em; color:var(--ink-60);
+    }
+    .auth-f input {
+      width:100%; box-sizing:border-box; padding:9px 10px;
+      border:1px solid var(--ink-40); background:var(--paper-3); color:var(--ink);
+      font-family:var(--mono); font-size:14px; border-radius:0;
+    }
+    .auth-f input:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+    .auth-remember {
+      display:flex; align-items:center; gap:7px; margin:4px 0 12px; cursor:pointer;
+      font-family:var(--mono); font-size:12px; color:var(--ink-72);
+    }
+    .auth-remember input { width:15px; height:15px; accent-color:var(--ink); }
+    .auth-err { min-height:15px; margin-bottom:8px; font-family:var(--mono); font-size:12px; color:var(--accent); line-height:1.4; }
+    .auth-submit {
+      width:100%; padding:11px; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+      cursor:pointer; font-family:var(--mono); font-size:12px; letter-spacing:.1em;
+    }
+    .auth-submit:disabled { opacity:.5; cursor:progress; }
+    .auth-note { margin-top:10px; font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink-55); }`;
+  document.head.appendChild(s);
+}
+
+function mountAuth (onAuth) {
+  const btn = document.getElementById('loginBtn');
+  if (!SB) {                       // 서버 연결 불가 — 로컬 전용으로만 동작
+    if (btn) btn.hidden = true;
+    onAuth(false);
+    return;
+  }
+  injectAuthCSS();
+
+  const wrap = document.createElement('div');
+  wrap.id = 'authWrap'; wrap.hidden = true;
+  wrap.innerHTML = `<div class="auth-back"></div>
+    <div class="auth-box" role="dialog" aria-modal="true" aria-label="로그인">
+      <button type="button" class="auth-x" aria-label="닫기">✕</button>
+      <div id="authBody"></div>
+    </div>`;
+  document.body.appendChild(wrap);
+
+  let mode = 'login';
+  const close = () => { wrap.hidden = true; };
+  const openTo = m => {
+    mode = m || 'login';
+    wrap.hidden = false;
+    wrap.querySelector('#authBody').innerHTML = authFormHTML(mode);
+    bindForm();
+    const first = wrap.querySelector('input[name=username]');
+    if (first) setTimeout(() => first.focus(), 30);
+  };
+  _openAuth = () => openTo('login');
+
+  function bindForm () {
+    wrap.querySelectorAll('.auth-tab').forEach(b =>
+      b.addEventListener('click', () => openTo(b.dataset.mode)));
+    const form = wrap.querySelector('#authForm');
+    const err  = wrap.querySelector('#authErr');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const id  = form.username.value.trim();
+      const pw  = form.pw.value;
+      const pw2 = form.pw2 ? form.pw2.value : pw;
+      const remember = form.remember.checked;
+      err.textContent = '';
+      if (!idOk(id))  { err.textContent = '아이디는 영문·숫자로 시작하는 3~20자예요. (. _ - 사용 가능)'; return; }
+      if (pw.length < 6) { err.textContent = '비밀번호는 6자 이상이어야 해요.'; return; }
+      if (mode === 'signup' && pw !== pw2) { err.textContent = '비밀번호 확인이 일치하지 않아요.'; return; }
+      const sub = form.querySelector('.auth-submit');
+      const label = sub.textContent;
+      sub.disabled = true; sub.textContent = '처리 중…';
+      const r = mode === 'login'
+        ? await authSignIn(id, pw, remember)
+        : await authSignUp(id, pw, remember);
+      sub.disabled = false; sub.textContent = label;
+      if (r) { err.textContent = r.message; return; }
+      track(mode === 'login' ? 'login' : 'signup', {});
+      close();
+    });
+  }
+
+  wrap.querySelector('.auth-back').addEventListener('click', close);
+  wrap.querySelector('.auth-x').addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !wrap.hidden) close(); });
+
+  if (btn) btn.addEventListener('click', async () => {
+    if (AUTH_USER) { await authSignOut(); }
+    else openTo('login');
+  });
+
+  async function handle (session) {
+    AUTH_USER = session ? session.user : null;
+    if (AUTH_USER) { await pullRecords(); await mergeLocalIntoCloud(); }
+    else { MY_RECORDS = loadLocalRecords(); }
+    onAuth(!!AUTH_USER);
+  }
+  SB.auth.getSession().then(({ data }) => handle(data.session));
+  SB.auth.onAuthStateChange((_evt, session) => handle(session));
+}
+
+/* 아이디 표시용 — user.email 의 @앞부분 */
+const authUserId = () => (AUTH_USER && AUTH_USER.email || '').split('@')[0] || '';
