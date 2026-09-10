@@ -721,7 +721,11 @@ function addRecordHTML () {
    ═══════════════════════════════════════════════════════════ */
 function bind () {
   const pin = $('.js-pin');
-  if (pin) pin.addEventListener('click', () => { hongOnly = !hongOnly; pairFix = {}; render(); });
+  if (pin) pin.addEventListener('click', () => {
+    hongOnly = !hongOnly; pairFix = {};
+    track('toggle_pin', { hong_only:hongOnly });
+    render();
+  });
 
   // 팔레트: 끌거나(데스크톱) 눌러서 들기(터치)
   $$('.js-pal').forEach(b => {
@@ -742,6 +746,7 @@ function bind () {
     const assign = id => {
       if (!id) return;
       visitColors[+slot.dataset.lv] = id;
+      track('set_visit_color', { level:+slot.dataset.lv, color:id });
       heldColor = null;
       render();
     };
@@ -769,7 +774,9 @@ function bind () {
     const key = ($('.js-rec-perf') || {}).value || newRecKey;
     const f = ($('.js-nf') || {}).value, r = ($('.js-nr') || {}).value, n = ($('.js-nn') || {}).value;
     if (!key || MY_RECORDS.some(x => x.key === key)) return;
-    MY_RECORDS.push({ key, seat: (f && r && n) ? seatId(f, r, n) : null });
+    const seat = (f && r && n) ? seatId(f, r, n) : null;
+    MY_RECORDS.push({ key, seat });
+    track('add_record', { perf:key, seat:seat || 'none', source:'settlement' });
     saveRecords();
     newRecKey = null;
     render();
@@ -780,6 +787,7 @@ function bind () {
 
   $$('.js-rec-del').forEach(b => b.addEventListener('click', () => {
     MY_RECORDS = MY_RECORDS.filter(r => r.key !== b.dataset.key);
+    track('delete_record', { perf:b.dataset.key });
     saveRecords();
     if (!MY_RECORDS.length) delMode = false;
     render();
@@ -803,6 +811,7 @@ function bind () {
     const key = pairFixKey(pairFix);
     if (favoritePairs.length >= FAVORITE_MAX || favoritePairs.some(f => pairFixKey(f) === key)) return;
     favoritePairs.push({ ...pairFix });
+    track('add_favorite_pair', { pair:pairLabel(pairFix) });
     render();
   });
 

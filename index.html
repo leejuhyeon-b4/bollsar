@@ -735,6 +735,7 @@ function toggleCheck (p) {
   const existing = MY_RECORDS.find(r => r.key === key);
   if (existing) MY_RECORDS = MY_RECORDS.filter(r => r.key !== key);
   else MY_RECORDS.push({ key, seat:null });
+  track(existing ? 'unsave_perf' : 'save_perf', { perf:key, role:(hongRole(p) || {}).name || '' });
   saveRecords();
   skipAnim = true;
   render();
@@ -744,6 +745,7 @@ function setSeatForPerf (p, seatId) {
   const rec = MY_RECORDS.find(r => r.key === perfKey(p));
   if (!rec) return;
   rec.seat = seatId;
+  track('set_seat', { perf:perfKey(p), seat:seatId });
   saveRecords();
   skipAnim = true;
   render();
@@ -807,6 +809,7 @@ function bind () {
   $$('.np-vt button').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.view === view) return;
     view = b.dataset.view;
+    track('switch_view', { view });
     sheetKey = null;
     closeSheet();
     render();
@@ -815,13 +818,20 @@ function bind () {
   $$('.np-cell[data-day]').forEach(c => c.addEventListener('click', () => {
     const day = +c.dataset.day;
     const dPerfs = monthPerfs().filter(p => p.d === day).sort(cmpPerf);
-    if (dPerfs.length) openSheet(dPerfs[0]);   // 회차 있는 날 → 상세 모달 (같은 날 여러 회차면 모달 안에서 전환)
+    if (!dPerfs.length) return;
+    track('open_perf', { from:'calendar', perf:perfKey(dPerfs[0]) });
+    openSheet(dPerfs[0]);   // 회차 있는 날 → 상세 모달 (같은 날 여러 회차면 모달 안에서 전환)
   }));
 
   $$('.np-entry').forEach(e => e.addEventListener('click', () => {
     const p = perfFromKey(e.dataset.key);
-    if (p) openSheet(p);
+    if (!p) return;
+    track('open_perf', { from:'list', perf:perfKey(p) });
+    openSheet(p);
   }));
+
+  $$('.np-book-btn').forEach(a => a.addEventListener('click', () =>
+    track('click_booking', { vendor:(a.querySelector('b') || {}).textContent || '' })));
 
   $$('.js-month').forEach(b => b.addEventListener('click', () => moveMonth(+b.dataset.step)));
 

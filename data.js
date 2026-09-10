@@ -279,6 +279,12 @@ let MY_RECORDS = loadRecords();
 const $  = s => document.querySelector(s);
 const el = h => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
 
+/* GA4 커스텀 이벤트 안전 래퍼 — gtag 스니펫은 각 페이지 <head> 에 있다.
+   차단·미로드 시 조용히 무시한다. GA4는 첫 수신 시 이벤트 정의를 자동 생성한다. */
+function track (name, params) {
+  try { if (typeof gtag === 'function') gtag('event', name, params || {}); } catch (e) {}
+}
+
 const perfKey  = p => [p.y, p.m, p.d, p.t].join('|');
 const daysIn   = (y, m) => new Date(y, m, 0).getDate();
 const firstDow = (y, m) => new Date(y, m - 1, 1).getDay();
