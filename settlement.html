@@ -190,6 +190,7 @@ a { color:var(--accent); text-decoration:none; }
   font-family:var(--mono); font-size:12px; letter-spacing:.4em; color:var(--ink-60);
 }
 /* 배치도는 읽기 전용 — 누르는 곳이 아니므로 손가락 커서를 쓰지 않는다. */
+.seatmap-wrap { position:relative; }
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; }
 .seatrow { display:grid; align-items:center; }
 .seat {
@@ -205,11 +206,11 @@ a { color:var(--accent); text-decoration:none; }
 
 /* 데스크톱: 가장 넓은 층(54칸)을 지면 폭에 맞춰 역산 — 가로 스크롤 없음.
    모든 좌석 테두리는 1px 검정(격자선 역할). 방문 좌석은 번호를 진하게 표시. */
+.is-fit .seatmap-wrap { margin-inline:calc(var(--pad) * -1); }
 .is-fit .seatmap {
   --map-w:calc(min(600px, 100vw) - 4px);
   --seat:calc(var(--map-w) / 54);
   gap:0; overflow-x:hidden;
-  margin-inline:calc(var(--pad) * -1);
   align-items:center;
 }
 .is-fit .seatrow { gap:0; }
@@ -222,19 +223,27 @@ a { color:var(--accent); text-decoration:none; }
 .is-fit .seat.nofill { background:var(--ink-14); }
 .is-fit .map-hint { display:none; }
 
-/* 모바일: 좌석을 15px 고정 크기로 키우고 배치도만 좌우 스크롤 — 작아서 뭉개지던 문제 해결 */
+/* 모바일: 좌석을 15px 고정 크기로 키우고 배치도만 좌우 스크롤 — 작아서 뭉개지던 문제 해결.
+   모바일은 스크롤바가 안 보이므로 오른쪽에 페이드 + 안내문구로 "더 있음"을 알린다. */
 @media (max-width:600px) {
   .is-fit .seatmap {
     --seat:15px;
-    overflow-x:auto; overflow-y:hidden;
+    overflow-x:scroll; overflow-y:hidden;
     align-items:start;
-    padding-bottom:7px;
+    padding-bottom:6px;
+    touch-action:pan-x;
+    overscroll-behavior-x:contain;
     -webkit-overflow-scrolling:touch;
-    scrollbar-width:thin;
+  }
+  .is-fit .seatmap-wrap::after {
+    content:""; position:absolute; top:0; right:0; bottom:6px; width:34px;
+    background:linear-gradient(to right, rgba(233,227,213,0), var(--paper));
+    pointer-events:none;
   }
   .is-fit .map-hint {
-    display:block; font-family:var(--mono); font-size:12px;
-    color:var(--ink-55); margin:0 0 7px; letter-spacing:.02em;
+    display:block; text-align:center;
+    font-family:var(--mono); font-size:12px; letter-spacing:.08em;
+    color:var(--accent); margin:0 0 7px;
   }
 }
 
@@ -600,7 +609,7 @@ function seatMapHTML (list) {
     return `<div class="st-floor">
       <span class="st-floor-lbl">${floor.label}</span>
       ${floor.id === '1' ? '<div class="stage-bar">S T A G E</div>' : ''}
-      <div class="seatmap">${rows}</div>
+      <div class="seatmap-wrap"><div class="seatmap">${rows}</div></div>
     </div>`;
   }).join('');
 
