@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#e9e3d5">
+<meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="애배력">
+<meta name="apple-mobile-web-app-title" content="홍캘">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="ref/icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="ref/apple-touch-icon.png">
@@ -908,15 +909,7 @@ enter();
 mountAuth(isIn => { loggedIn = isIn; skipAnim = true; render(); });
 </script>
 
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function (error) {
-      console.warn('[애배력] 서비스 워커 등록 실패:', error);
-    });
-  });
-}
-</script>
+<script src="pwa-install.js"></script>
 
 </body>
 </html>

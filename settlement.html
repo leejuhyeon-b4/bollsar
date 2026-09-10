@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#e9e3d5">
+<meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="애배력">
+<meta name="apple-mobile-web-app-title" content="홍캘">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="ref/icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="ref/apple-touch-icon.png">
@@ -86,7 +87,8 @@ body {
   background-size:150px 150px, 560px 560px, auto, auto;
   background-repeat:repeat, repeat, no-repeat, no-repeat;
   background-blend-mode:multiply, multiply, normal, normal;
-  background-attachment:scroll, scroll, fixed, fixed;
+  background-attachment:scroll;
+  overscroll-behavior-y:auto;
 }
 [hidden] { display:none !important; }
 .mono { font-family:var(--mono); }
@@ -250,7 +252,7 @@ a { color:var(--accent); text-decoration:none; }
     overflow-x:scroll; overflow-y:hidden;
     align-items:start;
     padding-bottom:6px;
-    touch-action:pan-x;
+    touch-action:pan-x pan-y;
     overscroll-behavior-x:contain;
     -webkit-overflow-scrolling:touch;
   }
@@ -353,13 +355,22 @@ a { color:var(--accent); text-decoration:none; }
 .st-save .cap { display:block; margin-top:6px; font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--ink-55); }
 
 /* ═══ 로그인 게이트 ═══ */
-.gate { position:relative; }
-.gate-locked { filter:blur(3px); opacity:.5; pointer-events:none; user-select:none; transition:filter .3s ease, opacity .3s ease; }
-body.logged-in .gate-locked { filter:none; opacity:1; pointer-events:auto; }
+.gate { position:relative; min-height:280px; overflow:hidden; }
+.gate-locked {
+  max-height:480px; overflow:hidden; contain:paint;
+  filter:blur(2px); opacity:.34; pointer-events:none; user-select:none;
+  transition:filter .3s ease, opacity .3s ease;
+}
+body.logged-in .gate { min-height:0; overflow:visible; }
+body.logged-in .gate-locked {
+  max-height:none; overflow:visible; contain:none;
+  filter:none; opacity:1; pointer-events:auto;
+}
 .gate-cta {
   position:absolute; inset:0; z-index:5;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:11px; text-align:center; padding:20px;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  gap:11px; text-align:center; padding:28px 20px 20px;
+  background:linear-gradient(to bottom, rgba(233,227,213,.98) 0, rgba(233,227,213,.9) 48%, rgba(233,227,213,.18) 100%);
 }
 .gate-cta p { font-family:var(--mono); font-size:12px; line-height:1.8; color:var(--ink-60); max-width:34ch; }
 body.logged-in .gate-cta { display:none; }
@@ -375,6 +386,10 @@ body.logged-in .gate-cta { display:none; }
   .st-poster { width:52px; height:52px; }
   .st-title { font-size:21px; }
   .role-name { width:100%; }
+  .gate { min-height:250px; }
+  .gate-locked { max-height:360px; filter:none; opacity:.2; }
+  .gate-cta { padding:20px 10px 16px; }
+  .is-fit .seatmap { scroll-behavior:smooth; }
 }
 </style>
 
@@ -867,15 +882,7 @@ enter();
 mountAuth(isIn => { loggedIn = isIn; render(); });
 </script>
 
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function (error) {
-      console.warn('[애배력] 서비스 워커 등록 실패:', error);
-    });
-  });
-}
-</script>
+<script src="pwa-install.js"></script>
 
 </body>
 </html>

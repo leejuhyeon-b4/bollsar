@@ -1,6 +1,7 @@
-const CACHE_VERSION = 'v1';
-const CACHE_PREFIX = 'aebaeryeok-';
+const CACHE_VERSION = 'v2';
+const CACHE_PREFIX = 'hongcal-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
+const LEGACY_CACHE_PREFIXES = ['aebaeryeok-'];
 
 const APP_SHELL = [
   './',
@@ -8,6 +9,7 @@ const APP_SHELL = [
   './settlement.html',
   './manifest.json',
   './data.js',
+  './pwa-install.js',
   './ref/fonts.css',
   './ref/gsap.min.js',
   './ref/fonts/cafe24ssurroundair-400.woff2',
@@ -41,7 +43,10 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(
         keys
-          .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+          .filter(key => (
+            (key.startsWith(CACHE_PREFIX) || LEGACY_CACHE_PREFIXES.some(prefix => key.startsWith(prefix)))
+            && key !== CACHE_NAME
+          ))
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())

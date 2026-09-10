@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "애배력 - 강홍석 뮤지컬 캘린더",
-  "short_name": "애배력",
+  "name": "홍캘",
+  "short_name": "홍캘",
   "description": "강홍석 출연 스케줄과 나의 관극 기록을 한곳에서 보는 뮤지컬 캘린더",
   "lang": "ko-KR",
   "start_url": "./index.html",
