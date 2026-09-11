@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-g3OKY7lRFdB6jO2g5E2cUAVTDC1IVQt+zzJJGEZM1+c='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -424,7 +425,7 @@ body.logged-in .gate-cta { display:none; }
 </div>
 
 <!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js" integrity="sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="data.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -845,7 +846,7 @@ function bind () {
     if (!key || MY_RECORDS.some(x => x.key === key)) return;
     const seat = (f && r && n) ? seatId(f, r, n) : null;
     MY_RECORDS.push({ key, seat });
-    track('add_record', { perf:key, seat:seat || 'none', source:'settlement' });
+    track('add_record', { has_seat:!!seat, source:'settlement' });
     saveRecords();
     newRecKey = null;
     render();
@@ -857,7 +858,7 @@ function bind () {
   $$('.js-rec-del').forEach(b => b.addEventListener('click', () => {
     MY_RECORDS = MY_RECORDS.filter(r => r.key !== b.dataset.key);
     removeRecordRemote(b.dataset.key);
-    track('delete_record', { perf:b.dataset.key });
+    track('delete_record', {});
     saveRecords();
     if (!MY_RECORDS.length) delMode = false;
     render();
@@ -881,7 +882,7 @@ function bind () {
     const key = pairFixKey(pairFix);
     if (favoritePairs.length >= FAVORITE_MAX || favoritePairs.some(f => pairFixKey(f) === key)) return;
     favoritePairs.push({ ...pairFix });
-    track('add_favorite_pair', { pair:pairLabel(pairFix) });
+    track('add_favorite_pair', {});
     render();
   });
 

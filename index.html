@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-LXyu7tm8kXGN1VkVdwLTuaSc5rqPQfOAOesYZtGF/Mk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -434,7 +435,7 @@ a { color:var(--accent); text-decoration:none; }
 
 
 <!-- 공용 데이터 · 헬퍼 (정산판 탭과 공유) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js" integrity="sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="data.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -770,7 +771,7 @@ function toggleCheck (p) {
   const existing = MY_RECORDS.find(r => r.key === key);
   if (existing) { MY_RECORDS = MY_RECORDS.filter(r => r.key !== key); removeRecordRemote(key); }
   else MY_RECORDS.push({ key, seat:null });
-  track(existing ? 'unsave_perf' : 'save_perf', { perf:key, role:(hongRole(p) || {}).name || '' });
+  track(existing ? 'unsave_perf' : 'save_perf', { had_existing:!!existing });
   saveRecords();
   skipAnim = true;
   render();
@@ -780,7 +781,7 @@ function setSeatForPerf (p, seatId) {
   const rec = MY_RECORDS.find(r => r.key === perfKey(p));
   if (!rec) return;
   rec.seat = seatId;
-  track('set_seat', { perf:perfKey(p), seat:seatId });
+  track('set_seat', { has_seat:!!seatId });
   saveRecords();
   skipAnim = true;
   render();
@@ -854,14 +855,14 @@ function bind () {
     const day = +c.dataset.day;
     const dPerfs = monthPerfs().filter(p => p.d === day).sort(cmpPerf);
     if (!dPerfs.length) return;
-    track('open_perf', { from:'calendar', perf:perfKey(dPerfs[0]) });
+    track('open_perf', { from:'calendar' });
     openSheet(dPerfs[0]);   // 회차 있는 날 → 상세 모달 (같은 날 여러 회차면 모달 안에서 전환)
   }));
 
   $$('.np-entry').forEach(e => e.addEventListener('click', () => {
     const p = perfFromKey(e.dataset.key);
     if (!p) return;
-    track('open_perf', { from:'list', perf:perfKey(p) });
+    track('open_perf', { from:'list' });
     openSheet(p);
   }));
 

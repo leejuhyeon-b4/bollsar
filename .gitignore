@@ -1,0 +1,5 @@
+# Local Supabase CLI link/cache data
+supabase/.temp/
+
+# Local-only visual reference
+ref/drawing.jpg

@@ -282,15 +282,18 @@ const SUPABASE_ANON = 'sb_publishable_bx73KKDi7lZkeaDoGnndrA_GySTgosF';
 /* 아이디를 `<id>@ID_EMAIL_DOMAIN` 가짜 이메일로 만들어 Supabase Auth 에 넣는다.
    Supabase 가 "email invalid" 를 뱉으면 이 도메인만 바꾸면 된다 (MX 있는 도메인 필요할 수 있음). */
 const ID_EMAIL_DOMAIN = 'bollsar.app';
-const REC_KEY      = 'aebaeryeok.records.v1';
+const REC_KEY      = 'aebaeryeok.records.v2';
 const REMEMBER_KEY = 'bollsar.auth.remember';
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+const PASSWORD_RULE_TEXT = '8자 이상이며 영문·숫자·특수문자를 모두 포함해야 합니다.';
 
 /* 자동 로그인 체크박스: 켜짐 = localStorage(영구), 꺼짐 = sessionStorage(탭 닫으면 끝) */
 const authStorage = {
   getItem (k) { try { return localStorage.getItem(k) ?? sessionStorage.getItem(k); } catch { return null; } },
   setItem (k, v) {
     try {
-      const keep = localStorage.getItem(REMEMBER_KEY) !== '0';
+      const keep = localStorage.getItem(REMEMBER_KEY) === '1';
       (keep ? localStorage : sessionStorage).setItem(k, v);
       (keep ? sessionStorage : localStorage).removeItem(k);
     } catch {}
@@ -322,7 +325,7 @@ function authMsg (e) {
   if (m.includes('invalid login')) return '아이디 또는 비밀번호가 맞지 않습니다.';
   if (m.includes('already') && m.includes('regist')) return '이미 있는 아이디입니다.';
   if (m.includes('user already')) return '이미 있는 아이디입니다.';
-  if (m.includes('password')) return '비밀번호는 6자 이상이어야 합니다.';
+  if (m.includes('password')) return PASSWORD_RULE_TEXT;
   if (m.includes('rate') && m.includes('limit')) return '잠시 후 다시 시도해 주세요.';
   if (m.includes('signups not allowed')) return '지금은 회원가입을 받지 않습니다.';
   return (e && e.message) || '알 수 없는 오류가 났어요.';
@@ -332,7 +335,19 @@ async function authSignIn (id, pw, remember) {
   if (!SB) return { message: '서버에 연결할 수 없습니다.' };
   localStorage.setItem(REMEMBER_KEY, remember ? '1' : '0');
   const { error } = await SB.auth.signInWithPassword({ email: idToEmail(id), password: pw });
-  return error ? { message: authMsg(error) } : null;
+  if (error) return { message: authMsg(error) };
+  const { data: aal, error: aalError } = await SB.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aalError) return { message: authMsg(aalError) };
+  if (aal.currentLevel === 'aal1' && aal.nextLevel === 'aal2') {
+    const { data: factors, error: factorsError } = await SB.auth.mfa.listFactors();
+    const factor = factors && factors.totp && factors.totp.find(f => f.status === 'verified');
+    if (factorsError || !factor) return { message: '2단계 인증 정보를 불러오지 못했습니다.' };
+    const code = window.prompt('인증 앱에 표시된 6자리 코드를 입력해 주세요.');
+    if (!code) { await authSignOut(); return { message: '2단계 인증이 취소되었습니다.' }; }
+    const { error: mfaError } = await SB.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.trim() });
+    if (mfaError) { await authSignOut(); return { message: '2단계 인증 코드가 올바르지 않습니다.' }; }
+  }
+  return null;
 }
 async function authSignUp (id, pw, remember) {
   if (!SB) return { message: '서버에 연결할 수 없습니다.' };
@@ -345,11 +360,13 @@ async function authSignUp (id, pw, remember) {
 async function authSignOut () { if (SB) await SB.auth.signOut(); }
 
 /* ── 관극 기록 저장소 ──
-   MY_RECORDS 는 항상 동기적으로 읽는 메모리 배열. 로그인 상태면 Supabase 가
-   1차 소스이고 localStorage 는 오프라인 캐시, 아니면 localStorage 만 쓴다. */
-function loadLocalRecords () {
+   캐시 키를 Supabase user UUID별로 격리한다. 소유자를 판별할 수 없는 예전 전역 캐시는
+   보존하되 앱에서 읽거나 자동 병합하지 않는다. 계정 전환 시 다른 사용자의 기록이
+   섞이는 일을 막기 위해 로그인 상태에서는 절대 게스트 키를 조회하지 않는다. */
+const recordsStorageKey = user => `${REC_KEY}.${user && user.id ? `user.${user.id}` : 'guest'}`;
+function loadLocalRecords (user = AUTH_USER) {
   try {
-    const list = JSON.parse(localStorage.getItem(REC_KEY) || '[]');
+    const list = JSON.parse(localStorage.getItem(recordsStorageKey(user)) || '[]');
     return Array.isArray(list) ? list.filter(r => r && r.key) : [];
   } catch { return []; }
 }
@@ -364,10 +381,10 @@ async function pullRecords () {
   MY_RECORDS = (data || []).map(r => ({ key: r.perf_key, seat: r.seat }));
 }
 
-/* 로그인 직후: 로컬에만 있던 기록을 클라우드로 합쳐 올린다 (기기 이전용) */
+/* 로그인 직후: 이 사용자 UUID로 격리된 오프라인 캐시만 클라우드에 합친다. */
 async function mergeLocalIntoCloud () {
   if (!SB || !AUTH_USER) return;
-  const local = loadLocalRecords();
+  const local = loadLocalRecords(AUTH_USER);
   if (!local.length) return;
   const have = new Set(MY_RECORDS.map(r => r.key));
   const add = local.filter(r => !have.has(r.key));
@@ -377,7 +394,7 @@ async function mergeLocalIntoCloud () {
 }
 
 async function saveRecords () {
-  try { localStorage.setItem(REC_KEY, JSON.stringify(MY_RECORDS)); } catch {}
+  try { localStorage.setItem(recordsStorageKey(AUTH_USER), JSON.stringify(MY_RECORDS)); } catch {}
   if (!SB || !AUTH_USER) return;
   const rows = MY_RECORDS.map(r => ({ user_id: AUTH_USER.id, perf_key: r.key, seat: r.seat }));
   if (!rows.length) return;
@@ -394,10 +411,21 @@ async function removeRecordRemote (key) {
 const $  = s => document.querySelector(s);
 const el = h => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
 
-/* GA4 커스텀 이벤트 안전 래퍼 — gtag 스니펫은 각 페이지 <head> 에 있다.
-   차단·미로드 시 조용히 무시한다. GA4는 첫 수신 시 이벤트 정의를 자동 생성한다. */
+/* GA4 커스텀 이벤트 안전 래퍼. 회차·좌석·배우 조합 등 관람 내역을 재구성할 수
+   있는 값은 호출부에서 실수로 넘겨도 여기서 폐기한다. */
+const ANALYTICS_PARAM_ALLOWLIST = new Set([
+  'source', 'view', 'from', 'target', 'vendor', 'hong_only', 'level', 'color',
+  'has_seat', 'had_existing'
+]);
 function track (name, params) {
-  try { if (typeof gtag === 'function') gtag('event', name, params || {}); } catch (e) {}
+  try {
+    if (typeof gtag !== 'function') return;
+    const safe = {};
+    Object.entries(params || {}).forEach(([key, value]) => {
+      if (ANALYTICS_PARAM_ALLOWLIST.has(key)) safe[key] = value;
+    });
+    gtag('event', name, safe);
+  } catch (e) {}
 }
 
 const perfKey  = p => [p.y, p.m, p.d, p.t].join('|');
@@ -539,15 +567,15 @@ function authFormHTML (mode) {
         <input name="username" type="text" autocomplete="username" autocapitalize="none"
                spellcheck="false" placeholder="영문·숫자 3~20자" required></label>
       <label class="auth-f"><span>비밀번호</span>
-        <input name="pw" type="password" minlength="6"
-               autocomplete="${signup ? 'new-password' : 'current-password'}" placeholder="6자 이상" required></label>
+        <input name="pw" type="password" minlength="${signup ? PASSWORD_MIN_LENGTH : 6}"
+               autocomplete="${signup ? 'new-password' : 'current-password'}" placeholder="${signup ? '8자 이상 · 영문+숫자+특수문자' : '비밀번호'}" required></label>
       ${signup ? `<label class="auth-f"><span>비밀번호 확인</span>
-        <input name="pw2" type="password" minlength="6" autocomplete="new-password"
+        <input name="pw2" type="password" minlength="${PASSWORD_MIN_LENGTH}" autocomplete="new-password"
                placeholder="한 번 더" required></label>` : ''}
-      <label class="auth-remember"><input name="remember" type="checkbox" checked><span>자동 로그인</span></label>
+      <label class="auth-remember"><input name="remember" type="checkbox"><span>이 기기에서 자동 로그인</span></label>
       <p class="auth-err" id="authErr" role="alert"></p>
       <button type="submit" class="auth-submit">${signup ? '가입하고 시작' : '로그인'}</button>
-      ${signup ? `<p class="auth-note">아이디·비밀번호 찾기 기능은 없어요. 비밀번호는 꼭 기억하거나 저장해 두세요.</p>` : ''}
+      ${signup ? `<p class="auth-note">영문·숫자·특수문자를 모두 포함한 고유한 비밀번호를 사용해 주세요. 비밀번호 재설정은 지원하지 않습니다.</p>` : ''}
     </form>`;
 }
 
@@ -597,8 +625,26 @@ function injectAuthCSS () {
       cursor:pointer; font-family:var(--mono); font-size:12px; letter-spacing:.1em;
     }
     .auth-submit:disabled { opacity:.5; cursor:progress; }
-    .auth-note { margin-top:10px; font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink-55); }`;
+    .auth-note { margin-top:10px; font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--ink-55); }
+    .auth-actions { display:grid; gap:8px; }
+    .auth-actions button { width:100%; padding:9px; border:1px solid var(--ink-40); background:var(--paper-3); color:var(--ink); cursor:pointer; font-family:var(--mono); font-size:12px; }
+    .auth-actions .danger { color:var(--accent); border-color:var(--accent); }
+    .auth-mfa-qr { display:block; width:180px; height:180px; margin:10px auto; background:#fff; }
+    .auth-secret { overflow-wrap:anywhere; user-select:all; }`;
   document.head.appendChild(s);
+}
+
+function downloadAccountData () {
+  const payload = {
+    exported_at: new Date().toISOString(),
+    account: authUserId(),
+    records: MY_RECORDS.map(r => ({ performance_key: r.key, seat: r.seat || null }))
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `hongcal-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
 
 function mountAuth (onAuth) {
@@ -608,7 +654,7 @@ function mountAuth (onAuth) {
   if (btn) btn.addEventListener('click', async () => {
     try {
       if (!SB) { alert('로그인 서버에 연결하지 못했어요.\n새로고침하거나 잠시 후 다시 시도해 주세요.'); return; }
-      if (AUTH_USER) await authSignOut();
+      if (AUTH_USER) openAccount();
       else openAuthModal();
     } catch (e) { console.error('[auth] login button:', e); }
   });
@@ -637,6 +683,63 @@ function mountAuth (onAuth) {
   };
   _openAuth = () => openTo('login');
 
+  const openAccount = () => {
+    wrap.hidden = false;
+    wrap.querySelector('#authBody').innerHTML = `
+      <h2 class="auth-account-title">계정 관리</h2>
+      <p class="auth-note"><span data-account-id></span> 계정의 보안과 데이터를 관리합니다.</p>
+      <div class="auth-actions">
+        <button type="button" data-account="password">비밀번호 변경</button>
+        <button type="button" data-account="mfa">2단계 인증 설정</button>
+        <button type="button" data-account="export">내 기록 내보내기</button>
+        <button type="button" data-account="logout">로그아웃</button>
+        <button type="button" class="danger" data-account="delete">계정 삭제</button>
+      </div>
+      <p class="auth-err" id="authErr" role="alert"></p>`;
+    wrap.querySelector('[data-account-id]').textContent = authUserId();
+    const err = wrap.querySelector('#authErr');
+    wrap.querySelector('[data-account="export"]').addEventListener('click', downloadAccountData);
+    wrap.querySelector('[data-account="logout"]').addEventListener('click', async () => { await authSignOut(); close(); });
+    wrap.querySelector('[data-account="password"]').addEventListener('click', async () => {
+      const password = window.prompt('새 비밀번호를 입력해 주세요. (8자 이상 · 영문+숫자+특수문자)');
+      if (!password) return;
+      if (!PASSWORD_PATTERN.test(password)) { err.textContent = PASSWORD_RULE_TEXT; return; }
+      const { error } = await SB.auth.updateUser({ password });
+      err.textContent = error ? authMsg(error) : '비밀번호를 변경했습니다.';
+    });
+    wrap.querySelector('[data-account="mfa"]').addEventListener('click', async () => {
+      err.textContent = '2단계 인증 정보를 만드는 중…';
+      const { data, error } = await SB.auth.mfa.enroll({ factorType: 'totp', friendlyName: '홍캘' });
+      if (error) { err.textContent = authMsg(error); return; }
+      wrap.querySelector('#authBody').innerHTML = `
+        <h2 class="auth-account-title">2단계 인증 설정</h2>
+        <p class="auth-note">인증 앱으로 QR을 스캔하거나 아래 키를 직접 입력한 뒤 6자리 코드를 입력하세요.</p>
+        <img class="auth-mfa-qr" alt="2단계 인증 QR 코드">
+        <p class="auth-note auth-secret"></p>
+        <label class="auth-f"><span>인증 코드</span><input name="mfa-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"></label>
+        <button type="button" class="auth-submit" data-mfa-verify>인증 켜기</button>
+        <p class="auth-err" id="authErr" role="alert"></p>`;
+      wrap.querySelector('.auth-mfa-qr').src = data.totp.qr_code;
+      wrap.querySelector('.auth-secret').textContent = `설정 키: ${data.totp.secret}`;
+      wrap.querySelector('[data-mfa-verify]').addEventListener('click', async () => {
+        const code = wrap.querySelector('[name="mfa-code"]').value.trim();
+        const out = wrap.querySelector('#authErr');
+        if (!/^[0-9]{6}$/.test(code)) { out.textContent = '6자리 인증 코드를 입력해 주세요.'; return; }
+        const { error: verifyError } = await SB.auth.mfa.challengeAndVerify({ factorId: data.id, code });
+        if (verifyError) { out.textContent = '인증 코드가 올바르지 않습니다.'; return; }
+        out.textContent = '2단계 인증을 켰습니다.';
+      });
+    });
+    wrap.querySelector('[data-account="delete"]').addEventListener('click', async () => {
+      if (!window.confirm('계정과 모든 관극 기록을 영구 삭제할까요? 먼저 기록 내보내기를 권장합니다.')) return;
+      const key = recordsStorageKey(AUTH_USER);
+      const { error } = await SB.rpc('delete_account');
+      if (error) { err.textContent = '계정 삭제 기능을 준비하지 못했습니다. Supabase 보안 SQL 적용 여부를 확인해 주세요.'; return; }
+      try { localStorage.removeItem(key); } catch (_) {}
+      await authSignOut(); close();
+    });
+  };
+
   function bindForm () {
     wrap.querySelectorAll('.auth-tab').forEach(b =>
       b.addEventListener('click', () => openTo(b.dataset.mode)));
@@ -650,7 +753,7 @@ function mountAuth (onAuth) {
       const remember = form.remember.checked;
       err.textContent = '';
       if (!idOk(id))  { err.textContent = '아이디는 영문·숫자로 시작하는 3~20자예요. (. _ - 사용 가능)'; return; }
-      if (pw.length < 6) { err.textContent = '비밀번호는 6자 이상이어야 해요.'; return; }
+      if (mode === 'signup' && !PASSWORD_PATTERN.test(pw)) { err.textContent = PASSWORD_RULE_TEXT; return; }
       if (mode === 'signup' && pw !== pw2) { err.textContent = '비밀번호 확인이 일치하지 않아요.'; return; }
       const sub = form.querySelector('.auth-submit');
       const label = sub.textContent;
