@@ -2,6 +2,7 @@
   'use strict';
 
   const NEVER_KEY = 'hongcal.install.never.v1';
+  const STANDALONE_SESSION_KEY = 'hongcal.analytics.standalone-session.v1';
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
@@ -9,6 +10,19 @@
   let wrap = null;
   let previousFocus = null;
   let fallbackTimer = null;
+
+  trackUsage('settlement_view', /\/settlement\.html$/.test(window.location.pathname));
+  const imageSaveButton = document.querySelector('.js-save');
+  if (imageSaveButton) {
+    imageSaveButton.addEventListener('click', function () {
+      trackUsage('settlement_image_save_attempt', true);
+    });
+  }
+
+  if (isStandalone && readStorage(sessionStorage, STANDALONE_SESSION_KEY) !== '1') {
+    writeStorage(sessionStorage, STANDALONE_SESSION_KEY, '1');
+    trackUsage('pwa_standalone_launch', true);
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
@@ -32,6 +46,7 @@
 
   window.addEventListener('appinstalled', function () {
     installPrompt = null;
+    trackUsage('pwa_install_success', true);
     hideModal();
   });
 
@@ -169,7 +184,10 @@
     installPrompt = null;
     await prompt.prompt();
     const choice = await prompt.userChoice;
-    if (choice.outcome === 'accepted') hideModal();
+    if (choice.outcome === 'accepted') {
+      trackUsage('pwa_install_accepted', true);
+      hideModal();
+    }
     else setMode('manual');
   }
 
@@ -178,6 +196,7 @@
     if (fallbackTimer) window.clearTimeout(fallbackTimer);
     previousFocus = document.activeElement;
     wrap.hidden = false;
+    trackUsage('pwa_install_prompt_shown', true);
     document.documentElement.classList.add('pwa-modal-open');
     window.setTimeout(function () {
       const target = wrap.querySelector('[data-pwa-install]:not([hidden]), .pwa-install-x');
@@ -198,5 +217,12 @@
 
   function writeStorage (storage, key, value) {
     try { storage.setItem(key, value); } catch (error) {}
+  }
+
+  function trackUsage (name, condition) {
+    if (!condition) return;
+    try {
+      if (typeof track === 'function') track(name, {});
+    } catch (error) {}
   }
 })();

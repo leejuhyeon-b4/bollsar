@@ -4,6 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'data.js'), 'utf8');
+const pwaSource = fs.readFileSync(path.join(__dirname, '..', 'pwa-install.js'), 'utf8');
 const values = new Map([
   ['aebaeryeok.records.v1', JSON.stringify([{ key: 'legacy-record', seat: '1-A-1' }])]
 ]);
@@ -43,5 +44,16 @@ assert.equal(context.securityResult.missingSymbol, false);
 assert.equal(context.securityResult.missingNumber, false);
 assert.equal(context.securityResult.missingLetter, false);
 assert.equal(JSON.stringify(analytics), JSON.stringify([['event', 'record_event', { source: 'test' }]]));
+
+for (const eventName of [
+  'settlement_view',
+  'settlement_image_save_attempt',
+  'pwa_install_prompt_shown',
+  'pwa_install_accepted',
+  'pwa_install_success',
+  'pwa_standalone_launch'
+]) {
+  assert.ok(pwaSource.includes(`trackUsage('${eventName}'`), `${eventName} tracking is missing`);
+}
 
 console.log('security tests passed');
