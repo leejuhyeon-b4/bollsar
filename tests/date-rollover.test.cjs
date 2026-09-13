@@ -1,0 +1,53 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const root = path.join(__dirname, '..');
+
+function todayAt (iso) {
+  const source = fs.readFileSync(path.join(root, 'data.js'), 'utf8');
+  const block = source.match(/const KOREA_DATE_FORMATTER[\s\S]*?(?=const RANGE)/)[0];
+  const RealDate = Date;
+
+  class MockDate extends RealDate {
+    constructor (...args) {
+      super(...(args.length ? args : [iso]));
+    }
+  }
+
+  const context = {
+    Intl,
+    Date: MockDate,
+    setInterval () {},
+    document: { hidden: false, addEventListener () {} },
+    window: { dispatchEvent () {} },
+    CustomEvent: class CustomEvent {}
+  };
+  vm.runInNewContext(`${block}; globalThis.result = { ...TODAY };`, context);
+  return JSON.parse(JSON.stringify(context.result));
+}
+
+test('today rolls over at midnight in Korea', () => {
+  assert.deepEqual(todayAt('2026-09-13T14:59:59Z'), { y: 2026, m: 9, d: 13 });
+  assert.deepEqual(todayAt('2026-09-13T15:00:00Z'), { y: 2026, m: 9, d: 14 });
+});
+
+test('inline scripts compile and are allowed by the deployed CSP', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  const policy = config.headers[0].headers
+    .find(header => header.key === 'Content-Security-Policy').value;
+
+  for (const filename of ['index.html', 'settlement.html']) {
+    const html = fs.readFileSync(path.join(root, filename), 'utf8');
+    const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
+
+    for (const [, script] of scripts) {
+      assert.doesNotThrow(() => new vm.Script(script), `${filename} has invalid inline JavaScript`);
+      const hash = `sha256-${crypto.createHash('sha256').update(script).digest('base64')}`;
+      assert.ok(policy.includes(`'${hash}'`), `${filename} CSP is missing ${hash}`);
+    }
+  }
+});

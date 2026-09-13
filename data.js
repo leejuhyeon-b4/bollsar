@@ -167,7 +167,41 @@ const PERFS = [
   { y:2026, m:10, d:23, t:'19:30', cast:{ eli:'pjy',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } }
 ];
 
-const TODAY = { y:2026, m:9, d:9 };
+/* 공연 일정의 기준일은 관객과 공연장이 있는 한국 시간으로 계산한다.
+   브라우저를 자정 너머 계속 열어둔 경우에도 아래 감시기가 TODAY를 갱신한다. */
+const KOREA_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Seoul',
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric'
+});
+const koreaDateParts = (date = new Date()) => {
+  const parts = Object.fromEntries(
+    KOREA_DATE_FORMATTER.formatToParts(date)
+      .filter(part => part.type !== 'literal')
+      .map(part => [part.type, Number(part.value)])
+  );
+  return { y: parts.year, m: parts.month, d: parts.day };
+};
+const TODAY = koreaDateParts();
+
+function refreshToday () {
+  const next = koreaDateParts();
+  if (next.y === TODAY.y && next.m === TODAY.m && next.d === TODAY.d) return;
+
+  const previous = { ...TODAY };
+  Object.assign(TODAY, next);
+  window.dispatchEvent(new CustomEvent('todaychange', {
+    detail: { previous, current: { ...TODAY } }
+  }));
+}
+
+if (typeof setInterval === 'function') setInterval(refreshToday, 60 * 1000);
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshToday();
+  });
+}
 const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:10 } };
 
 /* ── 좌석 배치도 ── 블루스퀘어 우리은행홀 (ref/seat.jpg 〈등급별 좌석배치도〉 기준).

@@ -901,8 +901,20 @@ function animateBody () {
 $('#sheetBack').addEventListener('click', closeSheet);
 
 /* ═══ 초기화 ═══ */
-$('#todayStamp').textContent =
-  `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
+function updateTodayStamp () {
+  $('#todayStamp').textContent =
+    `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
+}
+
+updateTodayStamp();
+
+window.addEventListener('todaychange', event => {
+  const { previous, current } = event.detail;
+  if (ym.y === previous.y && ym.m === previous.m) ym = { y:current.y, m:current.m };
+  updateTodayStamp();
+  skipAnim = true;
+  render();
+});
 
 skipAnim = true;
 render();

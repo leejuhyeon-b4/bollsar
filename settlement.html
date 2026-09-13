@@ -894,8 +894,13 @@ function bind () {
 }
 
 /* ═══ 초기화 ═══ */
-$('#todayStamp').textContent =
-  `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
+function updateTodayStamp () {
+  $('#todayStamp').textContent =
+    `${TODAY.y}.${String(TODAY.m).padStart(2,'0')}.${String(TODAY.d).padStart(2,'0')} (${WD_NAME[new Date(TODAY.y, TODAY.m - 1, TODAY.d).getDay()]})`;
+}
+
+updateTodayStamp();
+window.addEventListener('todaychange', updateTodayStamp);
 
 render();
 enter();
