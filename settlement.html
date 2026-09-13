@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-g3OKY7lRFdB6jO2g5E2cUAVTDC1IVQt+zzJJGEZM1+c='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-YvAJYVWyGZR7cERQXrI2Q0YBknUatM6eQRYHJetnno8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -184,12 +184,20 @@ a { color:var(--accent); text-decoration:none; }
 
 /* ═══ 집계 ═══ */
 .st-tally {
-  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  display:flex; flex-direction:column; gap:10px;
   padding:12px 0 14px; border-top:1px solid var(--ink-14); border-bottom:1px solid var(--ink-14); margin-bottom:16px;
 }
+.st-tally-main { display:flex; align-items:baseline; gap:10px; width:100%; }
 .st-tally .who { font-family:var(--display); font-weight:700; font-size:14px; }
 .st-tally .n { font-family:var(--mono); font-size:28px; font-weight:500; line-height:1; margin-left:auto; }
 .st-tally .n small { font-size:12px; color:var(--ink-55); }
+.st-period-filter {
+  display:flex; align-items:center; gap:7px; width:max-content; max-width:100%; cursor:pointer;
+  font-family:var(--mono); font-size:12px; color:var(--ink-60);
+}
+.st-period-filter input { width:15px; height:15px; margin:0; accent-color:var(--ink); cursor:pointer; }
+.st-period-filter b { color:var(--ink); font-weight:600; }
+.st-period-filter small { color:var(--ink-55); font-size:11px; }
 
 /* ═══ 좌석 배치도 ═══
    좌석번호를 그대로 grid-column으로 써서 실제 부채꼴 배열이 나온다. */
@@ -463,6 +471,7 @@ function enter () {
 /* 로그인 상태는 Supabase 세션이 결정한다 (data.js mountAuth). 시작은 로그아웃 → 게이트. */
 let loggedIn    = false;
 let hongOnly    = true;    // 📌 기본값 — 강홍석 회차만. 한 번 더 누르면 전 회차.
+let completedOnly = true;  // 기본값 — 오늘 이전에 끝난 회차만 정산한다.
 let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id } — 유저가 끌어다 바꾼다
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
 const VISIT_COLOR_STORAGE_KEY = 'hongcal.visit-colors.v1';
@@ -479,10 +488,15 @@ const FAVORITE_MAX = 4;
 function myRecords () {
   return MY_RECORDS
     .map(rec => ({ rec, perf: perfFromKey(rec.key) }))
-    .filter(x => x.perf && (!hongOnly || isHongPerf(x.perf)))
+    .filter(x => x.perf
+      && (!hongOnly || isHongPerf(x.perf))
+      && (!completedOnly || isPast(x.perf)))
     .sort((a, b) => cmpPerf(a.perf, b.perf));
 }
-const denominator = () => hongOnly ? assignedCount(HONG) : PERFS.length;
+const denominator = () => PERFS.filter(perf =>
+  (!hongOnly || isHongPerf(perf))
+  && (!completedOnly || isPast(perf))
+).length;
 
 function seatVisitCounts (list) {
   const map = new Map();
@@ -574,8 +588,14 @@ function bodyHTML () {
   </div>`;
 
   const tally = `<div class="st-tally">
-    <span class="who">${hongOnly ? ACTORS[HONG].name : '전 회차'} · ${WORK.title}</span>
-    <span class="n">${numer}<small> / ${denominator()}회</small></span>
+    <div class="st-tally-main">
+      <span class="who">${hongOnly ? ACTORS[HONG].name : '전 회차'} · ${WORK.title}</span>
+      <span class="n">${numer}<small> / ${denominator()}회</small></span>
+    </div>
+    <label class="st-period-filter">
+      <input type="checkbox" class="js-completed-only" ${completedOnly ? 'checked' : ''}>
+      <b>지난 회차만 정산</b><small>해제하면 예정 회차도 포함</small>
+    </label>
   </div>`;
 
   const live = `
@@ -796,6 +816,13 @@ function bind () {
     render();
   });
 
+  const completed = $('.js-completed-only');
+  if (completed) completed.addEventListener('change', () => {
+    completedOnly = completed.checked;
+    pairFix = {};
+    render();
+  });
+
   // 팔레트: 끌거나(데스크톱) 눌러서 들기(터치)
   $$('.js-pal').forEach(b => {
     b.addEventListener('dragstart', e => {
@@ -900,7 +927,20 @@ function updateTodayStamp () {
 }
 
 updateTodayStamp();
-window.addEventListener('todaychange', updateTodayStamp);
+window.addEventListener('todaychange', () => {
+  updateTodayStamp();
+  render();
+});
+
+if ('serviceWorker' in navigator) {
+  const hadServiceWorker = !!navigator.serviceWorker.controller;
+  let reloadingForUpdate = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadServiceWorker || reloadingForUpdate) return;
+    reloadingForUpdate = true;
+    window.location.reload();
+  });
+}
 
 render();
 enter();

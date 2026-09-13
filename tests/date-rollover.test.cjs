@@ -42,12 +42,24 @@ test('inline scripts compile and are allowed by the deployed CSP', () => {
 
   for (const filename of ['index.html', 'settlement.html']) {
     const html = fs.readFileSync(path.join(root, filename), 'utf8');
+    const metaPolicy = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/)[1];
     const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
 
     for (const [, script] of scripts) {
       assert.doesNotThrow(() => new vm.Script(script), `${filename} has invalid inline JavaScript`);
       const hash = `sha256-${crypto.createHash('sha256').update(script).digest('base64')}`;
       assert.ok(policy.includes(`'${hash}'`), `${filename} CSP is missing ${hash}`);
+      assert.ok(metaPolicy.includes(`'${hash}'`), `${filename} meta CSP is missing ${hash}`);
     }
   }
+});
+
+test('settlement defaults to past performances and can include upcoming ones', () => {
+  const html = fs.readFileSync(path.join(root, 'settlement.html'), 'utf8');
+  assert.match(html, /let completedOnly = true;/);
+  assert.match(html, /!completedOnly \|\| isPast\(x\.perf\)/);
+  assert.match(html, /!completedOnly \|\| isPast\(perf\)/);
+  assert.match(html, /class="js-completed-only"[^>]*\$\{completedOnly \? 'checked' : ''\}/);
+  assert.match(html, /지난 회차만 정산/);
+  assert.match(html, /해제하면 예정 회차도 포함/);
 });
