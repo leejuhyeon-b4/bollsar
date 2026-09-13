@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-wvIYy5bhCgX2wlFT3PeyRp97TDMIqfRz3RJ10IJuFQI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-+53QmYmFrdbKiARosSNfdVmum/F753mkgVicdF23ctU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -476,6 +476,7 @@ let hongOnly    = true;    // 📌 기본값 — 강홍석 회차만. 한 번 �
 let completedOnly = true;  // 기본값 — 오늘 이전에 끝난 회차만 정산한다.
 let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id } — 유저가 끌어다 바꾼다
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
+let seatMapsCentered = false;                   // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
 const VISIT_COLOR_STORAGE_KEY = 'hongcal.visit-colors.v1';
 let delMode     = false;      // 관극 기록 삭제 모드 — 켜면 각 칸 오른쪽 위에 ✕
 let newRecKey   = null;        // 기록 추가 폼 — 회차
@@ -550,6 +551,7 @@ function render () {
   // 통째로 다시 그리므로 배치도의 가로 스크롤·페이지 위치를 그대로 되돌려 놓는다
   const keepX = [...document.querySelectorAll('.seatmap')].map(m => m.scrollLeft);
   const keepY = window.scrollY;
+  const shouldCenterSeatMaps = !seatMapsCentered;
 
   document.body.classList.toggle('logged-in', loggedIn);
   $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
@@ -557,13 +559,15 @@ function render () {
   bind();
 
   document.querySelectorAll('.seatmap').forEach((m, i) => {
-    if (keepX[i] != null) m.scrollLeft = keepX[i];
+    if (!shouldCenterSeatMaps && keepX[i] != null) m.scrollLeft = keepX[i];
   });
-  requestAnimationFrame(() => document.querySelectorAll('.seatmap').forEach((m, i) => {
-    if (keepX[i] == null && m.scrollWidth > m.clientWidth) {
-      m.scrollLeft = (m.scrollWidth - m.clientWidth) / 2;
-    }
-  }));
+  requestAnimationFrame(() => {
+    const maps = [...document.querySelectorAll('.seatmap')];
+    if (shouldCenterSeatMaps) maps.forEach(m => {
+      if (m.scrollWidth > m.clientWidth) m.scrollLeft = (m.scrollWidth - m.clientWidth) / 2;
+    });
+    if (maps.length) seatMapsCentered = true;
+  });
   if (window.scrollY !== keepY) window.scrollTo(0, keepY);
 }
 
