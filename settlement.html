@@ -78,7 +78,8 @@
 
 body {
   background-color:var(--paper); color:var(--ink);
-  font-family:var(--body); font-size:14px; line-height:1.6;
+  font-family:var(--body); font-size:14px; font-weight:600; line-height:1.6;
+  font-synthesis:weight;
   -webkit-font-smoothing:antialiased;
   background-image:
     var(--grain),
@@ -91,6 +92,7 @@ body {
   background-attachment:scroll;
   overscroll-behavior-y:auto;
 }
+button, input, select, textarea { font-weight:600; }
 [hidden] { display:none !important; }
 .mono { font-family:var(--mono); }
 a { color:var(--accent); text-decoration:none; }
@@ -119,7 +121,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .np-byline > :first-child { text-align:left; }
 .np-byline > :last-child { text-align:right; }
-.np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:500; }
+.np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:600; }
 .np-mast-slug {
   margin-top:7px; padding-top:6px; border-top:1px solid var(--ink-14);
   font-family:var(--body); font-size:12px; letter-spacing:.11em;
@@ -189,7 +191,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .st-tally-main { display:flex; align-items:baseline; gap:10px; width:100%; }
 .st-tally .who { font-family:var(--display); font-weight:700; font-size:14px; }
-.st-tally .n { font-family:var(--mono); font-size:28px; font-weight:500; line-height:1; margin-left:auto; }
+.st-tally .n { font-family:var(--mono); font-size:28px; font-weight:600; line-height:1; margin-left:auto; }
 .st-tally .n small { font-size:12px; color:var(--ink-55); }
 .st-period-filter {
   display:flex; align-items:center; gap:7px; width:max-content; max-width:100%; cursor:pointer;

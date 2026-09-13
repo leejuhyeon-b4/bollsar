@@ -80,7 +80,8 @@
    위 두 겹만 multiply라 종이색만 어두워지고 본문 글자 대비에는 영향이 없다. */
 body {
   background-color:var(--paper); color:var(--ink);
-  font-family:var(--body); font-size:14px; line-height:1.6;
+  font-family:var(--body); font-size:14px; font-weight:600; line-height:1.6;
+  font-synthesis:weight;
   -webkit-font-smoothing:antialiased;
   background-image:
     var(--grain),
@@ -92,6 +93,7 @@ body {
   background-blend-mode:multiply, multiply, normal, normal;
   background-attachment:scroll, scroll, fixed, fixed;
 }
+button, input, select, textarea { font-weight:600; }
 [hidden] { display:none !important; }
 .mono { font-family:var(--mono); }
 a { color:var(--accent); text-decoration:none; }
@@ -120,7 +122,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .np-byline > :first-child { text-align:left; }
 .np-byline > :last-child { text-align:right; }
-.np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:500; }
+.np-byline .by-name { text-align:center; color:#6B3FA0; font-weight:600; }
 .np-mast-slug {
   margin-top:7px; padding-top:6px; border-top:1px solid var(--ink-14);
   font-family:var(--body); font-size:12px; letter-spacing:.11em;
@@ -315,7 +317,7 @@ a { color:var(--accent); text-decoration:none; }
 .np-sheet-kicker { display:flex; flex-wrap:wrap; align-items:center; gap:5px 6px; margin-top:9px; }
 .np-sheet-kicker .cat { font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--ink-55); text-transform:uppercase; font-style:normal; }
 .np-sheet-show { font-family:var(--display); font-weight:700; font-size:15px; line-height:1.35; margin:7px 0 3px; }
-.np-sheet-show span { font-weight:400; font-size:13px; color:var(--ink-60); }
+.np-sheet-show span { font-weight:600; font-size:13px; color:var(--ink-60); }
 .np-sheet-switch { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
 .np-sw {
   border:1px solid var(--ink-40); background:none; color:var(--ink-60); cursor:pointer;
@@ -330,7 +332,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .np-cast caption span { color:var(--ink-55); letter-spacing:.02em; text-transform:none; }
 .np-cast th, .np-cast td { text-align:left; padding:7px 0; border-bottom:1px solid var(--ink-14); vertical-align:top; }
-.np-cast th { width:70px; font-weight:400; color:var(--ink-55); font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
+.np-cast th { width:70px; font-weight:600; color:var(--ink-55); font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
 .np-cast .you { font-weight:700; }
 .np-cast .on { font-weight:inherit; }
 .np-cast .you .on::after {
@@ -339,7 +341,7 @@ a { color:var(--accent); text-decoration:none; }
   color:var(--paper); background:var(--ink); padding:1px 5px;
 }
 .np-cast .alt {
-  display:block; margin-top:3px; font-weight:400;
+  display:block; margin-top:3px; font-weight:600;
   font-family:var(--mono); font-size:12px; letter-spacing:.02em; color:var(--ink-60);
 }
 .np-badges { display:flex; flex-wrap:wrap; gap:5px; margin-top:12px; }
