@@ -187,19 +187,20 @@ const TODAY = koreaDateParts();
 
 function refreshToday () {
   const next = koreaDateParts();
-  if (next.y === TODAY.y && next.m === TODAY.m && next.d === TODAY.d) return;
+  if (next.y === TODAY.y && next.m === TODAY.m && next.d === TODAY.d) return false;
 
   const previous = { ...TODAY };
   Object.assign(TODAY, next);
   window.dispatchEvent(new CustomEvent('todaychange', {
     detail: { previous, current: { ...TODAY } }
   }));
+  return true;
 }
 
 if (typeof setInterval === 'function') setInterval(refreshToday, 60 * 1000);
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) refreshToday();
+    if (!document.hidden && !refreshToday()) refreshPerformanceState();
   });
 }
 const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:10 } };
@@ -578,7 +579,33 @@ function seatWhere (id) {
   return { fid, rlab, zone: 'C' };
 }
 
-const isPast = p => (p.y * 10000 + p.m * 100 + p.d) < (TODAY.y * 10000 + TODAY.m * 100 + TODAY.d);
+/* 공연 시작 시각부터 정산 완료 회차로 본다. 일정 시각은 모두 한국 시간(KST)이다. */
+const performanceStartMs = p => {
+  const [hour, minute] = p.t.split(':').map(Number);
+  return Date.UTC(p.y, p.m - 1, p.d, hour - 9, minute);
+};
+const isPast = (p, now = Date.now()) => now >= performanceStartMs(p);
+
+let performanceChangeTimer = null;
+function schedulePerformanceChange () {
+  if (typeof setTimeout !== 'function' || typeof window === 'undefined') return;
+  if (performanceChangeTimer && typeof clearTimeout === 'function') clearTimeout(performanceChangeTimer);
+
+  const now = Date.now();
+  const next = PERFS.map(performanceStartMs).filter(time => time > now).sort((a, b) => a - b)[0];
+  if (!next) return;
+
+  const delay = Math.min(next - now + 100, 12 * 60 * 60 * 1000);
+  performanceChangeTimer = setTimeout(() => {
+    if (Date.now() >= next) window.dispatchEvent(new CustomEvent('performancechange'));
+    schedulePerformanceChange();
+  }, delay);
+}
+function refreshPerformanceState () {
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('performancechange'));
+  schedulePerformanceChange();
+}
+schedulePerformanceChange();
 
 
 /* ═══════════════════════════════════════════════════════════

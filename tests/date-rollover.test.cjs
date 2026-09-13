@@ -35,6 +35,17 @@ test('today rolls over at midnight in Korea', () => {
   assert.deepEqual(todayAt('2026-09-13T15:00:00Z'), { y: 2026, m: 9, d: 14 });
 });
 
+test('a performance becomes past at its Korea start time', () => {
+  const source = fs.readFileSync(path.join(root, 'data.js'), 'utf8');
+  const block = source.match(/const performanceStartMs[\s\S]*?const isPast =[^;]+;/)[0];
+  const context = {};
+  vm.runInNewContext(`${block}; globalThis.check = isPast;`, context);
+  const performance = { y: 2026, m: 9, d: 13, t: '15:00' };
+
+  assert.equal(context.check(performance, Date.parse('2026-09-13T05:59:59Z')), false);
+  assert.equal(context.check(performance, Date.parse('2026-09-13T06:00:00Z')), true);
+});
+
 test('inline scripts compile and are allowed by the deployed CSP', () => {
   const config = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
   const policy = config.headers[0].headers
