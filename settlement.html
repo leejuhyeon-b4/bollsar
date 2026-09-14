@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-WehVYv5Ysm3gcG/UR+ByM7PELrfOiDOnR+J9OwN0aVA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-JTzwGganYYAkpVhq8PNbzn2pC1ldkVeV2kJ9vB53vOw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -235,7 +235,7 @@ a { color:var(--accent); text-decoration:none; }
   color:var(--ink-55); text-align:center; white-space:nowrap; align-self:center;
 }
 
-/* 데스크톱: 가장 넓은 층(54칸)을 지면 폭에 맞춰 역산 — 가로 스크롤 없음. */
+/* 가장 넓은 층(54칸)을 지면 폭에 맞춰 역산 — 모바일도 가로 스크롤 없이 한눈에 본다. */
 .is-fit { --map-w:calc(min(600px, 100vw) - 4px); }
 .is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:hidden; }
 .is-fit .seatmaps { width:var(--map-w); margin-inline:auto; }
@@ -257,33 +257,6 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seat.nofill { background:var(--ink-14); }
 .is-fit .map-hint { display:none; }
-
-/* 모바일: 좌석을 15px 고정 크기로 키우고 배치도만 좌우 스크롤 — 작아서 뭉개지던 문제 해결.
-   모바일은 스크롤바가 안 보이므로 오른쪽에 페이드 + 안내문구로 "더 있음"을 알린다. */
-@media (max-width:600px) {
-  .is-fit .seatmap-scroll {
-    overflow-x:scroll; overflow-y:hidden;
-    touch-action:pan-x pan-y;
-    overscroll-behavior-x:contain;
-    -webkit-overflow-scrolling:touch;
-  }
-  .is-fit .seatmaps {
-    --seat:15px;
-    width:calc(54 * var(--seat) + 52px);
-    padding-inline:26px;
-  }
-  .is-fit .seatmap {
-    --seat:15px;
-    overflow:visible;
-    align-items:start;
-    padding-bottom:6px;
-  }
-  .is-fit .map-hint {
-    display:block; text-align:center;
-    font-family:var(--mono); font-size:12px; letter-spacing:.08em;
-    color:var(--accent); margin:0 0 7px;
-  }
-}
 
 /* ═══ 앉은 횟수별 색 고르기 — 팔레트와 함께 좌석배치도 위로 ═══ */
 .lv-picker { margin:6px 0 12px; }
@@ -406,7 +379,6 @@ body.logged-in .gate-cta { display:none; }
   .gate { min-height:250px; }
   .gate-locked { max-height:360px; filter:none; opacity:.2; }
   .gate-cta { padding:20px 10px 16px; }
-  .is-fit .seatmap { scroll-behavior:smooth; }
 }
 
 html:has(.map-overview[open]) { overflow:hidden; }
@@ -418,13 +390,16 @@ html:has(.map-overview[open]) { overflow:hidden; }
 }
 .map-overview[open] { display:grid; grid-template-rows:auto minmax(0,1fr); gap:8px; }
 .map-overview::backdrop { background:rgba(23,21,15,.66); }
-.map-overview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.map-overview-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .map-overview-head strong { font-family:var(--display); font-size:15px; }
-.map-overview-stage { min-height:0; position:relative; overflow:hidden; }
+.map-overview-tools { display:flex; align-items:center; gap:5px; }
+.map-overview-zoom { min-width:38px; text-align:center; font-family:var(--mono); font-size:11px; }
+.map-overview-stage {
+  min-height:0; display:flex; overflow:auto;
+  overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+}
 .map-overview-content {
-  position:absolute; top:50%; left:50%; width:max-content;
-  transform:translate(-50%,-50%) scale(var(--overview-scale,1));
-  transform-origin:center;
+  flex:none; width:max-content; margin:auto; transform-origin:top left;
 }
 .map-overview .map-hint { display:none; }
 .map-overview .seatmap-scroll { margin:0; overflow:visible; }
@@ -461,7 +436,12 @@ html:has(.map-overview[open]) { overflow:hidden; }
 <dialog class="map-overview" id="mapOverview" aria-labelledby="mapOverviewTitle">
   <div class="map-overview-head">
     <strong id="mapOverviewTitle">좌석배치도 한눈에 보기</strong>
-    <button type="button" class="np-btn sm js-map-overview-close">닫기</button>
+    <div class="map-overview-tools">
+      <button type="button" class="np-btn sm js-map-zoom-out" aria-label="축소">−</button>
+      <span class="map-overview-zoom" aria-live="polite">100%</span>
+      <button type="button" class="np-btn sm js-map-zoom-in" aria-label="확대">＋</button>
+      <button type="button" class="np-btn sm js-map-overview-close">닫기</button>
+    </div>
   </div>
   <div class="map-overview-stage"><div class="map-overview-content"></div></div>
 </dialog>
@@ -509,6 +489,8 @@ let completedOnly = true;  // 기본값 — 오늘 이전에 끝난 회차만 �
 let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id } — 유저가 끌어다 바꾼다
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
 let seatMapCentered = false;                    // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
+let overviewFitScale = 1;
+let overviewZoom = 1;
 const VISIT_COLOR_STORAGE_KEY = 'hongcal.visit-colors.v1';
 let delMode     = false;      // 관극 기록 삭제 모드 — 켜면 각 칸 오른쪽 위에 ✕
 let newRecKey   = null;        // 기록 추가 폼 — 회차
@@ -849,14 +831,29 @@ function addRecordHTML () {
   </div>`;
 }
 
+function setMapOverviewZoom (zoom) {
+  const dialog = $('#mapOverview');
+  const stage = dialog.querySelector('.map-overview-stage');
+  const content = dialog.querySelector('.map-overview-content');
+  overviewZoom = Math.max(.5, Math.min(3, zoom));
+  content.style.zoom = overviewFitScale * overviewZoom;
+  dialog.querySelector('.map-overview-zoom').textContent = `${Math.round(overviewZoom * 100)}%`;
+  dialog.querySelector('.js-map-zoom-out').disabled = overviewZoom <= .5;
+  dialog.querySelector('.js-map-zoom-in').disabled = overviewZoom >= 3;
+  requestAnimationFrame(() => {
+    stage.scrollLeft = (stage.scrollWidth - stage.clientWidth) / 2;
+    stage.scrollTop = (stage.scrollHeight - stage.clientHeight) / 2;
+  });
+}
+
 function fitMapOverview () {
   const dialog = $('#mapOverview');
   if (!dialog.open) return;
   const stage = dialog.querySelector('.map-overview-stage');
   const content = dialog.querySelector('.map-overview-content');
-  content.style.setProperty('--overview-scale', 1);
-  const scale = Math.min(stage.clientWidth / content.offsetWidth, stage.clientHeight / content.offsetHeight);
-  content.style.setProperty('--overview-scale', Math.min(scale, 1.35));
+  content.style.zoom = 1;
+  overviewFitScale = Math.min((stage.clientWidth - 2) / content.offsetWidth, (stage.clientHeight - 2) / content.offsetHeight, 1.35);
+  setMapOverviewZoom(1);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -884,7 +881,9 @@ function bind () {
     overview.showModal();
     requestAnimationFrame(fitMapOverview);
   });
-  $('.js-map-overview-close', overview).onclick = () => overview.close();
+  overview.querySelector('.js-map-zoom-out').onclick = () => setMapOverviewZoom(overviewZoom - .25);
+  overview.querySelector('.js-map-zoom-in').onclick = () => setMapOverviewZoom(overviewZoom + .25);
+  overview.querySelector('.js-map-overview-close').onclick = () => overview.close();
   overview.onclose = () => { overview.querySelector('.map-overview-content').innerHTML = ''; };
 
   // 팔레트: 끌거나(데스크톱) 눌러서 들기(터치)

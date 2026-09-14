@@ -86,6 +86,9 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   const mast = html.match(/<header class="np-mast"[\s\S]*?<\/header>/)?.[0] || '';
   assert.doesNotMatch(mast, /np-preview/);
   assert.match(html, /<dialog class="map-overview"/);
-  assert.match(html, /stage\.clientWidth \/ content\.offsetWidth/);
+  assert.match(html, /\(stage\.clientWidth - 2\) \/ content\.offsetWidth/);
+  assert.match(html, /class="np-btn sm js-map-zoom-in"/);
+  assert.match(html, /class="np-btn sm js-map-zoom-out"/);
+  assert.doesNotMatch(html, /overflow-x:scroll/);
   assert.doesNotMatch(html, /\.seatmap-scroll::after/);
 });
