@@ -97,6 +97,8 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   assert.match(html, /\.map-overview \.is-fit \{ --map-w:780px; \}/);
   assert.match(html, /content\.style\.zoom = overviewZoom/);
   assert.match(html, /aisleScale = \.35/);
+  assert.match(html, /font-family:var\(--mono\); line-height:1; padding:0; grid-row:1;/);
+  assert.match(html, /align-self:center; grid-row:1;/);
   assert.match(html, /class="np-btn sm js-map-zoom-in"/);
   assert.match(html, /class="np-btn sm js-map-zoom-out"/);
   assert.doesNotMatch(html, /overflow-x:scroll/);

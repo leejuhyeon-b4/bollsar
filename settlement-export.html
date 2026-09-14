@@ -21,7 +21,7 @@ body{font-family:"Cafe24 Ssurround Air","Malgun Gothic","Apple SD Gothic Neo","N
 canvas{display:block;width:100%;height:100%}.name{font-size:12px;line-height:18px;margin-top:3px;letter-spacing:.7px;white-space:nowrap}.count{font-size:12px;line-height:17px;letter-spacing:.8px;color:#eee0d0}
 .legend{left:890px;top:864px;width:520px;display:flex;justify-content:center;gap:28px;font-size:15px;align-items:center}.legend label{display:flex;align-items:center;gap:9px;white-space:nowrap}.check{display:inline-block;width:21px;height:21px;border:1px solid #c5a778;box-shadow:inset 0 0 0 3px #190f25;background:var(--visit-color,transparent)}
 .pair-box{position:absolute;left:30px;top:778px;width:600px;height:108px;text-align:center;transform:scale(.92);transform-origin:top left}.pair-box[hidden]{display:none}.pair-box h2{padding:0 22px;font-size:13px;line-height:18px;margin:0 0 5px;font-weight:400;color:#f2dfbe}.pair-list{display:grid;gap:3px;padding:0 22px}.pair-row{height:18px;display:grid;grid-template-columns:1fr 124px;gap:18px;align-items:center;font-size:11px;line-height:18px}.pair-name{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pair-count{text-align:right;font-family:"IBM Plex Mono",monospace;color:#eee0d0}
-.seat-panel{position:absolute;left:660px;top:250px;width:912px;height:606px;color:#e8dcc9}.stage-vector{width:86%;height:32px;margin:0 auto 8px;border:1px solid rgba(232,220,201,.7);border-radius:50% 50% 4px 4px/80% 80% 4px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:30px;letter-spacing:.4em}.seat-floors{display:flex;flex-direction:column;gap:9px}.seat-floor{position:relative}.seat-floor-title{position:absolute;left:1px;top:50%;transform:translateY(-50%);width:35px;font-size:17px;text-align:left}.seat-floor-title::after{content:"◆";display:block;margin-top:3px;font-size:8px;color:#d5b66a}.seat-rows{display:flex;flex-direction:column;align-items:center}.seat-row{display:grid;height:13.5px;align-items:center}.seat-cell{width:12px;height:12px;align-self:center;justify-self:center;border:1px solid rgba(232,220,201,.78);border-radius:1px;font-family:"IBM Plex Mono",monospace;font-size:5.5px;font-weight:600;line-height:1;text-align:center;color:#e5d7c3;background:rgba(32,21,43,.9);display:grid;place-items:center;padding:0}.row-label{font-family:"IBM Plex Mono",monospace;font-size:7px;line-height:1;text-align:center;color:#dfccb0;white-space:nowrap;z-index:2;display:grid;place-items:center;align-self:stretch}
+.seat-panel{position:absolute;left:660px;top:228px;width:912px;height:630px;color:#e8dcc9}.stage-vector{width:86%;height:28px;margin:0 auto 5px;border:1px solid rgba(232,220,201,.7);border-radius:50% 50% 4px 4px/80% 80% 4px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:26px;letter-spacing:.4em}.seat-floors{display:flex;flex-direction:column;gap:3px}.seat-floor{position:relative}.seat-floor-title{position:absolute;left:1px;top:50%;transform:translateY(-50%);width:35px;font-size:17px;text-align:left}.seat-floor-title::after{content:"◆";display:block;margin-top:3px;font-size:8px;color:#d5b66a}.seat-rows{display:flex;flex-direction:column;align-items:center}.seat-row{display:grid;height:15px;align-items:center}.seat-cell{width:15px;height:15px;align-self:center;justify-self:center;box-shadow:0 0 0 1px rgba(232,220,201,.78);font-family:"IBM Plex Mono",monospace;font-size:6.5px;font-weight:600;line-height:1;text-align:center;color:#e5d7c3;background:rgba(32,21,43,.9);display:grid;place-items:center;padding:0;grid-row:1}.seat-cell.on{box-shadow:0 0 0 1px #f1e5cf,inset 0 0 0 1px #f1e5cf;z-index:1}.row-label{font-family:"IBM Plex Mono",monospace;font-size:7.5px;line-height:1;text-align:center;color:#dfccb0;white-space:nowrap;z-index:2;display:grid;place-items:center;align-self:stretch;grid-row:1}
 </style>
 </head>
 <body>
@@ -127,10 +127,13 @@ window.setPairCombinations();
 const seatFloors=document.getElementById('seat-floors');
 for(const floor of SEAT_MAP.floors){
   const meta=floorGrid(floor),wrap=document.createElement('section');wrap.className='seat-floor';
+  const occupied=new Set(floor.rows.flatMap(row=>seatRowCells(floor,row).map(cell=>cell.gc)));
+  const aisleCols=new Set(meta.labelGc.slice(1,-1).flatMap(gc=>Array.from({length:AISLE_W},(_,i)=>gc+i)));
+  const tracks=Array.from({length:meta.cols},(_,i)=>occupied.has(i+1)?'15px':aisleCols.has(i+1)?'5px':'0px').join(' ');
   wrap.innerHTML=`<div class="seat-floor-title">${floor.label}</div><div class="seat-rows"></div>`;
   const rowsEl=wrap.querySelector('.seat-rows');
   for(const row of floor.rows){
-    const line=document.createElement('div');line.className='seat-row';line.style.gridTemplateColumns=`repeat(${meta.cols}, 14px)`;
+    const line=document.createElement('div');line.className='seat-row';line.style.gridTemplateColumns=tracks;
     for(const gc of meta.labelGc.slice(1,-1)){
       const label=document.createElement('span');label.className='row-label';label.style.gridColumn=`${gc}/span ${AISLE_W}`;label.textContent=row.r;line.append(label);
     }
@@ -156,6 +159,7 @@ window.setSettlementPreview=({visitColors={},records=[],performances=PERFS}={})=
   for(const seat of document.querySelectorAll('.seat-cell')){
     const level=Math.min(visits.get(seat.dataset.seat)||0,4);
     const color=level&&palette[visitColors[level]];
+    seat.classList.toggle('on',!!level);
     seat.style.background=color||'rgba(32,21,43,.9)';
     seat.style.color=color?'#160f1f':'#e5d7c3';
     seat.textContent=(level||Number(seat.dataset.number)%5===0)?seat.dataset.number:'';
@@ -192,6 +196,7 @@ window.previewReady=Promise.all([...loads,document.fonts.ready]).then(()=>{
     assert(document.querySelectorAll('.seat-cell').length===expectedSeats,'Every seat must render from service data');
     assert([...document.querySelectorAll('.seat-cell')].every(seat=>/층 .+열 .+번/.test(seat.getAttribute('aria-label'))),'Seat row and number labels');
     assert([...document.querySelectorAll('.row-label')].every(label=>Math.abs(label.getBoundingClientRect().top-label.closest('.seat-row').getBoundingClientRect().top)<.5),'Row labels align with their own seat row');
+    assert([...document.querySelectorAll('.seat-row')].every(row=>Math.abs(row.getBoundingClientRect().top-row.querySelector('.seat-cell').getBoundingClientRect().top)<.5),'Seats stay on the labeled row');
     assert(document.querySelector('.stage-vector').textContent==='STAGE','Stage label');
     assert([...document.querySelectorAll('.group.bottom .portrait')].every(frame=>getComputedStyle(frame).borderTopWidth==='0px'),'Lower gold frames removed');
     assert(['김대호','장예원'].every(name=>![...document.querySelectorAll('.group.bottom .name')].some(label=>label.textContent===name)),'Bottom actor names removed');
