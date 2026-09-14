@@ -220,14 +220,13 @@ a { color:var(--accent); text-decoration:none; }
 .seatmap-scroll { position:relative; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
-.seatrow { display:grid; align-items:center; }
+.seatrow { display:grid; grid-template-rows:var(--seat); align-items:center; }
 .seat {
-  width:var(--seat); height:var(--seat); min-width:var(--seat); min-height:var(--seat);
-  max-width:var(--seat); max-height:var(--seat); aspect-ratio:1;
+  width:calc(var(--seat) - 1px); height:calc(var(--seat) - 1px); min-width:0; min-height:0;
+  aspect-ratio:1; border:1px solid var(--ink-55); box-sizing:border-box;
   background:var(--paper-3); cursor:default;
-  /* 테두리 대신 box-shadow — 이웃 좌석끼리 선이 겹쳐 한 줄로 그려져
-     고해상도 폰에서 1px 테두리가 두 겹으로 어긋나 흔들려 보이던 문제를 없앤다. */
-  box-shadow:0 0 0 1px var(--ink-55);
+  /* 정수 크기의 칸 안에 테두리를 그려 잘림과 소수점 선 겹침을 막는다. */
+  box-shadow:none;
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
 }
@@ -241,9 +240,9 @@ a { color:var(--accent); text-decoration:none; }
 .is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:hidden; }
 .is-fit .seatmaps { width:var(--map-w); margin-inline:auto; }
 .is-fit .seatmap {
-  --seat:calc(var(--map-w) / var(--map-cols));
-  --aisle:calc(var(--seat) * var(--aisle-scale));
-  gap:0; overflow-x:hidden;
+  --seat:round(down, calc(var(--map-w) / var(--map-cols)), 1px);
+  --aisle:round(down, calc(var(--seat) * var(--aisle-scale)), 1px);
+  gap:0; overflow:visible;
   align-items:center;
 }
 .is-fit .seatrow { gap:0; }
@@ -254,7 +253,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seat.on {                                 /* 방문 좌석 — 번호·테두리 진하게 */
   color:var(--ink);
-  box-shadow:0 0 0 1px var(--ink), inset 0 0 0 1px var(--ink);
+  border-color:var(--ink); box-shadow:none;
   z-index:1;
 }
 .is-fit .seat.nofill { background:var(--ink-14); }
