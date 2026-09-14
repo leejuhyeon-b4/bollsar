@@ -74,3 +74,11 @@ test('settlement defaults to past performances and can include upcoming ones', (
   assert.match(html, /지난 회차만 정산/);
   assert.match(html, /해제하면 예정 회차도 포함/);
 });
+
+test('settlement shares one seat-map scroller and unlocks every performance', () => {
+  const html = fs.readFileSync(path.join(root, 'settlement.html'), 'utf8');
+  assert.match(html, /<div class="seatmap-scroll"><div class="seatmaps">\$\{floors\}<\/div><\/div>/);
+  assert.match(html, /\.filter\(p => !hongOnly \|\| isHongPerf\(p\)\)/);
+  assert.match(html, /아래 기록 추가에서 모든 회차를 담을 수 있습니다/);
+  assert.match(html, /class="np-preview">이미지로 미리보기<\/button>/);
+});

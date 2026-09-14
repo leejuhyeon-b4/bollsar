@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-+53QmYmFrdbKiARosSNfdVmum/F753mkgVicdF23ctU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-CfE2FRafjfzAP5tSfcFb6DRYcpWAHPXzQiUfxTi16jU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -106,13 +106,15 @@ a { color:var(--accent); text-decoration:none; }
 
 /* ═══ 마스트헤드 ═══ */
 .np-mast { position:relative; flex:none; padding:18px 0 10px; text-align:center; border-bottom:3px double var(--ink); }
-.np-login {
-  position:absolute; right:0; top:14px;
+.np-login, .np-preview {
+  position:absolute; top:14px;
   border:1px solid var(--ink-40); background:none; color:var(--ink);
   font-family:var(--mono); font-size:12px; letter-spacing:.12em;
   min-height:40px; padding:4px 10px; cursor:pointer;
 }
-.np-login:hover { background:var(--ink); color:var(--paper); }
+.np-login { right:0; }
+.np-preview { left:0; }
+.np-login:hover, .np-preview:hover { background:var(--ink); color:var(--paper); }
 .np-wordmark { font-family:var(--fraktur); font-weight:400; font-size:29px; line-height:1.05; letter-spacing:.01em; margin:2px 0 4px; text-wrap:balance; }
 .np-byline {
   display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
@@ -183,6 +185,7 @@ a { color:var(--accent); text-decoration:none; }
   font-family:var(--mono); font-size:12px; letter-spacing:.08em; padding:6px 13px;
 }
 .st-toggle[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.st-all-note { font-family:var(--mono); font-size:12px; color:var(--accent); }
 
 /* ═══ 집계 ═══ */
 .st-tally {
@@ -215,7 +218,7 @@ a { color:var(--accent); text-decoration:none; }
   font-family:var(--mono); font-size:12px; letter-spacing:.4em; color:var(--ink-60);
 }
 /* 배치도는 읽기 전용 — 누르는 곳이 아니므로 손가락 커서를 쓰지 않는다. */
-.seatmap-wrap { position:relative; }
+.seatmap-scroll { position:relative; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; align-items:center; }
@@ -234,9 +237,10 @@ a { color:var(--accent); text-decoration:none; }
 }
 
 /* 데스크톱: 가장 넓은 층(54칸)을 지면 폭에 맞춰 역산 — 가로 스크롤 없음. */
-.is-fit .seatmap-wrap { margin-inline:calc(var(--pad) * -1); }
+.is-fit { --map-w:calc(min(600px, 100vw) - 4px); }
+.is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:hidden; }
+.is-fit .seatmaps { width:var(--map-w); margin-inline:auto; }
 .is-fit .seatmap {
-  --map-w:calc(min(600px, 100vw) - 4px);
   --seat:calc(var(--map-w) / 54);
   gap:0; overflow-x:hidden;
   align-items:center;
@@ -258,19 +262,24 @@ a { color:var(--accent); text-decoration:none; }
 /* 모바일: 좌석을 15px 고정 크기로 키우고 배치도만 좌우 스크롤 — 작아서 뭉개지던 문제 해결.
    모바일은 스크롤바가 안 보이므로 오른쪽에 페이드 + 안내문구로 "더 있음"을 알린다. */
 @media (max-width:600px) {
-  .is-fit .seatmap {
-    --seat:15px;
+  .is-fit .seatmap-scroll {
     overflow-x:scroll; overflow-y:hidden;
-    align-items:start;
-    padding-bottom:6px;
     touch-action:pan-x pan-y;
     overscroll-behavior-x:contain;
     -webkit-overflow-scrolling:touch;
   }
-  /* 각 열 끝에 여백을 둬서 끝까지 밀면 마지막 좌석(1층 48·2층 46·3층 48번)이
-     오른쪽 페이드 밖으로 완전히 드러나게 한다 */
-  .is-fit .seatrow { padding-right:26px; }
-  .is-fit .seatmap-wrap::after {
+  .is-fit .seatmaps {
+    --seat:15px;
+    width:calc(54 * var(--seat) + 52px);
+    padding-inline:26px;
+  }
+  .is-fit .seatmap {
+    --seat:15px;
+    overflow:visible;
+    align-items:start;
+    padding-bottom:6px;
+  }
+  .is-fit .seatmap-scroll::after {
     content:""; position:absolute; top:0; right:0; bottom:6px; width:16px;
     background:linear-gradient(to right, rgba(233,227,213,0) 40%, var(--paper));
     pointer-events:none;
@@ -392,7 +401,7 @@ body.logged-in .gate-cta { display:none; }
 /* ═══ 반응형 ═══ */
 @media (max-width:600px) {
   .np-mast { padding-top:56px; }
-  .np-login { top:6px; min-height:44px; }
+  .np-login, .np-preview { top:6px; min-height:44px; }
   .np-shell { --pad:14px; }
   .np-wordmark { font-size:21px; }
   .st-head { grid-template-columns:52px 1fr; gap:11px; }
@@ -420,6 +429,7 @@ body.logged-in .gate-cta { display:none; }
 
 <div class="np-shell">
   <header class="np-mast" id="mast">
+    <button type="button" class="np-preview">이미지로 미리보기</button>
     <button type="button" class="np-login" id="loginBtn">로그인</button>
     <h1 class="np-wordmark">Neue Zürcher Zeitung</h1>
     <div class="np-byline"><span></span><span class="by-name">강홍석</span><span id="todayStamp"></span></div>
@@ -476,7 +486,7 @@ let hongOnly    = true;    // 📌 기본값 — 강홍석 회차만. 한 번 �
 let completedOnly = true;  // 기본값 — 오늘 이전에 끝난 회차만 정산한다.
 let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id } — 유저가 끌어다 바꾼다
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
-let seatMapsCentered = false;                   // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
+let seatMapCentered = false;                    // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
 const VISIT_COLOR_STORAGE_KEY = 'hongcal.visit-colors.v1';
 let delMode     = false;      // 관극 기록 삭제 모드 — 켜면 각 칸 오른쪽 위에 ✕
 let newRecKey   = null;        // 기록 추가 폼 — 회차
@@ -549,24 +559,23 @@ const recordsMatchingFix = (list, fix) => {
    ═══════════════════════════════════════════════════════════ */
 function render () {
   // 통째로 다시 그리므로 배치도의 가로 스크롤·페이지 위치를 그대로 되돌려 놓는다
-  const keepX = [...document.querySelectorAll('.seatmap')].map(m => m.scrollLeft);
+  const oldScroller = $('.seatmap-scroll');
+  const keepX = oldScroller ? oldScroller.scrollLeft : null;
   const keepY = window.scrollY;
-  const shouldCenterSeatMaps = !seatMapsCentered;
+  const shouldCenterSeatMap = !seatMapCentered;
 
   document.body.classList.toggle('logged-in', loggedIn);
   $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
   $('#wrap').innerHTML = headHTML() + bodyHTML();
   bind();
 
-  document.querySelectorAll('.seatmap').forEach((m, i) => {
-    if (!shouldCenterSeatMaps && keepX[i] != null) m.scrollLeft = keepX[i];
-  });
   requestAnimationFrame(() => {
-    const maps = [...document.querySelectorAll('.seatmap')];
-    if (shouldCenterSeatMaps) maps.forEach(m => {
-      if (m.scrollWidth > m.clientWidth) m.scrollLeft = (m.scrollWidth - m.clientWidth) / 2;
-    });
-    if (maps.length) seatMapsCentered = true;
+    const scroller = $('.seatmap-scroll');
+    if (!scroller) return;
+    scroller.scrollLeft = shouldCenterSeatMap
+      ? Math.round((scroller.scrollWidth - scroller.clientWidth) / 2)
+      : keepX;
+    seatMapCentered = true;
   });
   if (window.scrollY !== keepY) window.scrollTo(0, keepY);
 }
@@ -607,6 +616,7 @@ function bodyHTML () {
       <input type="checkbox" class="js-completed-only" ${completedOnly ? 'checked' : ''}>
       <b>지난 회차만 정산</b><small>해제하면 예정 회차도 포함</small>
     </label>
+    ${hongOnly ? '' : '<p class="st-all-note">아래 기록 추가에서 모든 회차를 담을 수 있습니다.</p>'}
   </div>`;
 
   const live = `
@@ -703,7 +713,7 @@ function seatMapHTML (list) {
     </div>`;
   }).join('');
 
-  return `<div class="is-fit"><p class="map-hint">← 좌우로 밀어서 전체 보기 →</p>${floors}</div>`;
+  return `<div class="is-fit"><p class="map-hint">← 좌우로 밀어서 전체 보기 →</p><div class="seatmap-scroll"><div class="seatmaps">${floors}</div></div></div>`;
 }
 
 /* ── 관극 기록 (실제로 본 회차 목록) ── */
