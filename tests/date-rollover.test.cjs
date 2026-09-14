@@ -63,6 +63,14 @@ test('inline scripts compile and are allowed by the deployed CSP', () => {
       assert.ok(metaPolicy.includes(`'${hash}'`), `${filename} meta CSP is missing ${hash}`);
     }
   }
+
+  const exportHtml = fs.readFileSync(path.join(root, 'settlement-export.html'), 'utf8');
+  const exportScripts = [...exportHtml.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const [, script] of exportScripts) {
+    assert.doesNotThrow(() => new vm.Script(script), 'settlement-export.html has invalid inline JavaScript');
+    const hash = `sha256-${crypto.createHash('sha256').update(script).digest('base64')}`;
+    assert.ok(policy.includes(`'${hash}'`), `settlement-export.html CSP is missing ${hash}`);
+  }
 });
 
 test('settlement defaults to past performances and can include upcoming ones', () => {

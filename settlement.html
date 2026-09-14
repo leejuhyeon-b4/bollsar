@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -640,7 +640,7 @@ function bodyHTML () {
     ${favoritePairsHTML(list)}
     <div class="st-save">
       <button type="button" class="np-btn solid js-save">이미지로 저장하기</button>
-      <span class="cap">준비 중</span>
+      <span class="cap">PNG · 3172 × 1984</span>
     </div>`;
 
   return `<section class="st-sec">
@@ -868,6 +868,78 @@ function fitMapOverview () {
   setMapOverviewZoom(overviewZoom);
 }
 
+let settlementExportFramePromise;
+function settlementExportFrame () {
+  if (settlementExportFramePromise) return settlementExportFramePromise;
+  settlementExportFramePromise = new Promise((resolve, reject) => {
+    const frame = document.createElement('iframe');
+    frame.src = 'settlement-export.html';
+    frame.title = '정산판 이미지 생성';
+    frame.setAttribute('aria-hidden', 'true');
+    Object.assign(frame.style, {
+      position:'fixed', left:'-20000px', top:'0', width:'1586px', height:'992px',
+      border:'0', pointerEvents:'none'
+    });
+    frame.onload = async () => {
+      try {
+        await frame.contentWindow.previewReady;
+        resolve(frame);
+      } catch (error) {
+        settlementExportFramePromise = null;
+        frame.remove();
+        reject(error);
+      }
+    };
+    frame.onerror = () => {
+      settlementExportFramePromise = null;
+      frame.remove();
+      reject(Error('정산판 이미지 템플릿을 불러오지 못했습니다.'));
+    };
+    document.body.append(frame);
+  });
+  return settlementExportFramePromise;
+}
+
+async function saveSettlementImage (button) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = '이미지 만드는 중…';
+  try {
+    const frame = await settlementExportFrame();
+    const target = frame.contentWindow;
+    const performances = PERFS.filter(perf =>
+      (!hongOnly || isHongPerf(perf)) && (!completedOnly || isPast(perf))
+    );
+    const records = myRecords();
+    const pairs = favoritePairs.slice(0, FAVORITE_MAX).map(fix => ({
+      names:ROLES.filter(role => fix[role.id]).map(role => actorName(fix[role.id])).slice(0, 4),
+      watched:recordsMatchingFix(records, fix).length,
+      total:performances.filter(perf => Object.entries(fix).every(([role, actor]) => perf.cast[role] === actor)).length
+    }));
+    target.setSettlementPreview({ visitColors:{ ...visitColors }, records, performances });
+    target.setPairCombinations(pairs);
+    await new Promise(resolve => target.requestAnimationFrame(() => target.requestAnimationFrame(resolve)));
+    const blob = await target.exportSettlementPng();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const stamp = new Date().toLocaleDateString('sv-SE', { timeZone:'Asia/Seoul' });
+    link.href = url;
+    link.download = `엘리자벳-2026-6연-정산판-${stamp}.png`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    button.textContent = '저장 완료';
+    setTimeout(() => { if (button.isConnected) button.textContent = original; }, 1400);
+  } catch (error) {
+    console.error('[정산판 이미지 저장]', error);
+    alert('이미지를 만드는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.');
+    button.textContent = original;
+  } finally {
+    button.disabled = false;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    이벤트 바인딩
    ═══════════════════════════════════════════════════════════ */
@@ -992,7 +1064,7 @@ function bind () {
     b.addEventListener('click', () => { favoritePairs.splice(+b.dataset.i, 1); render(); }));
 
   const save = $('.js-save');
-  if (save) save.addEventListener('click', () => alert('이미지 저장은 준비 중입니다.'));
+  if (save) save.addEventListener('click', () => saveSettlementImage(save));
 }
 
 /* ═══ 초기화 ═══ */

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v14';
+const CACHE_VERSION = 'v15';
 const CACHE_PREFIX = 'hongcal-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['aebaeryeok-'];
@@ -7,11 +7,13 @@ const APP_SHELL = [
   './',
   './index.html',
   './settlement.html',
+  './settlement-export.html',
   './manifest.json',
   './data.js',
   './pwa-install.js',
   './ref/fonts.css',
   './ref/gsap.min.js',
+  './ref/html2canvas-1.4.1.min.js',
   './ref/fonts/cafe24ssurroundair-400.woff2',
   './ref/fonts/hahmlet-400.woff2',
   './ref/fonts/hahmlet-700.woff2',
@@ -21,6 +23,7 @@ const APP_SHELL = [
   './ref/fonts/plexmono-500.woff2',
   './ref/fonts/plexmono-600.woff2',
   './ref/fonts/unifraktur-400.woff2',
+  './ref/settlement-export-bg.png',
   './ref/c-hole-mask.png',
   './ref/KakaoTalk_20260909_174603341.jpg',
   './ref/KakaoTalk_20260909_174603341_01.jpg',
