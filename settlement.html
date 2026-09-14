@@ -222,10 +222,11 @@ a { color:var(--accent); text-decoration:none; }
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; grid-template-rows:var(--seat); align-items:center; }
 .seat {
-  width:calc(var(--seat) - 1px); height:calc(var(--seat) - 1px); min-width:0; min-height:0;
-  aspect-ratio:1; border:1px solid var(--ink-55); box-sizing:border-box;
+  width:var(--seat); height:var(--seat); min-width:var(--seat); min-height:var(--seat);
+  max-width:var(--seat); max-height:var(--seat); aspect-ratio:1;
+  border:.5px solid var(--ink-55); box-sizing:border-box;
   background:var(--paper-3); cursor:default;
-  /* 정수 크기의 칸 안에 테두리를 그려 잘림과 소수점 선 겹침을 막는다. */
+  /* 확대 보기와 같은 빈틈 없는 정사각형을 유지한다. */
   box-shadow:none;
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
@@ -240,9 +241,9 @@ a { color:var(--accent); text-decoration:none; }
 .is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:hidden; }
 .is-fit .seatmaps { width:var(--map-w); margin-inline:auto; }
 .is-fit .seatmap {
-  --seat:round(down, calc(var(--map-w) / var(--map-cols)), 1px);
-  --aisle:round(down, calc(var(--seat) * var(--aisle-scale)), 1px);
-  gap:0; overflow:visible;
+  --seat:calc(var(--map-w) / var(--map-cols));
+  --aisle:calc(var(--seat) * var(--aisle-scale));
+  gap:0; overflow:hidden;
   align-items:center;
 }
 .is-fit .seatrow { gap:0; }
