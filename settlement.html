@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-YtNTwEZG8DFalf26c4iMnKEco/N83WrOaqSC4f6DTlQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -222,13 +222,14 @@ a { color:var(--accent); text-decoration:none; }
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; align-items:center; }
 .seat {
-  width:var(--seat); height:var(--seat); min-width:var(--seat);
-  background:var(--paper-3); padding:0; cursor:default;
+  width:var(--seat); height:var(--seat); min-width:var(--seat); min-height:var(--seat);
+  max-width:var(--seat); max-height:var(--seat); aspect-ratio:1;
+  background:var(--paper-3); cursor:default;
   /* 테두리 대신 box-shadow — 이웃 좌석끼리 선이 겹쳐 한 줄로 그려져
      고해상도 폰에서 1px 테두리가 두 겹으로 어긋나 흔들려 보이던 문제를 없앤다. */
   box-shadow:0 0 0 1px var(--ink-55);
   display:grid; place-items:center;
-  font-family:var(--mono); line-height:1;
+  font-family:var(--mono); line-height:1; padding:0;
 }
 .seatrow .rl {
   font-family:var(--mono); font-size:calc(var(--seat) * .6); line-height:1;
@@ -343,6 +344,16 @@ a { color:var(--accent); text-decoration:none; }
 .st-save .np-btn { width:100%; padding:13px; font-size:12px; }
 .st-save .cap { display:block; margin-top:6px; font-family:var(--mono); font-size:12px; letter-spacing:.05em; color:var(--ink-55); }
 
+.save-preview {
+  width:min(440px, calc(100vw - 28px)); max-width:none; padding:14px;
+  border:1px solid var(--ink); background:var(--paper); color:var(--ink);
+}
+.save-preview[open] { display:grid; gap:11px; }
+.save-preview::backdrop { background:rgba(23,21,15,.66); }
+.save-preview img { display:block; width:100%; aspect-ratio:1586/992; object-fit:contain; background:#130c1e; }
+.save-preview p { font-family:var(--body); font-size:14px; text-align:center; }
+.save-preview-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
 /* ═══ 로그인 게이트 ═══ */
 .gate { position:relative; min-height:280px; overflow:hidden; }
 .gate-locked {
@@ -382,7 +393,7 @@ body.logged-in .gate-cta { display:none; }
   .gate-cta { padding:20px 10px 16px; }
 }
 
-html:has(.map-overview[open]) { overflow:hidden; }
+html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; }
 .map-overview {
   width:calc(100vw - 20px); height:calc(100dvh - 20px);
   max-width:none; max-height:none; padding:12px;
@@ -446,6 +457,15 @@ html:has(.map-overview[open]) { overflow:hidden; }
     </div>
   </div>
   <div class="map-overview-stage"><div class="map-overview-content"></div></div>
+</dialog>
+
+<dialog class="save-preview" id="savePreview" aria-labelledby="savePreviewTitle">
+  <img id="savePreviewImage" alt="저장할 정산판 미리보기">
+  <p id="savePreviewTitle">이 이미지로 저장할까요?</p>
+  <div class="save-preview-actions">
+    <button type="button" class="np-btn solid js-save-confirm">저장하기</button>
+    <button type="button" class="np-btn ghost js-save-later">나중에 저장하기</button>
+  </div>
 </dialog>
 
 <!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
@@ -900,10 +920,17 @@ function settlementExportFrame () {
   return settlementExportFramePromise;
 }
 
-async function saveSettlementImage (button) {
+let pendingSettlementImage;
+function clearSettlementPreview () {
+  if (pendingSettlementImage?.url) URL.revokeObjectURL(pendingSettlementImage.url);
+  pendingSettlementImage = null;
+  $('#savePreviewImage').removeAttribute('src');
+}
+
+async function previewSettlementImage (button) {
   const original = button.textContent;
   button.disabled = true;
-  button.textContent = '이미지 만드는 중…';
+  button.textContent = '미리보기 만드는 중…';
   try {
     const frame = await settlementExportFrame();
     const target = frame.contentWindow;
@@ -921,16 +948,11 @@ async function saveSettlementImage (button) {
     await new Promise(resolve => target.requestAnimationFrame(() => target.requestAnimationFrame(resolve)));
     const blob = await target.exportSettlementPng();
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    const stamp = new Date().toLocaleDateString('sv-SE', { timeZone:'Asia/Seoul' });
-    link.href = url;
-    link.download = `엘리자벳-2026-6연-정산판-${stamp}.png`;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    button.textContent = '저장 완료';
-    setTimeout(() => { if (button.isConnected) button.textContent = original; }, 1400);
+    clearSettlementPreview();
+    pendingSettlementImage = { blob, url };
+    $('#savePreviewImage').src = url;
+    $('#savePreview').showModal();
+    button.textContent = original;
   } catch (error) {
     console.error('[정산판 이미지 저장]', error);
     alert('이미지를 만드는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.');
@@ -1064,7 +1086,7 @@ function bind () {
     b.addEventListener('click', () => { favoritePairs.splice(+b.dataset.i, 1); render(); }));
 
   const save = $('.js-save');
-  if (save) save.addEventListener('click', () => saveSettlementImage(save));
+  if (save) save.addEventListener('click', () => previewSettlementImage(save));
 }
 
 /* ═══ 초기화 ═══ */
@@ -1080,6 +1102,20 @@ window.addEventListener('todaychange', () => {
 });
 window.addEventListener('performancechange', render);
 window.addEventListener('resize', fitMapOverview);
+
+$('#savePreview').addEventListener('close', clearSettlementPreview);
+$('.js-save-later').addEventListener('click', () => $('#savePreview').close());
+$('.js-save-confirm').addEventListener('click', () => {
+  if (!pendingSettlementImage) return;
+  const link = document.createElement('a');
+  const stamp = new Date().toLocaleDateString('sv-SE', { timeZone:'Asia/Seoul' });
+  link.href = pendingSettlementImage.url;
+  link.download = `엘리자벳-2026-6연-정산판-${stamp}.png`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  $('#savePreview').close();
+});
 
 if ('serviceWorker' in navigator) {
   const hadServiceWorker = !!navigator.serviceWorker.controller;
