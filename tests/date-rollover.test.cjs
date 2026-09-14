@@ -79,6 +79,11 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   const html = fs.readFileSync(path.join(root, 'settlement.html'), 'utf8');
   assert.match(html, /<div class="seatmap-scroll"><div class="seatmaps">\$\{floors\}<\/div><\/div>/);
   assert.match(html, /\.filter\(p => !hongOnly \|\| isHongPerf\(p\)\)/);
+  assert.doesNotMatch(html, /\.filter\(p => !taken\.has\(perfKey\(p\)\)\)/);
+  assert.match(html, /isTaken \? ' disabled' : ''/);
   assert.match(html, /아래 기록 추가에서 모든 회차를 담을 수 있습니다/);
-  assert.match(html, /class="np-preview">이미지로 미리보기<\/button>/);
+  assert.match(html, /class="np-btn sm np-preview">이미지로 미리보기<\/button>/);
+  const mast = html.match(/<header class="np-mast"[\s\S]*?<\/header>/)?.[0] || '';
+  assert.doesNotMatch(mast, /np-preview/);
+  assert.doesNotMatch(html, /\.seatmap-scroll::after/);
 });
