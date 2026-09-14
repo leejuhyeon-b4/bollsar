@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-ymAFCysYKQuneQGvdAEguNuwRFXVvVYaOxsxRvsb5qM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-WehVYv5Ysm3gcG/UR+ByM7PELrfOiDOnR+J9OwN0aVA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -179,7 +179,6 @@ a { color:var(--accent); text-decoration:none; }
 /* ═══ 고정 토글 (📌 강홍석) ═══ */
 .st-pin { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:14px; }
 .st-pin .pin { font-size:15px; line-height:1; }
-.st-pin .np-preview { margin-left:auto; }
 .st-toggle {
   border:1px solid var(--ink-40); background:none; color:var(--ink-60); cursor:pointer;
   font-family:var(--mono); font-size:12px; letter-spacing:.08em; padding:6px 13px;
@@ -308,6 +307,7 @@ a { color:var(--accent); text-decoration:none; }
 
 /* 팔레트 — 좌석배치도 헤더에서 장소명 옆 여백에 작게 */
 .st-map-head { align-items:center; gap:6px 12px; flex-wrap:wrap; }
+.st-map-head .js-map-overview { margin-left:auto; }
 .palette { display:flex; flex-wrap:wrap; gap:6px; }
 .palette .pal {
   width:15px; height:15px; padding:0; cursor:grab;
@@ -408,6 +408,26 @@ body.logged-in .gate-cta { display:none; }
   .gate-cta { padding:20px 10px 16px; }
   .is-fit .seatmap { scroll-behavior:smooth; }
 }
+
+html:has(.map-overview[open]) { overflow:hidden; }
+.map-overview {
+  width:calc(100vw - 20px); height:calc(100dvh - 20px);
+  max-width:none; max-height:none; padding:12px;
+  border:1px solid var(--ink); background:var(--paper); color:var(--ink);
+  overflow:hidden;
+}
+.map-overview[open] { display:grid; grid-template-rows:auto minmax(0,1fr); gap:8px; }
+.map-overview::backdrop { background:rgba(23,21,15,.66); }
+.map-overview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.map-overview-head strong { font-family:var(--display); font-size:15px; }
+.map-overview-stage { min-height:0; position:relative; overflow:hidden; }
+.map-overview-content {
+  position:absolute; top:50%; left:50%; width:max-content;
+  transform:translate(-50%,-50%) scale(var(--overview-scale,1));
+  transform-origin:center;
+}
+.map-overview .map-hint { display:none; }
+.map-overview .seatmap-scroll { margin:0; overflow:visible; }
 </style>
 
 <script src="ref/gsap.min.js"></script>
@@ -437,6 +457,14 @@ body.logged-in .gate-cta { display:none; }
 
   <main class="np-main" id="wrap"></main>
 </div>
+
+<dialog class="map-overview" id="mapOverview" aria-labelledby="mapOverviewTitle">
+  <div class="map-overview-head">
+    <strong id="mapOverviewTitle">좌석배치도 한눈에 보기</strong>
+    <button type="button" class="np-btn sm js-map-overview-close">닫기</button>
+  </div>
+  <div class="map-overview-stage"><div class="map-overview-content"></div></div>
+</dialog>
 
 <!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js" integrity="sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -599,7 +627,6 @@ function bodyHTML () {
   const pin = `<div class="st-pin">
     <span class="pin" aria-hidden="true">📌</span>
     <button type="button" class="st-toggle js-pin" aria-pressed="${hongOnly}">${ACTORS[HONG].name}</button>
-    <button type="button" class="np-btn sm np-preview">이미지로 미리보기</button>
   </div>`;
 
   const tally = `<div class="st-tally">
@@ -621,6 +648,7 @@ function bodyHTML () {
       <div class="st-sec-head st-map-head">
         <span class="cnt">${SEAT_MAP.venue}</span>
         ${paletteHTML()}
+        <button type="button" class="np-btn sm js-map-overview">한눈에 보기</button>
       </div>
       ${slotsHTML()}
       ${seatMapHTML(list)}
@@ -821,6 +849,16 @@ function addRecordHTML () {
   </div>`;
 }
 
+function fitMapOverview () {
+  const dialog = $('#mapOverview');
+  if (!dialog.open) return;
+  const stage = dialog.querySelector('.map-overview-stage');
+  const content = dialog.querySelector('.map-overview-content');
+  content.style.setProperty('--overview-scale', 1);
+  const scale = Math.min(stage.clientWidth / content.offsetWidth, stage.clientHeight / content.offsetHeight);
+  content.style.setProperty('--overview-scale', Math.min(scale, 1.35));
+}
+
 /* ═══════════════════════════════════════════════════════════
    이벤트 바인딩
    ═══════════════════════════════════════════════════════════ */
@@ -838,6 +876,16 @@ function bind () {
     pairFix = {};
     render();
   });
+
+  const overview = $('#mapOverview');
+  const overviewOpen = $('.js-map-overview');
+  if (overviewOpen) overviewOpen.addEventListener('click', () => {
+    overview.querySelector('.map-overview-content').innerHTML = seatMapHTML(myRecords());
+    overview.showModal();
+    requestAnimationFrame(fitMapOverview);
+  });
+  $('.js-map-overview-close', overview).onclick = () => overview.close();
+  overview.onclose = () => { overview.querySelector('.map-overview-content').innerHTML = ''; };
 
   // 팔레트: 끌거나(데스크톱) 눌러서 들기(터치)
   $$('.js-pal').forEach(b => {
@@ -948,6 +996,7 @@ window.addEventListener('todaychange', () => {
   render();
 });
 window.addEventListener('performancechange', render);
+window.addEventListener('resize', fitMapOverview);
 
 if ('serviceWorker' in navigator) {
   const hadServiceWorker = !!navigator.serviceWorker.controller;
