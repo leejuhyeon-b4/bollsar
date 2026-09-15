@@ -115,3 +115,10 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   assert.match(exportHtml, /\.seat-floors\{display:flex;flex-direction:column;gap:10px\}/);
   assert.match(exportHtml, /\.legend\{left:1091px;top:162px/);
 });
+
+test('schedule keeps past toggle and shortens curtain call on mobile', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.match(html, /const past = all\.filter\(p => isPast\(p\)\)/);
+  assert.match(html, /<span class="full">커튼콜데이<\/span><span class="short">커튼콜<\/span>/);
+  assert.match(html, /\.np-cell-ev \.short \{ display:inline; \}/);
+});

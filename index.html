@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-nfpkCVOiYzAgA8cFseIODglCS09nxWIHeF2iUn+bqRw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-bGC+qD+VYTyHG214tkzBuulzkaYgdQnjpXnTeWGfht8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -225,6 +225,7 @@ a { color:var(--accent); text-decoration:none; }
   color:var(--accent); border:1px solid rgba(143,46,34,.45);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
+.np-cell-ev .short { display:none; }
 
 /* ═══ 지면 섹션 (목록형) ═══ */
 .np-sec-body { margin-top:8px; }
@@ -379,6 +380,8 @@ a { color:var(--accent); text-decoration:none; }
   .np-mast { padding-top:56px; }
   .np-login { top:6px; min-height:44px; }
   .np-shell { padding:0 14px; }
+  .np-cell-ev .full { display:none; }
+  .np-cell-ev .short { display:inline; }
   .np-wordmark { font-size:21px; }
   .np-cell { min-height:68px; }
   .np-cell-photo { width:30px; height:30px; }
@@ -570,10 +573,14 @@ function calendarHTML () {
     const dWent = loggedIn && dItems.some(p => recordFor(p));   // 담은 회차가 있는 날
     const cls = ['np-cell', isToday ? 'today' : '', isSun ? 'sun' : '', dWent ? 'went' : ''].join(' ').replace(/\s+/g, ' ').trim();
     const dEvents = dItems.flatMap(p => p.events || []);
+    const eventLabel = dEvents[0]?.label || '';
+    const eventText = eventLabel === '커튼콜데이'
+      ? '<span class="full">커튼콜데이</span><span class="short">커튼콜</span>'
+      : eventLabel;
     const inner = dItems.length
       ? `<img class="np-cell-photo" src="${PHOTO}" alt="${ACTORS[HONG].name}" loading="lazy">
          <span class="np-cell-t">${dItems.map(p => p.t).join('·')}</span>
-         ${dEvents.length ? `<span class="np-cell-ev">${dEvents[0].label}${dEvents.length > 1 ? ' +' + (dEvents.length - 1) : ''}</span>` : ''}`
+         ${dEvents.length ? `<span class="np-cell-ev">${eventText}${dEvents.length > 1 ? ' +' + (dEvents.length - 1) : ''}</span>` : ''}`
       : '';
     cells += `<div class="${cls}" data-day="${day}">
       <span class="n">${day}</span>
@@ -626,7 +633,7 @@ function calendarHTML () {
 function listHTML () {
   const all = hongPerfs().sort(cmpPerf);
   const upcoming = all.filter(p => !isPast(p));
-  const past = all.filter(isPast);
+  const past = all.filter(p => isPast(p));
 
   const rows = upcoming.length
     ? upcoming.map(p => entryHTML(p)).join('')
