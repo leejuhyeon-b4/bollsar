@@ -21,7 +21,7 @@ body{font-family:"Cafe24 Ssurround Air","Malgun Gothic","Apple SD Gothic Neo","N
 .portrait::after{content:"";position:absolute;inset:-2px;pointer-events:none;background:linear-gradient(#e5c48a,#e5c48a) left top/8px 2px no-repeat,linear-gradient(#e5c48a,#e5c48a) right top/8px 2px no-repeat,linear-gradient(#e5c48a,#e5c48a) left bottom/8px 2px no-repeat,linear-gradient(#e5c48a,#e5c48a) right bottom/8px 2px no-repeat}
 canvas{display:block;width:100%;height:100%}.name{font-size:12px;line-height:18px;margin-top:3px;letter-spacing:.7px;white-space:nowrap}.count{font-size:12px;line-height:17px;letter-spacing:.8px;color:#eee0d0}
 .legend{left:1091px;top:162px;width:400px;display:flex;justify-content:center;gap:18px;font-size:14px;align-items:center}.legend label{display:flex;align-items:center;gap:7px;white-space:nowrap}.check{display:inline-block;width:18px;height:18px;border:1px solid #c5a778;box-shadow:inset 0 0 0 3px #190f25;background:var(--visit-color,transparent)}
-.pair-box{position:absolute;left:30px;top:778px;width:600px;height:108px;text-align:center;transform:scale(.92);transform-origin:top left}.pair-box[hidden]{display:none}.pair-box h2{padding:0 22px;font-size:13px;line-height:18px;margin:0 0 5px;font-weight:400;color:#f2dfbe}.pair-list{display:grid;gap:3px;padding:0 22px}.pair-row{height:18px;display:grid;grid-template-columns:1fr 124px;gap:18px;align-items:center;font-size:11px;line-height:18px}.pair-name{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pair-count{text-align:right;font-family:"IBM Plex Mono",monospace;color:#eee0d0}
+.pair-box{position:absolute;left:960px;top:182px;width:590px;height:44px;text-align:center}.pair-box[hidden]{display:none}.pair-box h2{font-size:12px;line-height:15px;margin:0 0 2px;font-weight:400;color:#f2dfbe}.pair-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px 14px}.pair-row{height:13px;display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:4px;align-items:center;font-size:10px;line-height:13px}.pair-name{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pair-count{text-align:right;font-family:"IBM Plex Mono",monospace;color:#eee0d0}
 .seat-panel{position:absolute;left:660px;top:228px;width:912px;height:656px;color:#e8dcc9}.stage-vector{width:86%;height:28px;margin:0 auto 5px;border:1px solid rgba(232,220,201,.7);border-radius:50% 50% 4px 4px/80% 80% 4px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:26px;letter-spacing:.4em}.seat-floors{display:flex;flex-direction:column;gap:18px}.seat-floor+.seat-floor::before{content:"";position:absolute;top:-9px;left:40px;right:0;border-top:1px solid rgba(213,182,106,.55)}.seat-floor{position:relative}.seat-floor-title{position:absolute;left:1px;top:50%;transform:translateY(-50%);width:35px;font-size:17px;text-align:left}.seat-floor-title::after{content:"◆";display:block;margin-top:3px;font-size:8px;color:#d5b66a}.seat-rows{display:flex;flex-direction:column;align-items:center}.seat-row{display:grid;height:16px;align-items:center}.seat-cell{width:15px;height:15px;align-self:center;justify-self:center;box-shadow:0 0 0 1px rgba(232,220,201,.78);font-family:"IBM Plex Mono",monospace;font-size:6.5px;font-weight:600;line-height:1;text-align:center;color:#e5d7c3;background:rgba(32,21,43,.9);display:grid;place-items:center;padding:0;grid-row:1}.seat-cell.on{box-shadow:0 0 0 1px #f1e5cf,inset 0 0 0 1px #f1e5cf;z-index:1}.row-label{font-family:"IBM Plex Mono",monospace;font-size:7.5px;line-height:1;text-align:center;color:#dfccb0;white-space:nowrap;z-index:2;display:grid;place-items:center;align-self:stretch;grid-row:1}
 .seat-row{grid-template-rows:16px}
 .seat-cell{width:16px;height:16px;border:1px solid rgba(232,220,201,.78);box-shadow:none;align-self:start;justify-self:start}
@@ -72,13 +72,13 @@ const groups = [
   {role:'프란츠 요제프',primary:true,centered:true,x:348,y:431,w:319,pw:64,actors:['민영기','박민성'].map(n=>actor(n))},
   {role:'소피 대공비',primary:true,centered:true,x:32,y:625,w:327,pw:64,actors:['주아','서지영'].map(n=>actor(n))},
   {role:'루돌프',primary:true,centered:true,x:348,y:625,w:319,pw:64,actors:['김우성','장윤석'].map(n=>actor(n))},
-  {role:'막스 공작',bottom:true,hideNames:true,x:20,y:895,w:32,pw:24,actors:[actor('김대호')]},
-  {role:'루도비카 · 볼프 부인',bottom:true,hideNames:true,x:75,y:895,w:32,pw:24,actors:[actor('장예원')]},
-  {role:'엘리자벳의 측근들',bottom:true,hideNames:true,x:200,y:895,w:68,pw:24,actors:named('엘리자벳의 측근들',['서예림','박선정'])},
-  {role:'황실 세력가들',bottom:true,hideNames:true,x:320,y:895,w:212,pw:24,actors:['유철호','이도경','김낙현','채성욱','안준혁','이동윤'].map((n,i)=>actor(n,i===1?'황실세력가들2':'황실 세력가들'+(i+1)))},
-  {role:'어린 루돌프',bottom:true,hideNames:true,x:555,y:895,w:104,pw:24,actors:named('어린 루돌프',['박지호','박태온','한라온'])},
-  {role:'앙상블',bottom:true,hideNames:true,x:680,y:895,w:536,pw:24,actors:named('앙상블',['전선진','김경태','송주영','장여진','김요한','오태희','오민석','이슬아','전주일','곽동기','한수인','홍유진','김동훈','정인서','박찬희'])},
-  {role:'죽음의 천사들',bottom:true,hideNames:true,x:1240,y:895,w:248,pw:24,actors:named('죽천',['박세형','박상봉','함승윤','조승민','김규범','배형빈','정규진'])}
+  {role:'막스 공작',bottom:true,hideNames:true,x:20,y:785,w:55,pw:24,actors:[actor('김대호')]},
+  {role:'루도비카 · 볼프 부인',bottom:true,hideNames:true,x:85,y:785,w:110,pw:24,actors:[actor('장예원')]},
+  {role:'엘리자벳의 측근들',bottom:true,hideNames:true,x:205,y:785,w:80,pw:24,actors:named('엘리자벳의 측근들',['서예림','박선정'])},
+  {role:'황실 세력가들',bottom:true,hideNames:true,x:310,y:785,w:212,pw:24,actors:['유철호','이도경','김낙현','채성욱','안준혁','이동윤'].map((n,i)=>actor(n,i===1?'황실세력가들2':'황실 세력가들'+(i+1)))},
+  {role:'어린 루돌프',bottom:true,hideNames:true,x:540,y:785,w:104,pw:24,actors:named('어린 루돌프',['박지호','박태온','한라온'])},
+  {role:'앙상블',bottom:true,hideNames:true,x:20,y:850,w:370,pw:24,columns:8,actors:named('앙상블',['전선진','김경태','송주영','장여진','김요한','오태희','오민석','이슬아','전주일','곽동기','한수인','홍유진','김동훈','정인서','박찬희'])},
+  {role:'죽음의 천사들',bottom:true,hideNames:true,x:410,y:850,w:235,pw:24,columns:4,actors:named('죽천',['박세형','박상봉','함승윤','조승민','김규범','배형빈','정규진'])}
 ];
 const allActors=groups.flatMap(g=>g.actors);
 const loads=[];
@@ -192,8 +192,11 @@ window.previewReady=Promise.all([...loads,document.fonts.ready]).then(()=>{
     assert(unwanted.every(text=>!document.getElementById('board').innerText.includes(text)),'Removed text or encoding error');
     assert(document.fonts.check('16px "Cafe24 Ssurround Air"','엘리자벳'),'Service body font');
     assert([...document.querySelectorAll('.group')].filter(group=>['엘리자벳의 측근들','황실 세력가들','어린 루돌프','앙상블','죽음의 천사들'].includes(group.querySelector('.role').textContent)).every(group=>!group.querySelector('.name')),'Lower cast names must stay hidden');
-    window.setPairCombinations([{names:['린아','카이'],watched:1,total:3}]);
-    assert(!pairBox.hidden&&pairList.children.length===1&&pairList.firstElementChild.children.length===2,'Plain pair text and counts');
+    window.setPairCombinations(Array.from({length:4},()=>({names:['린아','카이'],watched:1,total:3})));
+    assert(!pairBox.hidden&&pairList.children.length===4&&pairList.firstElementChild.children.length===2,'Plain pair text and counts');
+    const pairRect=pairBox.getBoundingClientRect(),stageRect=document.querySelector('.stage-vector').getBoundingClientRect();
+    assert(pairRect.bottom<=stageRect.top&&pairRect.left>=document.querySelector('.subtitle').getBoundingClientRect().right,'Pairs fit between heading and stage');
+    assert([...document.querySelectorAll('.group.bottom')].every(group=>group.getBoundingClientRect().right<=document.querySelector('.seat-panel').getBoundingClientRect().left),'Lower actors stay left of seats');
     window.setPairCombinations();
     assert(pairBox.hidden&&!document.getElementById('board').innerText.includes('페어 조합'),'Empty pair section must be absent');
     const expectedSeats=SEAT_MAP.floors.reduce((sum,floor)=>sum+floor.rows.reduce((n,row)=>n+seatRowCells(floor,row).length,0),0);

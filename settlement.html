@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-io2VgK4cS3as0eVV89oB3XuNiDTru6+4HsByiH0wQAE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-1tlYSIAQF9dmkqLPhG8y8oBsD/ng2i1YKCvhOzWlJ9I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -221,21 +221,26 @@ a { color:var(--accent); text-decoration:none; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); align-items:center; }
-/* 공유 경계는 위/왼쪽만 그리고, 노출된 아래/오른쪽은 셀 밖 격자선에 그려 꼭짓점을 맞춘다. */
+/* 공유 경계는 위/왼쪽만 그리고, 노출된 아래/오른쪽만 더한다. */
 .seat {
   width:var(--seat); height:var(--seat-h, var(--seat));
   min-width:var(--seat); min-height:var(--seat-h, var(--seat));
   max-width:var(--seat); max-height:var(--seat-h, var(--seat));
   border:0; box-sizing:border-box;
   --stroke:1px; --stroke-l:var(--ink-55); --stroke-t:var(--ink-55); --stroke-e:var(--ink-55);
-  background:var(--paper-3); cursor:default;
-  box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t);
+  --stroke-r:transparent; --stroke-b:transparent;
+  background-color:var(--paper-3);
+  box-shadow:
+    inset var(--stroke) 0 0 var(--stroke-l),
+    inset 0 var(--stroke) 0 var(--stroke-t),
+    inset calc(0px - var(--stroke)) 0 0 var(--stroke-r),
+    inset 0 calc(0px - var(--stroke)) 0 var(--stroke-b);
+  cursor:default;
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
 }
-.seat.edge-r { box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t),var(--stroke) 0 0 var(--stroke-e); }
-.seat.edge-b { box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t),0 var(--stroke) 0 var(--stroke-e); }
-.seat.edge-r.edge-b { box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t),var(--stroke) var(--stroke) 0 var(--stroke-e); }
+.seat.edge-r { --stroke-r:var(--stroke-e); }
+.seat.edge-b { --stroke-b:var(--stroke-e); }
 .seat.strong-l { --stroke-l:var(--ink); }
 .seat.strong-t { --stroke-t:var(--ink); }
 .seatrow .rl {
@@ -256,7 +261,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seatrow { gap:0; }
 .is-fit .seat {
-  --stroke:.8px;
+  --stroke:.5px;
   overflow:hidden;
   font-size:calc(var(--seat) * .66); font-weight:700;
   color:var(--ink-72);                             /* 5의 배수 방향표시 */
@@ -265,7 +270,7 @@ a { color:var(--accent); text-decoration:none; }
   color:var(--ink);
   --stroke-l:var(--ink); --stroke-t:var(--ink); --stroke-e:var(--ink);
 }
-.is-fit .seat.nofill { background:var(--ink-14); }
+.is-fit .seat.nofill { background-color:var(--ink-14); }
 .is-fit .map-hint { display:none; }
 @media (max-width:600px) {
   .is-fit .seatmap {
@@ -754,7 +759,7 @@ function seatMapHTML (list) {
       const cells = floorRows[ri].map(c => {
         const n = counts.get(c.id) || 0;
         const fill = n ? visitHex(n) : null;
-        const style = `grid-column:${c.gc}` + (fill ? `;background:${fill}` : '');
+        const style = `grid-column:${c.gc}` + (fill ? `;background-color:${fill}` : '');
         const label = `${seatLabel(c.id)}${n ? ' · ' + n + '회' : ''}`;
         const edges = [
           !current.has(c.gc + 1) && 'edge-r',
