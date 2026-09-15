@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-Uf2xL6yXbVT4d05hzkQunM0nAYgdp4fUSKvCO3QLly8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-io2VgK4cS3as0eVV89oB3XuNiDTru6+4HsByiH0wQAE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -221,16 +221,21 @@ a { color:var(--accent); text-decoration:none; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); align-items:center; }
+/* 공유 경계는 아래/오른쪽 좌석이 한 번만, 노출된 끝 경계는 현재 좌석이 그린다. */
 .seat {
   width:var(--seat); height:var(--seat-h, var(--seat));
   min-width:var(--seat); min-height:var(--seat-h, var(--seat));
   max-width:var(--seat); max-height:var(--seat-h, var(--seat));
-  border:1px solid var(--ink-55); box-sizing:border-box;
+  border:0; border-top:1px solid var(--ink-55); border-left:1px solid var(--ink-55); box-sizing:border-box;
   background:var(--paper-3); cursor:default;
   box-shadow:none;
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
 }
+.seat.edge-r { border-right:1px solid var(--ink-55); }
+.seat.edge-b { border-bottom:1px solid var(--ink-55); }
+.seat.strong-l { border-left-color:var(--ink); }
+.seat.strong-t { border-top-color:var(--ink); }
 .seatrow .rl {
   font-family:var(--mono); font-size:calc(var(--seat) * .6); line-height:1;
   color:var(--ink-55); text-align:center; white-space:nowrap; align-self:center; grid-row:1;
@@ -421,7 +426,6 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 .map-overview .map-hint { display:none; }
 .map-overview .is-fit { --map-w:780px; }
 .map-overview .is-fit .seatmap { --seat:15px; --seat-h:15px; --aisle:10px; }
-.map-overview .is-fit .seat.on { border:2px solid var(--ink); }
 .map-overview .seatmap-scroll { margin:0; overflow:visible; }
 </style>
 
@@ -738,14 +742,23 @@ function seatMapHTML (list) {
       return `<span class="rl" style="grid-column:${gc}/span ${AISLE_W}">${r}</span>`;
     }).join('');
 
-    const rows = floor.rows.map(row => {
-      const cells = seatRowCells(floor, row).map(c => {
+    const floorRows = floor.rows.map(row => seatRowCells(floor, row));
+    const rowCounts = floorRows.map(cells => new Map(cells.map(c => [c.gc, counts.get(c.id) || 0])));
+    const rows = floor.rows.map((row, ri) => {
+      const current = rowCounts[ri], above = rowCounts[ri - 1], below = rowCounts[ri + 1];
+      const cells = floorRows[ri].map(c => {
         const n = counts.get(c.id) || 0;
         const fill = n ? visitHex(n) : null;
         const style = `grid-column:${c.gc}` + (fill ? `;background:${fill}` : '');
         const label = `${seatLabel(c.id)}${n ? ' · ' + n + '회' : ''}`;
+        const edges = [
+          !current.has(c.gc + 1) && 'edge-r',
+          !below?.has(c.gc) && 'edge-b',
+          !n && current.get(c.gc - 1) && 'strong-l',
+          !n && above?.get(c.gc) && 'strong-t'
+        ].filter(Boolean).join(' ');
         // 방문 좌석은 항상 번호를, 나머지는 5의 배수만 옅게 (칸이 작아 다 넣으면 못 읽는다)
-        return `<span class="seat${n ? ' on' : ''}${n && !fill ? ' nofill' : ''}" style="${style}"
+        return `<span class="seat${n ? ' on' : ''}${n && !fill ? ' nofill' : ''}${edges ? ' ' + edges : ''}" style="${style}"
                   role="img" aria-label="${label}"
                 >${(n || +c.no % 5 === 0) ? c.no : ''}</span>`;
       }).join('');
