@@ -112,7 +112,8 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
 
   const exportHtml = fs.readFileSync(path.join(root, 'settlement-export.html'), 'utf8');
   assert.match(exportHtml, /\.seat-cell\{width:16px;height:16px;border:1px/);
-  assert.match(exportHtml, /\.seat-floors\{display:flex;flex-direction:column;gap:10px\}/);
+  assert.match(exportHtml, /\.seat-floors\{display:flex;flex-direction:column;gap:18px\}/);
+  assert.match(exportHtml, /\.seat-cell\.on\{border:2px solid #f1e5cf;box-shadow:none\}/);
   assert.match(exportHtml, /\.legend\{left:1091px;top:162px/);
 });
 
