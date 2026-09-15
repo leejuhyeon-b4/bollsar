@@ -221,21 +221,23 @@ a { color:var(--accent); text-decoration:none; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); align-items:center; }
-/* 공유 경계는 아래/오른쪽 좌석이 한 번만, 노출된 끝 경계는 현재 좌석이 그린다. */
+/* 공유 경계는 위/왼쪽만 그리고, 노출된 아래/오른쪽은 셀 밖 격자선에 그려 꼭짓점을 맞춘다. */
 .seat {
   width:var(--seat); height:var(--seat-h, var(--seat));
   min-width:var(--seat); min-height:var(--seat-h, var(--seat));
   max-width:var(--seat); max-height:var(--seat-h, var(--seat));
-  border:0; border-top:1px solid var(--ink-55); border-left:1px solid var(--ink-55); box-sizing:border-box;
+  border:0; box-sizing:border-box;
+  --stroke:1px; --stroke-l:var(--ink-55); --stroke-t:var(--ink-55); --stroke-e:var(--ink-55);
   background:var(--paper-3); cursor:default;
-  box-shadow:none;
+  box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t);
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
 }
-.seat.edge-r { border-right:1px solid var(--ink-55); }
-.seat.edge-b { border-bottom:1px solid var(--ink-55); }
-.seat.strong-l { border-left-color:var(--ink); }
-.seat.strong-t { border-top-color:var(--ink); }
+.seat.edge-r { box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t),var(--stroke) 0 0 var(--stroke-e); }
+.seat.edge-b { box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t),0 var(--stroke) 0 var(--stroke-e); }
+.seat.edge-r.edge-b { box-shadow:inset var(--stroke) 0 0 var(--stroke-l),inset 0 var(--stroke) 0 var(--stroke-t),var(--stroke) var(--stroke) 0 var(--stroke-e); }
+.seat.strong-l { --stroke-l:var(--ink); }
+.seat.strong-t { --stroke-t:var(--ink); }
 .seatrow .rl {
   font-family:var(--mono); font-size:calc(var(--seat) * .6); line-height:1;
   color:var(--ink-55); text-align:center; white-space:nowrap; align-self:center; grid-row:1;
@@ -254,13 +256,14 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seatrow { gap:0; }
 .is-fit .seat {
+  --stroke:.8px;
   overflow:hidden;
   font-size:calc(var(--seat) * .66); font-weight:700;
   color:var(--ink-72);                             /* 5의 배수 방향표시 */
 }
 .is-fit .seat.on {                                 /* 방문 좌석 — 번호·테두리 진하게 */
   color:var(--ink);
-  border-color:var(--ink);
+  --stroke-l:var(--ink); --stroke-t:var(--ink); --stroke-e:var(--ink);
 }
 .is-fit .seat.nofill { background:var(--ink-14); }
 .is-fit .map-hint { display:none; }
@@ -427,6 +430,7 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 .map-overview .map-hint { display:none; }
 .map-overview .is-fit { --map-w:780px; }
 .map-overview .is-fit .seatmap { --seat:15px; --seat-h:15px; --aisle:10px; }
+.map-overview .is-fit .seat { --stroke:1px; }
 .map-overview .seatmap-scroll { margin:0; overflow:visible; }
 </style>
 

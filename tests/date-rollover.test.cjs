@@ -98,9 +98,9 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   assert.match(html, /--seat:11px;/);
   assert.match(html, /\.map-overview \.is-fit \.seatmap \{ --seat:15px; --seat-h:15px; --aisle:10px; \}/);
   assert.match(html, /--aisle:round\(down, calc\(\(var\(--map-w\) - var\(--map-seats\) \* var\(--seat\)\) \/ var\(--map-aisles\)\), 1px\)/);
-  assert.match(html, /border:0; border-top:1px solid var\(--ink-55\); border-left:1px solid var\(--ink-55\)/);
-  assert.match(html, /\.seat\.edge-r \{ border-right:1px solid var\(--ink-55\); \}/);
-  assert.match(html, /\.seat\.edge-b \{ border-bottom:1px solid var\(--ink-55\); \}/);
+  assert.match(html, /--stroke:.8px;/);
+  assert.match(html, /\.map-overview \.is-fit \.seat \{ --stroke:1px; \}/);
+  assert.match(html, /\.seat\.edge-r\.edge-b \{ box-shadow:[^}]*var\(--stroke\) var\(--stroke\) 0 var\(--stroke-e\)/);
   assert.doesNotMatch(html, /\.map-overview \.is-fit \.seat\.on \{ border:2px/);
   assert.doesNotMatch(html, /\.is-fit \.seat\.on[^}]*box-shadow/s);
   assert.match(html, /--map-seats:\$\{mapSeats\};--map-aisles:\$\{mapAisles\}/);
