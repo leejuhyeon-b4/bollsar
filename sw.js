@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v20';
+const CACHE_VERSION = 'v21';
 const CACHE_PREFIX = 'hongcal-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['aebaeryeok-'];

@@ -95,6 +95,9 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   assert.doesNotMatch(mast, /np-preview/);
   assert.match(html, /<dialog class="map-overview"/);
   assert.match(html, /\.map-overview \.is-fit \{ --map-w:780px; \}/);
+  assert.match(html, /--seat:12px;/);
+  assert.match(html, /\.map-overview \.is-fit \.seatmap \{ --seat:15px; --aisle:10px; \}/);
+  assert.match(html, /--map-seats:\$\{mapSeats\};--map-aisles:\$\{mapAisles\}/);
   assert.match(html, /content\.style\.zoom = overviewZoom/);
   assert.match(html, /aisleScale = \.35/);
   assert.match(html, /font-family:var\(--mono\); line-height:1; padding:0; grid-row:1;/);
@@ -103,4 +106,7 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   assert.match(html, /class="np-btn sm js-map-zoom-out"/);
   assert.doesNotMatch(html, /overflow-x:scroll/);
   assert.doesNotMatch(html, /\.seatmap-scroll::after/);
+
+  const exportHtml = fs.readFileSync(path.join(root, 'settlement-export.html'), 'utf8');
+  assert.match(exportHtml, /\.seat-cell\{width:16px;height:16px;border:1px/);
 });

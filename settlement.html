@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-YtNTwEZG8DFalf26c4iMnKEco/N83WrOaqSC4f6DTlQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-WsHWsUXWMpUKpuy3qlNl9l/y+bI+3PFuNNoOmQ6z14g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -226,8 +226,7 @@ a { color:var(--accent); text-decoration:none; }
   max-width:var(--seat); max-height:var(--seat); aspect-ratio:1;
   border:0; box-sizing:border-box;
   background:var(--paper-3); cursor:default;
-  /* 변경 전 확대 보기와 같은 1px 외곽선. 네 면을 좌석 크기 밖에 동일하게 그린다. */
-  box-shadow:0 0 0 1px var(--ink-55);
+  box-shadow:0 0 0 1px var(--ink-40);
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
 }
@@ -236,13 +235,13 @@ a { color:var(--accent); text-decoration:none; }
   color:var(--ink-55); text-align:center; white-space:nowrap; align-self:center; grid-row:1;
 }
 
-/* 가장 넓은 층(54칸)을 지면 폭에 맞춰 역산 — 모바일도 가로 스크롤 없이 한눈에 본다. */
-.is-fit { --map-w:calc(min(600px, 100vw) - 12px); }
-.is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:hidden; }
+/* 좌석은 정수 픽셀로, 반올림 뒤 남는 폭은 복도에 배분해 열 끝을 반듯하게 유지한다. */
+.is-fit { --map-w:min(600px, calc(100vw - 4px)); }
+.is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:visible; }
 .is-fit .seatmaps { width:var(--map-w); margin-inline:auto; }
 .is-fit .seatmap {
-  --seat:calc(var(--map-w) / var(--map-cols));
-  --aisle:calc(var(--seat) * var(--aisle-scale));
+  --seat:12px;
+  --aisle:calc((var(--map-w) - var(--map-seats) * var(--seat)) / var(--map-aisles));
   gap:0; overflow:visible;
   align-items:center;
 }
@@ -259,6 +258,9 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seat.nofill { background:var(--ink-14); }
 .is-fit .map-hint { display:none; }
+@media (max-width:600px) {
+  .is-fit .seatmap { --seat:round(down, calc(var(--map-w) / var(--map-cols)), 1px); }
+}
 
 /* ═══ 앉은 횟수별 색 고르기 — 팔레트와 함께 좌석배치도 위로 ═══ */
 .lv-picker { margin:6px 0 12px; }
@@ -415,6 +417,7 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 }
 .map-overview .map-hint { display:none; }
 .map-overview .is-fit { --map-w:780px; }
+.map-overview .is-fit .seatmap { --seat:15px; --aisle:10px; }
 .map-overview .seatmap-scroll { margin:0; overflow:visible; }
 </style>
 
@@ -720,6 +723,8 @@ function seatMapHTML (list) {
     return { floor, g, occupied, aisleCols, units };
   });
   const mapCols = Math.max(...floorGrids.map(({ units }) => units));
+  const mapSeats = Math.max(...floorGrids.map(({ occupied }) => occupied.size));
+  const mapAisles = Math.max(...floorGrids.map(({ aisleCols }) => aisleCols.size));
 
   const floors = floorGrids.map(({ floor, g, occupied, aisleCols }) => {
     const tracks = Array.from({ length:g.cols }, (_, i) =>
@@ -752,7 +757,7 @@ function seatMapHTML (list) {
     </div>`;
   }).join('');
 
-  return `<div class="is-fit" style="--map-cols:${mapCols};--aisle-scale:${aisleScale}"><p class="map-hint">← 좌우로 밀어서 전체 보기 →</p><div class="seatmap-scroll"><div class="seatmaps">${floors}</div></div></div>`;
+  return `<div class="is-fit" style="--map-cols:${mapCols};--map-seats:${mapSeats};--map-aisles:${mapAisles}"><p class="map-hint">← 좌우로 밀어서 전체 보기 →</p><div class="seatmap-scroll"><div class="seatmaps">${floors}</div></div></div>`;
 }
 
 /* ── 관극 기록 (실제로 본 회차 목록) ── */
