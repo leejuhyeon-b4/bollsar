@@ -222,9 +222,9 @@ a { color:var(--accent); text-decoration:none; }
 .seatmap { display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
 .seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); align-items:center; }
 .seat {
-  width:calc(var(--seat) + 1px); height:calc(var(--seat-h, var(--seat)) + 1px);
-  min-width:calc(var(--seat) + 1px); min-height:calc(var(--seat-h, var(--seat)) + 1px);
-  max-width:calc(var(--seat) + 1px); max-height:calc(var(--seat-h, var(--seat)) + 1px);
+  width:var(--seat); height:var(--seat-h, var(--seat));
+  min-width:var(--seat); min-height:var(--seat-h, var(--seat));
+  max-width:var(--seat); max-height:var(--seat-h, var(--seat));
   border:1px solid var(--ink-55); box-sizing:border-box;
   background:var(--paper-3); cursor:default;
   box-shadow:none;
@@ -254,7 +254,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seat.on {                                 /* 방문 좌석 — 번호·테두리 진하게 */
   color:var(--ink);
-  border:2px solid var(--ink);
+  border-color:var(--ink);
 }
 .is-fit .seat.nofill { background:var(--ink-14); }
 .is-fit .map-hint { display:none; }
@@ -421,6 +421,7 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 .map-overview .map-hint { display:none; }
 .map-overview .is-fit { --map-w:780px; }
 .map-overview .is-fit .seatmap { --seat:15px; --seat-h:15px; --aisle:10px; }
+.map-overview .is-fit .seat.on { border:2px solid var(--ink); }
 .map-overview .seatmap-scroll { margin:0; overflow:visible; }
 </style>
 
