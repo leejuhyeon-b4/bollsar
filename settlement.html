@@ -224,10 +224,10 @@ a { color:var(--accent); text-decoration:none; }
 .seat {
   width:var(--seat); height:var(--seat); min-width:var(--seat); min-height:var(--seat);
   max-width:var(--seat); max-height:var(--seat); aspect-ratio:1;
-  border:.5px solid var(--ink-55); box-sizing:border-box;
+  border:0; box-sizing:border-box;
   background:var(--paper-3); cursor:default;
-  /* 확대 보기와 같은 빈틈 없는 정사각형을 유지한다. */
-  box-shadow:none;
+  /* 변경 전 확대 보기와 같은 1px 외곽선. 네 면을 좌석 크기 밖에 동일하게 그린다. */
+  box-shadow:0 0 0 1px var(--ink-55);
   display:grid; place-items:center;
   font-family:var(--mono); line-height:1; padding:0; grid-row:1;
 }
@@ -243,7 +243,7 @@ a { color:var(--accent); text-decoration:none; }
 .is-fit .seatmap {
   --seat:calc(var(--map-w) / var(--map-cols));
   --aisle:calc(var(--seat) * var(--aisle-scale));
-  gap:0; overflow:hidden;
+  gap:0; overflow:visible;
   align-items:center;
 }
 .is-fit .seatrow { gap:0; }
@@ -254,7 +254,7 @@ a { color:var(--accent); text-decoration:none; }
 }
 .is-fit .seat.on {                                 /* 방문 좌석 — 번호·테두리 진하게 */
   color:var(--ink);
-  border-color:var(--ink); box-shadow:none;
+  box-shadow:0 0 0 1px var(--ink), inset 0 0 0 1px var(--ink);
   z-index:1;
 }
 .is-fit .seat.nofill { background:var(--ink-14); }
