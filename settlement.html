@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-WsHWsUXWMpUKpuy3qlNl9l/y+bI+3PFuNNoOmQ6z14g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-AgmMOVUw4SGpjgrAaF1KdGBTRKI6T8pYC3FuSXG8JWw=' 'sha256-oiKWhLLFeEk79zLhviU2xX4zKMX4OzXMF58sYmtnzrQ=' 'sha256-Uf2xL6yXbVT4d05hzkQunM0nAYgdp4fUSKvCO3QLly8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -514,7 +514,7 @@ function enter () {
 let loggedIn    = false;
 let hongOnly    = true;    // 📌 기본값 — 강홍석 회차만. 한 번 더 누르면 전 회차.
 let completedOnly = true;  // 기본값 — 오늘 이전에 끝난 회차만 정산한다.
-let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id } — 유저가 끌어다 바꾼다
+let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id }
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
 let seatMapCentered = false;                    // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
 let overviewZoom = 1;
@@ -681,9 +681,7 @@ function bodyHTML () {
   </section>`;
 }
 
-/* ── 색 팔레트 (좌석배치도 헤더 · 장소명 옆 여백에) ──
-   팔레트에서 색을 끌어다 아래 횟수 칸에 놓으면 확정. 터치 기기에선 드래그가 잘 안 먹어서
-   "색을 한 번 눌러 든 다음 칸을 누르는" 방식도 같이 받는다. ── */
+/* ── 색 팔레트 (좌석배치도 헤더 · 장소명 옆 여백에) ── */
 function paletteHTML () {
   return `<div class="palette" role="group" aria-label="좌석 색 팔레트">${
     SEAT_COLORS.map(c => `<button type="button" class="pal js-pal" draggable="true" data-color="${c.id}"
@@ -691,7 +689,7 @@ function paletteHTML () {
       aria-pressed="${c.id === heldColor}"></button>`).join('')}</div>`;
 }
 
-/* ── 앉은 횟수별 색 칸 (드롭 타깃) ── */
+/* ── 앉은 횟수별 색 칸 ── */
 function slotsHTML () {
   const slots = VISIT_LEVELS.map(n => {
     const hex = visitHex(n);
@@ -705,7 +703,7 @@ function slotsHTML () {
   return `<div class="lv-picker">
     <p class="field-lbl">앉은 횟수별 색 ${heldColor
       ? `<b class="held">— ${(SEAT_COLORS.find(c => c.id === heldColor) || {}).label} 들고 있음 · 칸을 누르세요.</b>`
-      : '— 위 팔레트에서 색을 칸으로 끌어다 놓으세요.'}</p>
+      : '— 위에서 색을 선택하고, 아래 관람 횟수 칸을 눌러 지정하세요.'}</p>
     <div class="lv-slots">${slots}</div>
   </div>`;
 }

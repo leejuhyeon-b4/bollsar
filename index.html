@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-O60D1oKRQ6MkQE2e1UrLA+Zq4Qc+puUW6kDBKcDdNS8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-nfpkCVOiYzAgA8cFseIODglCS09nxWIHeF2iUn+bqRw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="홍캘">
 <meta name="mobile-web-app-capable" content="yes">
@@ -333,16 +333,10 @@ a { color:var(--accent); text-decoration:none; }
 .np-cast caption span { color:var(--ink-55); letter-spacing:.02em; text-transform:none; }
 .np-cast th, .np-cast td { text-align:left; padding:7px 0; border-bottom:1px solid var(--ink-14); vertical-align:top; }
 .np-cast th { width:70px; font-weight:600; color:var(--ink-55); font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
-.np-cast .you { font-weight:700; }
-.np-cast .on { font-weight:inherit; }
-.np-cast .you .on::after {
-  content:"강홍석"; margin-left:6px;
-  font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.04em;
-  color:var(--paper); background:var(--ink); padding:1px 5px;
-}
+.np-cast .on { display:inline-block; padding:2px 6px; background:var(--ink); color:var(--paper); font-weight:700; }
 .np-cast .alt {
-  display:block; margin-top:3px; font-weight:600;
-  font-family:var(--mono); font-size:12px; letter-spacing:.02em; color:var(--ink-60);
+  display:block; margin-top:4px; font-weight:500;
+  font-family:var(--mono); font-size:11px; letter-spacing:.02em; color:var(--ink-45);
 }
 .np-badges { display:flex; flex-wrap:wrap; gap:5px; margin-top:12px; }
 .np-badge { font-family:var(--mono); font-size:12px; letter-spacing:.05em; border:1px solid var(--ink-28); padding:2px 6px; color:var(--ink-60); }
@@ -512,7 +506,7 @@ function leadHTML () {
   let deck;
   if ((p.events || []).length) deck = `${p.events.map(e => e.label).join(' · ')} 등 회차 이벤트가 예정돼 있습니다.`;
   else if (p.history) deck = `직전 캐스팅 변경이 반영된 회차입니다.`;
-  else deck = `${ACTORS[HONG].name} 출연 예정 회차입니다.`;
+  else deck = `${ACTORS[HONG].name} 배우의 출연이 예정된 회차입니다.`;
 
   return `<section class="np-lead">
     <div class="np-lead-text">
@@ -680,7 +674,7 @@ function sheetHTML (p) {
     if (!a) return '';
     const alts = r.actors.filter(x => x !== a);
     const altHTML = alts.length ? `<span class="alt">${alts.map(actorName).join(' · ')}</span>` : '';
-    return `<tr><th>${r.name}</th><td class="${a === HONG ? 'you' : ''}"><span class="on">${actorName(a)}</span>${altHTML}</td></tr>`;
+    return `<tr><th>${r.name}</th><td><span class="on">${actorName(a)}</span>${altHTML}</td></tr>`;
   }).join('');
 
   const events = p.events || [];
@@ -717,7 +711,7 @@ function sheetHTML (p) {
     ${dayNav}
     <div class="np-hr"></div>
     <table class="np-cast">
-      <caption>이 회차 캐스팅 <span>· 해당 배역의 다른 캐스팅</span></caption>
+      <caption>이 회차 캐스팅</caption>
       <tbody>${rows}</tbody>
     </table>
     ${evHTML}${hist}${check}`;
