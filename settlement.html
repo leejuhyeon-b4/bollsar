@@ -246,7 +246,8 @@ a { color:var(--accent); text-decoration:none; }
 .is-fit .seatmap-scroll { margin-inline:calc(var(--pad) * -1); overflow-x:visible; }
 .is-fit .seatmaps { width:var(--map-w); margin-inline:auto; }
 .is-fit .seatmap {
-  --seat:12px;
+  --seat:11px;
+  --seat-h:var(--seat);
   --aisle:round(down, calc((var(--map-w) - var(--map-seats) * var(--seat)) / var(--map-aisles)), 1px);
   gap:0; overflow:visible;
   align-items:center;
@@ -265,8 +266,8 @@ a { color:var(--accent); text-decoration:none; }
 .is-fit .map-hint { display:none; }
 @media (max-width:600px) {
   .is-fit .seatmap {
-    --seat:round(down, calc(var(--map-w) / var(--map-cols)), 1px);
-    --seat-h:calc(var(--seat) + 1px);
+    --seat:min(11px, round(down, calc(var(--map-w) / var(--map-cols)), 1px));
+    --seat-h:var(--seat);
   }
 }
 
@@ -474,7 +475,7 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
   <img id="savePreviewImage" alt="저장할 정산판 미리보기">
   <p id="savePreviewTitle">이 이미지로 저장할까요?</p>
   <div class="save-preview-actions">
-    <button type="button" class="np-btn solid js-save-confirm">저장하기</button>
+    <button type="button" class="np-btn solid js-save-confirm">지금 저장하기</button>
     <button type="button" class="np-btn ghost js-save-later">나중에 저장하기</button>
   </div>
 </dialog>

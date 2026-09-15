@@ -95,7 +95,7 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
   assert.doesNotMatch(mast, /np-preview/);
   assert.match(html, /<dialog class="map-overview"/);
   assert.match(html, /\.map-overview \.is-fit \{ --map-w:780px; \}/);
-  assert.match(html, /--seat:12px;/);
+  assert.match(html, /--seat:11px;/);
   assert.match(html, /\.map-overview \.is-fit \.seatmap \{ --seat:15px; --seat-h:15px; --aisle:10px; \}/);
   assert.match(html, /--aisle:round\(down, calc\(\(var\(--map-w\) - var\(--map-seats\) \* var\(--seat\)\) \/ var\(--map-aisles\)\), 1px\)/);
   assert.match(html, /border:0; border-top:1px solid var\(--ink-55\); border-left:1px solid var\(--ink-55\)/);
@@ -115,6 +115,9 @@ test('settlement shares one seat-map scroller and unlocks every performance', ()
 
   const exportHtml = fs.readFileSync(path.join(root, 'settlement-export.html'), 'utf8');
   assert.match(exportHtml, /\.seat-cell\{width:16px;height:16px;border:1px/);
+  assert.match(exportHtml, /occupied\.has\(i\+1\)\?'16px':aisleCols\.has\(i\+1\)\?'10px':'0px'/);
+  assert.match(exportHtml, /\.seat-row\{display:grid;height:16px;align-items:center\}/);
+  assert.match(exportHtml, /\.seat-row\{grid-template-rows:16px\}/);
   assert.match(exportHtml, /\.seat-floors\{display:flex;flex-direction:column;gap:18px\}/);
   assert.match(exportHtml, /\.seat-cell\.on\{border:2px solid #f1e5cf;box-shadow:none\}/);
   assert.match(exportHtml, /\.legend\{left:1091px;top:162px/);
