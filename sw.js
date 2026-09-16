@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v36';
+const CACHE_VERSION = 'v37';
 const CACHE_PREFIX = 'hongcal-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['aebaeryeok-'];
@@ -7,6 +7,7 @@ const APP_SHELL = [
   './',
   './index.html',
   './settlement.html',
+  './settlement-app.js',
   './settlement-export.html',
   './settlement-export.js',
   './seat-lines.js',
