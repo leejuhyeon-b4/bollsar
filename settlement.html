@@ -436,9 +436,13 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 .map-overview .is-fit .seatmap { --seat:15px; --seat-h:15px; --aisle:10px; }
 .map-overview .is-fit .seat { --stroke:1px; }
 .map-overview .seatmap-scroll { margin:0; overflow:visible; }
+
+/* Seat cells provide geometry/fill only. Borders are rendered once by seat-lines.js. */
+.seat { border:0 !important; box-shadow:none !important; }
 </style>
 
 <script src="ref/gsap.min.js"></script>
+<script src="seat-lines.js"></script>
 <script>
 (function () {
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

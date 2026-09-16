@@ -174,6 +174,8 @@ window.previewReady=Promise.all([...loads,document.fonts.ready]).then(()=>{
 
 window.exportSettlementPng=async()=>{
   await window.previewReady;
+  window.SeatLines?.renderExport(document);
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   const canvas=await html2canvas(document.getElementById('board'),{
     scale:2,width:1586,height:992,backgroundColor:null,logging:false,useCORS:false
   });
