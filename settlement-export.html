@@ -26,6 +26,60 @@ canvas{display:block;width:100%;height:100%}.name{font-size:12px;line-height:18p
 .seat-row{grid-template-rows:16px}
 .seat-cell{width:16px;height:16px;border:1px solid rgba(232,220,201,.78);box-shadow:none;align-self:start;justify-self:start}
 .seat-cell.on{border:2px solid #f1e5cf;box-shadow:none}
+
+/* seat geometry v2
+   공유 경계는 한 번만 그린다.
+   하단 캐스팅은 모든 행을 동일한 gap으로 중앙 정렬한다. */
+.group.bottom {
+  text-align:center;
+}
+.group.bottom .role {
+  text-align:center;
+}
+.group.bottom .actors {
+  justify-content:center;
+  gap:4px;
+}
+
+.seat-row {
+  grid-template-rows:16px;
+  height:16px;
+  align-items:stretch;
+}
+
+.seat-cell {
+  width:16px;
+  height:16px;
+  align-self:stretch;
+  justify-self:stretch;
+  box-shadow:none;
+
+  --seat-line:rgba(232,220,201,.78);
+
+  border:1px solid transparent;
+  border-left-color:var(--seat-line);
+  border-top-color:var(--seat-line);
+}
+
+/* 관람좌석도 굵기를 키우지 않고 색만 선명하게 */
+.seat-cell.on {
+  --seat-line:#f1e5cf;
+  border:1px solid transparent;
+  border-left-color:var(--seat-line);
+  border-top-color:var(--seat-line);
+  box-shadow:none;
+}
+
+/* 인접 좌석이 없는 면만 외곽선 추가 */
+.seat-cell.edge-r,
+.seat-cell.on.edge-r {
+  border-right-color:var(--seat-line);
+}
+
+.seat-cell.edge-b,
+.seat-cell.on.edge-b {
+  border-bottom-color:var(--seat-line);
+}
 </style>
 </head>
 <body>
@@ -92,7 +146,7 @@ for(const group of groups){
   const columns=group.columns||group.actors.length;
   for(let start=0;start<group.actors.length;start+=columns){
     const row=document.createElement('div');row.className='actors';
-    if(start){row.style.marginTop='6px';row.style.justifyContent='center';row.style.gap=(group.w/columns-group.pw-8)+'px';}
+    if(start){row.style.marginTop='6px';}
     for(const item of group.actors.slice(start,start+columns)){
       const card=document.createElement('div');card.className='actor';card.style.width=group.w/columns-6+'px';
       const frame=document.createElement('div');frame.className='portrait';frame.style.width=group.pw+8+'px';frame.style.height=group.pw*4/3+8+'px';
@@ -143,13 +197,22 @@ for(const floor of SEAT_MAP.floors){
   const tracks=Array.from({length:meta.cols},(_,i)=>occupied.has(i+1)?'16px':aisleCols.has(i+1)?'10px':'0px').join(' ');
   wrap.innerHTML=`<div class="seat-floor-title">${floor.label}</div><div class="seat-rows"></div>`;
   const rowsEl=wrap.querySelector('.seat-rows');
-  for(const row of floor.rows){
+  for(let ri=0;ri<floor.rows.length;ri++){
+    const row=floor.rows[ri];
+    const currentCols=new Set(seatRowCells(floor,row).map(cell=>cell.gc));
+    const belowRow=floor.rows[ri+1];
+    const belowCols=belowRow
+      ? new Set(seatRowCells(floor,belowRow).map(cell=>cell.gc))
+      : null;
     const line=document.createElement('div');line.className='seat-row';line.style.gridTemplateColumns=tracks;
     for(const gc of meta.labelGc.slice(1,-1)){
       const label=document.createElement('span');label.className='row-label';label.style.gridColumn=`${gc}/span ${AISLE_W}`;label.textContent=row.r;line.append(label);
     }
     for(const cell of seatRowCells(floor,row)){
-      const seat=document.createElement('span');seat.className='seat-cell';seat.dataset.seat=cell.id;seat.dataset.number=cell.no;seat.style.gridColumn=cell.gc;seat.textContent=Number(cell.no)%5===0?cell.no:'';seat.setAttribute('aria-label',`${floor.label} ${row.r}열 ${cell.no}번`);line.append(seat);
+      const seat=document.createElement('span');seat.className='seat-cell';seat.dataset.seat=cell.id;seat.dataset.number=cell.no;seat.style.gridColumn=cell.gc;seat.textContent=Number(cell.no)%5===0?cell.no:'';seat.setAttribute('aria-label',`${floor.label} ${row.r}열 ${cell.no}번`);
+      if(!currentCols.has(cell.gc+1))seat.classList.add('edge-r');
+      if(!belowCols?.has(cell.gc))seat.classList.add('edge-b');
+      line.append(seat);
     }
     rowsEl.append(line);
   }

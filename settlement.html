@@ -220,23 +220,21 @@ a { color:var(--accent); text-decoration:none; }
 .seatmap-scroll { position:relative; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
 .seatmap { position:relative; display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
-.seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); height:var(--seat-h, var(--seat)); align-items:center; gap:0; }
+.seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); height:var(--seat-h, var(--seat)); align-items:stretch; justify-items:stretch; width:max-content; gap:0; }
 /* 공유 경계는 위/왼쪽만 그리고, 노출된 아래/오른쪽만 더한다. */
 .seat {
   width:var(--seat); height:var(--seat-h, var(--seat));
   min-width:var(--seat); min-height:var(--seat-h, var(--seat));
   max-width:var(--seat); max-height:var(--seat-h, var(--seat));
   border:0; box-sizing:border-box;
-  --stroke:1px; --stroke-l:var(--ink-14); --stroke-t:var(--ink-14); --stroke-e:var(--ink-14);
+  --stroke:1px; --stroke-l:var(--ink-40); --stroke-t:var(--ink-40); --stroke-e:var(--ink-40);
   --stroke-r:transparent; --stroke-b:transparent;
   background-color:var(--paper-3);
-  box-shadow:
-    inset var(--stroke) 0 0 var(--stroke-l),
-    inset 0 var(--stroke) 0 var(--stroke-t),
-    inset calc(0px - var(--stroke)) 0 0 var(--stroke-r),
-    inset 0 calc(0px - var(--stroke)) 0 var(--stroke-b);
+  border-style:solid;
+  border-width:var(--stroke);
+  border-color:var(--stroke-t) var(--stroke-r) var(--stroke-b) var(--stroke-l);
   cursor:default;
-  display:grid; place-items:center; grid-row:1;
+  display:grid; place-items:center; grid-row:1; align-self:stretch; justify-self:stretch;
   font-family:var(--mono); line-height:1; padding:0;
 }
 .seat.edge-r { --stroke-r:var(--stroke-e); }
