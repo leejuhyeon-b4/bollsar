@@ -537,6 +537,7 @@ let heldColor   = null;                         // 터치용 — 팔레트에서
 let seatMapCentered = false;                    // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
 let overviewZoom = 1;
 const VISIT_COLOR_STORAGE_KEY = 'hongcal.visit-colors.v1';
+const FAVORITE_PAIR_STORAGE_KEY = 'hongcal.favorite-pairs.v1';
 let delMode     = false;      // 관극 기록 삭제 모드 — 켜면 각 칸 오른쪽 위에 ✕
 let newRecKey   = null;        // 기록 추가 폼 — 회차
 let newFloor    = '1';         //              — 층
@@ -545,6 +546,64 @@ let newNo       = null;        //              — 번호
 let pairFix     = {};         // { roleId: actorId }
 let favoritePairs = [];
 const FAVORITE_MAX = 4;
+
+const favoritePairStorageKey = () =>
+  `${FAVORITE_PAIR_STORAGE_KEY}.${authUserId() || 'local'}`;
+
+function loadFavoritePairs () {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(favoritePairStorageKey()) || '[]'
+    );
+
+    if (!Array.isArray(saved)) return [];
+
+    const valid = new Map(
+      ROLES.map(role => [role.id, new Set(role.actors)])
+    );
+
+    const result = [];
+    const seen = new Set();
+
+    for (const raw of saved) {
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue;
+
+      const fix = Object.fromEntries(
+        Object.entries(raw).filter(
+          ([role, actor]) => valid.get(role)?.has(actor)
+        )
+      );
+
+      if (!Object.keys(fix).length) continue;
+
+      const key = Object.entries(fix)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([role, actor]) => `${role}:${actor}`)
+        .join(',');
+
+      if (seen.has(key)) continue;
+
+      seen.add(key);
+      result.push(fix);
+
+      if (result.length >= FAVORITE_MAX) break;
+    }
+
+    return result;
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveFavoritePairs () {
+  try {
+    localStorage.setItem(
+      favoritePairStorageKey(),
+      JSON.stringify(favoritePairs)
+    );
+  } catch (_) {}
+}
+
 
 /* ═══ 집계 ═══ */
 function myRecords () {
@@ -1111,12 +1170,13 @@ function bind () {
     const key = pairFixKey(pairFix);
     if (favoritePairs.length >= FAVORITE_MAX || favoritePairs.some(f => pairFixKey(f) === key)) return;
     favoritePairs.push({ ...pairFix });
+    saveFavoritePairs();
     track('add_favorite_pair', {});
     render();
   });
 
   $$('.js-fav-remove').forEach(b =>
-    b.addEventListener('click', () => { favoritePairs.splice(+b.dataset.i, 1); render(); }));
+    b.addEventListener('click', () => { favoritePairs.splice(+b.dataset.i, 1); saveFavoritePairs(); render(); }));
 
   const save = $('.js-save');
   if (save) save.addEventListener('click', () => previewSettlementImage(save));
@@ -1167,6 +1227,7 @@ enter();
 mountAuth(isIn => {
   loggedIn = isIn;
   visitColors = loadVisitColors();
+  favoritePairs = loadFavoritePairs();
   render();
 });
 </script>

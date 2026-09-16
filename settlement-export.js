@@ -12,10 +12,10 @@ const named = (prefix,names) => names.map((name,i)=>actor(name,prefix+(i+1)));
 const groups = [
   {role:'엘리자벳',primary:true,x:32,y:229,w:327,pw:72,actors:['린아','박지연','이지혜','이지수'].map(n=>actor(n))},
   {role:'죽음',primary:true,x:348,y:229,w:319,pw:72,actors:['카이','김준수','서경수','고은성'].map(n=>actor(n))},
-  {role:'루이지 루케니',primary:true,centered:true,x:32,y:431,w:327,pw:64,actors:['박은태','강홍석','노윤'].map(n=>actor(n))},
-  {role:'프란츠 요제프',primary:true,centered:true,x:348,y:431,w:319,pw:64,actors:['민영기','박민성'].map(n=>actor(n))},
-  {role:'소피 대공비',primary:true,centered:true,x:32,y:625,w:327,pw:64,actors:['주아','서지영'].map(n=>actor(n))},
-  {role:'루돌프',primary:true,centered:true,x:348,y:625,w:319,pw:64,actors:['김우성','장윤석'].map(n=>actor(n))},
+  {role:'루이지 루케니',primary:true,centered:true,compact:true,x:32,y:431,w:327,pw:64,actors:['박은태','강홍석','노윤'].map(n=>actor(n))},
+  {role:'프란츠 요제프',primary:true,centered:true,compact:true,x:348,y:431,w:319,pw:64,actors:['민영기','박민성'].map(n=>actor(n))},
+  {role:'소피 대공비',primary:true,centered:true,compact:true,x:32,y:625,w:200,pw:64,actors:['주아','서지영'].map(n=>actor(n))},
+  {role:'루돌프',primary:true,centered:true,compact:true,x:245,y:625,w:200,pw:64,actors:['김우성','장윤석'].map(n=>actor(n))},
   {role:'막스 공작',bottom:true,hideNames:true,x:20,y:785,w:55,pw:24,actors:[actor('김대호')]},
   {role:'루도비카 · 볼프 부인',bottom:true,hideNames:true,x:85,y:785,w:110,pw:24,actors:[actor('장예원')]},
   {role:'엘리자벳의 측근들',bottom:true,hideNames:true,x:205,y:785,w:80,pw:24,actors:named('엘리자벳의 측근들',['서예림','박선정'])},
@@ -30,7 +30,7 @@ const loadImage=src=>new Promise((resolve,reject)=>{const image=new Image();imag
 loads.push(loadImage('ref/settlement-export-bg.png'));
 const cast=document.getElementById('cast');
 for(const group of groups){
-  const section=document.createElement('section');section.className='group'+(group.primary?' primary':'')+(group.centered?' centered':'')+(group.bottom?' bottom':'');
+  const section=document.createElement('section');section.className='group'+(group.primary?' primary':'')+(group.centered?' centered':'')+(group.compact?' compact':'')+(group.bottom?' bottom':'');
   Object.assign(section.style,{left:group.x+'px',top:group.y+'px',width:group.w+'px'});
   const title=document.createElement('h2');title.className='role';title.textContent=group.role;section.append(title);
   const columns=group.columns||group.actors.length;
@@ -71,7 +71,7 @@ window.setPairCombinations=(pairs=[])=>{
   for(const pair of pairs.slice(0,4)){
     const row=document.createElement('div');row.className='pair-row';
     const names=Array.isArray(pair)?pair:(pair.names||[]);
-    const name=document.createElement('span');name.className='pair-name';name.textContent=names.slice(0,4).join(' · ');row.append(name);
+    const name=document.createElement('span');name.className='pair-name';name.textContent=names.slice(0,4).join(' ');row.append(name);
     const count=document.createElement('span');count.className='pair-count';
     if(!Array.isArray(pair))count.textContent=(pair.watched||'　')+' / '+pair.total;
     row.append(count);
@@ -154,8 +154,11 @@ window.previewReady=Promise.all([...loads,document.fonts.ready]).then(()=>{
     assert([...document.querySelectorAll('.group')].filter(group=>['엘리자벳의 측근들','황실 세력가들','어린 루돌프','앙상블','죽음의 천사들'].includes(group.querySelector('.role').textContent)).every(group=>!group.querySelector('.name')),'Lower cast names must stay hidden');
     window.setPairCombinations(Array.from({length:4},()=>({names:['린아','카이'],watched:1,total:3})));
     assert(!pairBox.hidden&&pairList.children.length===4&&pairList.firstElementChild.children.length===2,'Plain pair text and counts');
-    const pairRect=pairBox.getBoundingClientRect(),stageRect=document.querySelector('.stage-vector').getBoundingClientRect();
-    assert(pairRect.bottom<=stageRect.top&&pairRect.left>=document.querySelector('.subtitle').getBoundingClientRect().right,'Pairs fit between heading and stage');
+    const pairRect=pairBox.getBoundingClientRect(),separatorRect=document.querySelector('.separator').getBoundingClientRect();
+    const primaryGroups=[...document.querySelectorAll('.group.primary')];
+    const rudolfGroup=primaryGroups.find(group=>group.querySelector('.role')?.textContent==='루돌프');
+    const rudolfRect=rudolfGroup.getBoundingClientRect();
+    assert(pairRect.left>=rudolfRect.right&&pairRect.right<=separatorRect.left+2,'Pairs fit after Sophie and Rudolf');
     assert([...document.querySelectorAll('.group.bottom')].every(group=>group.getBoundingClientRect().right<=document.querySelector('.seat-panel').getBoundingClientRect().left),'Lower actors stay left of seats');
     window.setPairCombinations();
     assert(pairBox.hidden&&!document.getElementById('board').innerText.includes('페어 조합'),'Empty pair section must be absent');
