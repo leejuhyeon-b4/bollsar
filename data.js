@@ -371,17 +371,6 @@ async function authSignIn (id, pw, remember) {
   localStorage.setItem(REMEMBER_KEY, remember ? '1' : '0');
   const { error } = await SB.auth.signInWithPassword({ email: idToEmail(id), password: pw });
   if (error) return { message: authMsg(error) };
-  const { data: aal, error: aalError } = await SB.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (aalError) return { message: authMsg(aalError) };
-  if (aal.currentLevel === 'aal1' && aal.nextLevel === 'aal2') {
-    const { data: factors, error: factorsError } = await SB.auth.mfa.listFactors();
-    const factor = factors && factors.totp && factors.totp.find(f => f.status === 'verified');
-    if (factorsError || !factor) return { message: '2단계 인증 정보를 불러오지 못했습니다.' };
-    const code = window.prompt('인증 앱에 표시된 6자리 코드를 입력해 주세요.');
-    if (!code) { await authSignOut(); return { message: '2단계 인증이 취소되었습니다.' }; }
-    const { error: mfaError } = await SB.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.trim() });
-    if (mfaError) { await authSignOut(); return { message: '2단계 인증 코드가 올바르지 않습니다.' }; }
-  }
   return null;
 }
 async function authSignUp (id, pw, remember) {
@@ -636,7 +625,7 @@ function authFormHTML (mode) {
       <label class="auth-remember"><input name="remember" type="checkbox"><span>이 기기에서 자동 로그인</span></label>
       <p class="auth-err" id="authErr" role="alert"></p>
       <button type="submit" class="auth-submit">${signup ? '가입하고 시작' : '로그인'}</button>
-      ${signup ? `<p class="auth-note">영문·숫자·특수문자를 모두 포함한 고유한 비밀번호를 사용해 주세요. 비밀번호 재설정은 지원하지 않습니다.</p>` : ''}
+      ${signup ? `<p class="auth-note">영문·숫자·특수문자를 모두 포함한 고유한 비밀번호를 사용해 주세요.</p>` : ''}
     </form>`;
 }
 
@@ -748,12 +737,10 @@ function mountAuth (onAuth) {
     wrap.hidden = false;
     wrap.querySelector('#authBody').innerHTML = `
       <h2 class="auth-account-title">계정 관리</h2>
-      <p class="auth-note"><span data-account-id></span> 계정의 보안과 데이터를 관리합니다.</p>
+      <p class="auth-note"><span data-account-id></span> 계정과 데이터를 관리합니다.</p>
       <div class="auth-actions">
-        <button type="button" data-account="password">비밀번호 변경</button>
-        <button type="button" data-account="mfa">2단계 인증 설정</button>
-        <button type="button" data-account="export">내 기록 내보내기</button>
         <button type="button" data-account="logout">로그아웃</button>
+        <button type="button" data-account="export">내 기록 내보내기</button>
         <button type="button" class="danger" data-account="delete">계정 삭제</button>
       </div>
       <p class="auth-err" id="authErr" role="alert"></p>`;
@@ -761,36 +748,6 @@ function mountAuth (onAuth) {
     const err = wrap.querySelector('#authErr');
     wrap.querySelector('[data-account="export"]').addEventListener('click', downloadAccountData);
     wrap.querySelector('[data-account="logout"]').addEventListener('click', async () => { await authSignOut(); close(); });
-    wrap.querySelector('[data-account="password"]').addEventListener('click', async () => {
-      const password = window.prompt('새 비밀번호를 입력해 주세요. (8자 이상 · 영문+숫자+특수문자)');
-      if (!password) return;
-      if (!PASSWORD_PATTERN.test(password)) { err.textContent = PASSWORD_RULE_TEXT; return; }
-      const { error } = await SB.auth.updateUser({ password });
-      err.textContent = error ? authMsg(error) : '비밀번호를 변경했습니다.';
-    });
-    wrap.querySelector('[data-account="mfa"]').addEventListener('click', async () => {
-      err.textContent = '2단계 인증 정보를 만드는 중…';
-      const { data, error } = await SB.auth.mfa.enroll({ factorType: 'totp', friendlyName: '홍캘' });
-      if (error) { err.textContent = authMsg(error); return; }
-      wrap.querySelector('#authBody').innerHTML = `
-        <h2 class="auth-account-title">2단계 인증 설정</h2>
-        <p class="auth-note">인증 앱으로 QR을 스캔하거나 아래 키를 직접 입력한 뒤 6자리 코드를 입력하세요.</p>
-        <img class="auth-mfa-qr" alt="2단계 인증 QR 코드">
-        <p class="auth-note auth-secret"></p>
-        <label class="auth-f"><span>인증 코드</span><input name="mfa-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"></label>
-        <button type="button" class="auth-submit" data-mfa-verify>인증 켜기</button>
-        <p class="auth-err" id="authErr" role="alert"></p>`;
-      wrap.querySelector('.auth-mfa-qr').src = data.totp.qr_code;
-      wrap.querySelector('.auth-secret').textContent = `설정 키: ${data.totp.secret}`;
-      wrap.querySelector('[data-mfa-verify]').addEventListener('click', async () => {
-        const code = wrap.querySelector('[name="mfa-code"]').value.trim();
-        const out = wrap.querySelector('#authErr');
-        if (!/^[0-9]{6}$/.test(code)) { out.textContent = '6자리 인증 코드를 입력해 주세요.'; return; }
-        const { error: verifyError } = await SB.auth.mfa.challengeAndVerify({ factorId: data.id, code });
-        if (verifyError) { out.textContent = '인증 코드가 올바르지 않습니다.'; return; }
-        out.textContent = '2단계 인증을 켰습니다.';
-      });
-    });
     wrap.querySelector('[data-account="delete"]').addEventListener('click', async () => {
       if (!window.confirm('계정과 모든 관극 기록을 영구 삭제할까요? 먼저 기록 내보내기를 권장합니다.')) return;
       const key = recordsStorageKey(AUTH_USER);

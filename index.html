@@ -112,7 +112,10 @@ a { color:var(--accent); text-decoration:none; }
   border:1px solid var(--ink-40); background:none; color:var(--ink);
   font-family:var(--mono); font-size:12px; letter-spacing:.12em;
   min-height:40px; padding:4px 10px; cursor:pointer;
-}
+
+  z-index:20;
+  pointer-events:auto;
+  isolation:isolate;}
 .np-login:hover { background:var(--ink); color:var(--paper); }
 .np-wordmark { font-family:var(--fraktur); font-weight:400; font-size:29px; line-height:1.05; letter-spacing:.01em; margin:2px 0 4px; text-wrap:balance; }
 .np-byline {
