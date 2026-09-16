@@ -101,13 +101,20 @@ for(const group of groups){
       const id=Object.keys(ACTORS).find(id=>ACTORS[id].name===item.name);
       if(id){const count=document.createElement('div');count.className='count';count.dataset.actor=id;card.append(count);}
       row.append(card);
-      loads.push(new Promise((resolve,reject)=>{
+      loads.push(new Promise(resolve=>{
         const img=new Image();img.onload=()=>{
-          const [x,y,w]=item.crop,sw=w*img.width,sh=sw*4/3;
-          if(x+w>1.001||y*img.height+sh>img.height+.01){reject(new Error('Invalid crop: '+item.file));return;}
+          const [x,y,w]=item.crop;
+          const sx=Math.max(0,Math.min(x*img.width,img.width-1));
+          const sy=Math.max(0,Math.min(y*img.height,img.height-1));
+          const requestedW=w*img.width;
+          const maxW=Math.min(img.width-sx,(img.height-sy)*3/4);
+          const sw=Math.max(1,Math.min(requestedW,maxW));
+          const sh=sw*4/3;
           const ctx=canvas.getContext('2d');ctx.imageSmoothingQuality='high';
-          ctx.drawImage(img,x*img.width,y*img.height,sw,sh,0,0,canvas.width,canvas.height);canvas.dataset.source=item.file;resolve();
-        };img.onerror=()=>reject(new Error('Missing photo: '+item.file));img.src='cast/'+encodeURIComponent(item.file);
+          ctx.drawImage(img,sx,sy,sw,sh,0,0,canvas.width,canvas.height);canvas.dataset.source=item.file;resolve();
+        };
+        img.onerror=()=>{console.warn('[정산판 이미지] 사진을 불러오지 못했습니다:',item.file);resolve();};
+        img.src='cast/'+encodeURIComponent(item.file);
       }));
     }section.append(row);
   }cast.append(section);
