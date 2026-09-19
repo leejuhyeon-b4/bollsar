@@ -480,6 +480,46 @@ test(
     );
 
     assert.match(
+      app,
+      /SCHEDULE_VIEW\.viewTabsHTML/
+    );
+
+    assert.match(
+      app,
+      /SCHEDULE_VIEW\.leadHTML/
+    );
+
+    assert.match(
+      app,
+      /SCHEDULE_VIEW\.entryHTML/
+    );
+
+    assert.doesNotMatch(
+      app,
+      /<section class="np-lead">/
+    );
+
+    assert.doesNotMatch(
+      app,
+      /class="np-entry/
+    );
+
+    assert.match(
+      theme,
+      /function themeViewTabsHTML/
+    );
+
+    assert.match(
+      theme,
+      /function themeLeadHTML/
+    );
+
+    assert.match(
+      theme,
+      /function themeEntryHTML/
+    );
+
+    assert.match(
       theme,
       /calendarPhoto:\s*'themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\/calendar-photo\.jpg'/
     );

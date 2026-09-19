@@ -38,10 +38,15 @@ const monthPerfs = () => hongPerfs().filter(inMonth).sort(cmpPerf);
    관리자 업로드 사진으로 교체 시 이 경로만 바꾸면 된다 (PRD_v3 3.1 / 3.2). */
 const SCHEDULE_THEME = window.BollsarScheduleTheme;
 
-if (!SCHEDULE_THEME || !SCHEDULE_THEME.assets) {
+if (
+  !SCHEDULE_THEME ||
+  !SCHEDULE_THEME.assets ||
+  !SCHEDULE_THEME.render
+) {
   throw new Error('Schedule theme is not loaded');
 }
 
+const SCHEDULE_VIEW = SCHEDULE_THEME.render;
 const PHOTO = SCHEDULE_THEME.assets.calendarPhoto;
 
 /* 헤드라인 옆 컷 사진 — 루케니 무대컷. 송곳 실루엣이 이 위를 뚫고 지나간다. */
@@ -59,10 +64,7 @@ function render () {
 }
 
 function viewTabsHTML () {
-  return `<div class="np-vt" role="tablist" aria-label="보기 전환">
-    <button type="button" role="tab" data-view="calendar" aria-pressed="${view === 'calendar'}">달력</button>
-    <button type="button" role="tab" data-view="list" aria-pressed="${view === 'list'}">목록</button>
-  </div>`;
+  return SCHEDULE_VIEW.viewTabsHTML({ view });
 }
 
 /* ── 다가오는 회차 (지면 헤드라인) ── */
@@ -79,23 +81,17 @@ function leadHTML () {
   else if (p.history) deck = `직전 캐스팅 변경이 반영된 회차입니다.`;
   else deck = `${ACTORS[HONG].name} 배우의 출연이 예정된 회차입니다.`;
 
-  return `<section class="np-lead">
-    <div class="np-lead-text">
-      <div class="np-lead-kick">다가오는 회차</div>
-      <h2 class="np-lead-ttl">뮤지컬 &lsquo;${WORK.title}&rsquo;${role ? ` ${role} 역` : ''}</h2>
-      <p class="np-lead-deck">${deck}</p>
-      <div class="np-lead-meta">
-        <span class="dday">${dday}</span>
-        <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${WORK.venue ? ' · ' + WORK.venue : ''}</span>
-      </div>
-    </div>
-    <figure class="np-lead-fig">
-      <div class="np-cut">
-        <img src="${LEAD_PHOTO}" alt="${ACTORS[HONG].name} — ${role || '루케니'} 무대컷" loading="lazy">
-      </div>
-      <figcaption>Luigi Lucheni · ${ACTORS[HONG].name}</figcaption>
-    </figure>
-  </section>`;
+  return SCHEDULE_VIEW.leadHTML({
+    p,
+    dday,
+    role,
+    deck,
+    WORK,
+    LEAD_PHOTO,
+    ACTORS,
+    HONG,
+    dowShort
+  });
 }
 
 /* ── 지면 기사 한 줄 (목록형) ── */
@@ -110,15 +106,17 @@ function entryHTML (p, extra) {
     went ? `<em class="np-mini went">✓ 담음</em>` : ''
   ].filter(Boolean).join('');
 
-  return `<button type="button" class="np-entry${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}">
-    <div class="lc"><div class="big">${p.d}</div><div class="sm">${p.m}월 ${dowShort(p)}</div></div>
-    <img class="np-entry-photo" src="${PHOTO}" alt="" loading="lazy">
-    <div>
-      <div class="tags"><em class="cat">뮤지컬 회차</em>${badges}</div>
-      <span class="ttl">${WORK.title}${role ? ` — ${role} 역` : ''}</span>
-      <span class="place">${WORK.venue || '극장 미정 · 공식 공지 예정'}</span>
-    </div>
-  </button>`;
+  return SCHEDULE_VIEW.entryHTML({
+    p,
+    extra,
+    key,
+    role,
+    went,
+    badges,
+    PHOTO,
+    WORK,
+    dowShort
+  });
 }
 
 /* ═══ 달력형 ═══ */
