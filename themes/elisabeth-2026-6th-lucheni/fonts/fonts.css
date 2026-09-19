@@ -1,6 +1,6 @@
 /* 로컬 폰트 — 이 PC는 웹폰트 CDN(구글·jsDelivr)이 막혀 있어
-   woff2 를 저장소에 직접 넣고 상대경로로 부른다. (경로 기준: 이 파일 위치 = assets/common/)
-   HTML: <link rel="stylesheet" href="assets/common/fonts.css">
+   woff2 를 저장소에 직접 넣고 상대경로로 부른다. (경로 기준: 이 파일 위치 = themes/elisabeth-2026-6th-lucheni/fonts/)
+   HTML: <link rel="stylesheet" href="themes/elisabeth-2026-6th-lucheni/fonts/fonts.css">
 
    확정 폰트만 남김:
    - 제호(--fraktur): UnifrakturMaguntia
@@ -10,26 +10,26 @@
 
 /* ═══ 라틴 — 신문 정체성 ═══ */
 @font-face { font-family:'UnifrakturMaguntia'; font-style:normal; font-weight:400; font-display:swap;
-  src:url('fonts/unifraktur-400.woff2') format('woff2'); }
+  src:url('unifraktur-400.woff2') format('woff2'); }
 
 @font-face { font-family:'Playfair Display'; font-style:normal; font-weight:700; font-display:swap;
-  src:url('fonts/playfair-700.woff2') format('woff2'); }
+  src:url('playfair-700.woff2') format('woff2'); }
 @font-face { font-family:'Playfair Display'; font-style:normal; font-weight:900; font-display:swap;
-  src:url('fonts/playfair-900.woff2') format('woff2'); }
+  src:url('playfair-900.woff2') format('woff2'); }
 @font-face { font-family:'Playfair Display'; font-style:italic; font-weight:700; font-display:swap;
-  src:url('fonts/playfair-700i.woff2') format('woff2'); }
+  src:url('playfair-700i.woff2') format('woff2'); }
 
 @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:500; font-display:swap;
-  src:url('fonts/plexmono-500.woff2') format('woff2'); }
+  src:url('plexmono-500.woff2') format('woff2'); }
 @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:600; font-display:swap;
-  src:url('fonts/plexmono-600.woff2') format('woff2'); }
+  src:url('plexmono-600.woff2') format('woff2'); }
 
 /* ═══ 한글 헤드라인 명조 ═══ */
 /* Hahmlet — 획 대비가 큰 편집용 세리프. Playfair 에 한글이 없어 --display 한글 폴백으로 쓴다 */
 @font-face { font-family:'Hahmlet'; font-style:normal; font-weight:400; font-display:swap;
-  src:url('fonts/hahmlet-400.woff2') format('woff2'); }
+  src:url('hahmlet-400.woff2') format('woff2'); }
 @font-face { font-family:'Hahmlet'; font-style:normal; font-weight:700; font-display:swap;
-  src:url('fonts/hahmlet-700.woff2') format('woff2'); }
+  src:url('hahmlet-700.woff2') format('woff2'); }
 
 /* ═══ 본문 ═══ */
 /* Cafe24 Ssurround Air — 카페24 써라운드 에어. 둥근 획의 본문용 고딕 (상업 이용 무료).
@@ -39,5 +39,5 @@
   font-family:'Cafe24 Ssurround Air';
   font-style:normal; font-weight:300 400; font-display:swap;
   src:local('Cafe24 Ssurround air'), local('Cafe24Ssurroundair'),
-      url('fonts/cafe24ssurroundair-400.woff2') format('woff2');
+      url('cafe24ssurroundair-400.woff2') format('woff2');
 }

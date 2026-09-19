@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-duO87reYUm5wU677Z7Tk230AJJAa/ZWqn/1/eddcxtQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-//V8o51jABYt8Ky63tnDeGD1OLrxDUiOdDT0/PwYxBw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
 <meta name="theme-color" content="#e9e3d5">
 <meta name="application-name" content="볼살씨">
 <meta name="mobile-web-app-capable" content="yes">
@@ -37,7 +37,7 @@
   gtag('config', 'G-VVZ9RJGYT1');
 </script>
 
-<link rel="stylesheet" href="assets/common/fonts.css">
+<link rel="stylesheet" href="themes/elisabeth-2026-6th-lucheni/fonts/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
    볼살씨 — 스케줄 탭 (PRD_v3 3장)
@@ -64,7 +64,7 @@
   --crumple:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='560'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.017' numOctaves='5' seed='9' stitchTiles='stitch' result='t'/><feDiffuseLighting in='t' lighting-color='%23fff' surfaceScale='3.2' diffuseConstant='1'><feDistantLight azimuth='58' elevation='56'/></feDiffuseLighting></filter><rect width='560' height='560' filter='url(%23p)'/><rect width='560' height='560' fill='%23fff' opacity='.5'/></svg>");
   --grain:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' fill='%23fff'/><rect width='150' height='150' filter='url(%23g)' opacity='.3'/></svg>");
 
-  /* 폰트는 assets/common/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
+  /* 폰트는 themes/elisabeth-2026-6th-lucheni/fonts/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
      본문은 카페24 써라운드 에어 — 둥근 획의 고딕. 못 받으면 시스템 고딕으로 폴백.
      헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다. */
   --fraktur:"UnifrakturMaguntia","Hahmlet","Batang",serif;
@@ -478,10 +478,10 @@ const monthPerfs = () => hongPerfs().filter(inMonth).sort(cmpPerf);
 
 /* 달력 셀 안에 넣는 배우 사진 (강홍석 · 엘리자벳 루케니 공식 프로필).
    관리자 업로드 사진으로 교체 시 이 경로만 바꾸면 된다 (PRD_v3 3.1 / 3.2). */
-const PHOTO = 'themes/elisabeth-2026-6th-lucheni/assets/calendar-photo.jpg';
+const PHOTO = 'themes/elisabeth-2026-6th-lucheni/assets/schedule/calendar-photo.jpg';
 
 /* 헤드라인 옆 컷 사진 — 루케니 무대컷. 송곳 실루엣이 이 위를 뚫고 지나간다. */
-const LEAD_PHOTO = 'themes/elisabeth-2026-6th-lucheni/assets/lead-photo.jpg';
+const LEAD_PHOTO = 'themes/elisabeth-2026-6th-lucheni/assets/schedule/lead-photo.jpg';
 
 /* ═══════════════════════════════════════════════════════════
    렌더

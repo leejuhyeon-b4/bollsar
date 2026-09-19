@@ -37,7 +37,7 @@ model: sonnet
   - 내부 상대경로(`assets/...`, `data.js`, `settlement.html`, `index.html`)는 파일이 실제 존재하는가
   - 네비게이션(스케줄 ↔ 정산판) 링크가 맞는가
   - 예매 버튼 등 외부 링크(`melon`, `interpark` 등)가 살아있는가 (`curl -sI -L`, 4xx/5xx 여부)
-  - 폰트/자산(`assets/common/fonts/*.woff2`, `assets/**/*.jpg 또는 sources/**/*.jpg`, `assets/common/gsap.min.js`) 참조가 실제 파일과 맞는가
+  - 폰트/자산(`themes/elisabeth-2026-6th-lucheni/fonts/*.woff2`, `themes/elisabeth-2026-6th-lucheni/assets/**/* 또는 sources/**/*.jpg`, `assets/common/gsap.min.js`) 참조가 실제 파일과 맞는가
 - GA4 스니펫의 측정 ID가 placeholder(`G-XXXXXXXXXX`)로 남아있지 않은가
 
 ### 4. 모바일 화면

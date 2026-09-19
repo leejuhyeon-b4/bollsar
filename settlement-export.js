@@ -27,7 +27,7 @@ const groups = [
 const allActors=groups.flatMap(g=>g.actors);
 const loads=[];
 const loadImage=src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=src;});
-loads.push(loadImage('themes/elisabeth-2026-6th-lucheni/assets/settlement-export-background.png'));
+loads.push(loadImage('themes/elisabeth-2026-6th-lucheni/assets/settlement/settlement-export-background.png'));
 const cast=document.getElementById('cast');
 for(const group of groups){
   const section=document.createElement('section');section.className='group'+(group.primary?' primary':'')+(group.centered?' centered':'')+(group.compact?' compact':'')+(group.bottom?' bottom':'');
