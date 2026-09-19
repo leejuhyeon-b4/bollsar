@@ -164,7 +164,39 @@ const PERFS = [
   { y:2026, m:10, d:21, t:'19:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
   { y:2026, m:10, d:22, t:'19:30', cast:{ eli:'rina', tod:'kai', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
   { y:2026, m:10, d:23, t:'14:30', cast:{ eli:'ljh',  tod:'kjs', lucheni:'pet',  josef:'pms', sophie:'sjy', rudolf:'jys' } },
-  { y:2026, m:10, d:23, t:'19:30', cast:{ eli:'pjy',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } }
+  { y:2026, m:10, d:23, t:'19:30', cast:{ eli:'pjy',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+
+  { y:2026, m:10, d:24, t:'14:00', cast:{ eli:'ljs',  tod:'kjs', lucheni:'hong', josef:'myg', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:10, d:24, t:'19:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:25, t:'15:00', cast:{ eli:'pjy',  tod:'kai', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:10, d:27, t:'19:30', cast:{ eli:'ljh',  tod:'kjs', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:28, t:'14:30', cast:{ eli:'pjy',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:28, t:'19:30', cast:{ eli:'rina', tod:'kjs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:29, t:'19:30', cast:{ eli:'ljh',  tod:'kjs', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:30, t:'14:30', cast:{ eli:'rina', tod:'kai', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:30, t:'19:30', cast:{ eli:'pjy',  tod:'kes', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:10, d:31, t:'14:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:10, d:31, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'jys' } },
+
+  { y:2026, m:11, d:1,  t:'14:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:11, d:1,  t:'19:00', cast:{ eli:'pjy',  tod:'kai', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:11, d:3,  t:'19:30', cast:{ eli:'pjy',  tod:'kes', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:4,  t:'14:30', cast:{ eli:'ljh',  tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:4,  t:'19:30', cast:{ eli:'rina', tod:'sgs', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:5,  t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:6,  t:'14:30', cast:{ eli:'pjy',  tod:'sgs', lucheni:'ny',   josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:6,  t:'19:30', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:7,  t:'14:00', cast:{ eli:'ljh',  tod:'kes', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:7,  t:'19:00', cast:{ eli:'pjy',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:8,  t:'15:00', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:10, t:'14:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:11, d:11, t:'14:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:11, d:12, t:'19:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:13, t:'14:30', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:13, t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
+  { y:2026, m:11, d:14, t:'14:00', cast:{ eli:'pjy',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:14, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
+  { y:2026, m:11, d:15, t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } }
 ];
 
 /* 공연 일정의 기준일은 관객과 공연장이 있는 한국 시간으로 계산한다.
@@ -203,7 +235,7 @@ if (typeof document !== 'undefined') {
     if (!document.hidden && !refreshToday()) refreshPerformanceState();
   });
 }
-const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:10 } };
+const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:11 } };
 
 /* ── 좌석 배치도 ── 블루스퀘어 우리은행홀 (ref/seat.jpg 〈등급별 좌석배치도〉 기준).
    등급색(VIP/R/S/A)은 쓰지 않는다 — 좌석 색은 유저가 고르고 방문 횟수로 진해진다
