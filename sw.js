@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v45';
+const CACHE_VERSION = 'v46';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
@@ -26,9 +26,9 @@ const APP_SHELL = [
   './assets/common/fonts/plexmono-500.woff2',
   './assets/common/fonts/plexmono-600.woff2',
   './assets/common/fonts/unifraktur-400.woff2',
-  './assets/elisabeth-2026-6th-lucheni/settlement-export-background.png',
-  './assets/elisabeth-2026-6th-lucheni/calendar-photo.jpg',
-  './assets/elisabeth-2026-6th-lucheni/lead-photo.jpg',
+  './themes/elisabeth-2026-6th-lucheni/assets/settlement-export-background.png',
+  './themes/elisabeth-2026-6th-lucheni/assets/calendar-photo.jpg',
+  './themes/elisabeth-2026-6th-lucheni/assets/lead-photo.jpg',
   './assets/common/icon-192.png',
   './assets/common/icon-512.png',
   './assets/common/apple-touch-icon.png'
