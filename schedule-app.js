@@ -161,43 +161,18 @@ function calendarHTML () {
 
   const dow = WD.map((w, i) => `<div class="${i === 6 ? 'sun' : ''}">${w}</div>`).join('');
 
-  return `
-  ${leadHTML()}
-  <section>
-    <div class="np-month">
-      <button type="button" class="js-month" data-step="-1" aria-label="이전 달" ${idx(ym) > idx(RANGE.min) ? '' : 'disabled'}>‹</button>
-      <div class="m-mid">
-        <div class="m-ttl">${MONTH_EN[ym.m - 1]} ${ym.y}</div>
-        <div class="m-sub">${ym.y}년 ${ym.m}월 · ${ACTORS[HONG].name} ${list.length}회차</div>
-      </div>
-      <button type="button" class="js-month" data-step="1" aria-label="다음 달" ${idx(ym) < idx(RANGE.max) ? '' : 'disabled'}>›</button>
-    </div>
-    <div class="np-cal">
-      <div class="np-dow">${dow}</div>
-      <div class="np-grid">${cells}</div>
-    </div>
-  </section>
-
-  <section class="np-book">
-    <a class="np-book-btn" href="https://ticket.melon.com/performance/index.htm?prodId=213480" target="_blank" rel="noopener">
-      <span class="lbl">엘리자벳 예매</span><b>멜론티켓</b>
-    </a>
-    <a class="np-book-btn" href="https://tickets.interpark.com/goods/26009314" target="_blank" rel="noopener">
-      <span class="lbl">엘리자벳 예매</span><b>NOL 티켓</b>
-    </a>
-  </section>
-
-  <section class="np-links">
-    <a class="np-book-btn" href="https://www.instagram.com/bollsar0211" target="_blank" rel="noopener" data-ext="actor-instagram">
-      <span class="lbl">배우님 공식</span><b>인스타</b>
-    </a>
-    <a class="np-book-btn" href="https://cafe.daum.net/Bollsar" target="_blank" rel="noopener" data-ext="actor-fancafe">
-      <span class="lbl">배우님 공식</span><b>팬카페</b>
-    </a>
-    <a class="np-book-btn" href="https://www.instagram.com/emk_musical" target="_blank" rel="noopener" data-ext="emk-instagram">
-      <span class="lbl">제작사 EMK</span><b>인스타</b>
-    </a>
-  </section>`;
+  return SCHEDULE_VIEW.calendarFrameHTML({
+    lead: leadHTML(),
+    year: ym.y,
+    month: ym.m,
+    monthEnglish: MONTH_EN[ym.m - 1],
+    actorName: ACTORS[HONG].name,
+    count: list.length,
+    canPrev: idx(ym) > idx(RANGE.min),
+    canNext: idx(ym) < idx(RANGE.max),
+    dow,
+    cells
+  });
 }
 
 /* ═══ 목록형 ═══ */
@@ -284,22 +259,20 @@ function sheetHTML (p) {
         <span class="hint">로그인하면 관극 기록과 좌석을 남길 수 있습니다</span>
       </div>`;
 
-  return `
-    <div class="np-sheet-head">
-      <span>${dowShort(p)}요일 · ${dday}</span>
-      <button type="button" class="np-x js-close" aria-label="닫기">✕</button>
-    </div>
-    <h3 class="np-sheet-ttl">${p.m}월 ${p.d}일 ${dowShort(p)}요일의 지면</h3>
-    <div class="np-sheet-kicker">${kicker}</div>
-    <p class="np-sheet-show">${WORK.title}${role ? ` <span>— ${role} 역</span>` : ''}</p>
-    <p class="np-sheet-sub">${p.t} 시작${WORK.venue ? ' · ' + WORK.venue : ''}</p>
-    ${dayNav}
-    <div class="np-hr"></div>
-    <table class="np-cast">
-      <caption>이 회차 캐스팅</caption>
-      <tbody>${rows}</tbody>
-    </table>
-    ${evHTML}${hist}${check}`;
+  return SCHEDULE_VIEW.sheetFrameHTML({
+    p,
+    dday,
+    dowLabel: dowShort(p),
+    kicker,
+    role,
+    dayNav,
+    rows,
+    evHTML,
+    hist,
+    check,
+    workTitle: WORK.title,
+    venue: WORK.venue || ''
+  });
 }
 
 function openSheet (p) {
