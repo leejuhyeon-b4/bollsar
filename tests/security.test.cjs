@@ -87,8 +87,13 @@ assert.ok(pwaSource.includes("const NEVER_KEY = 'bollsar.install.never.v1';"));
 assert.ok(pwaSource.includes("const LEGACY_NEVER_KEYS = ['hongcal.install.never.v1'];"));
 assert.ok(pwaSource.includes("const STANDALONE_SESSION_KEY = 'bollsar.analytics.standalone-session.v1';"));
 assert.ok(pwaSource.includes("const LEGACY_STANDALONE_SESSION_KEYS = ['hongcal.analytics.standalone-session.v1'];"));
+assert.ok(pwaSource.includes("const REBRAND_NOTICE_KEY = 'bollsar.rebrand-notice.v1';"));
+assert.ok(pwaSource.includes("if (isStandalone && readStorage(localStorage, REBRAND_NOTICE_KEY) !== '1')"));
+assert.ok(pwaSource.includes('??? ???? ??????'));
+assert.ok(pwaSource.includes("if (modalMode === 'rebrand')"));
+assert.ok(pwaSource.includes("writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');"));
 assert.ok(pwaSource.includes('볼살씨 설치'));
-assert.ok(swSource.includes("const CACHE_VERSION = 'v43';"));
+assert.ok(swSource.includes("const CACHE_VERSION = 'v44';"));
 assert.ok(swSource.includes("const CACHE_PREFIX = 'bollsar-';"));
 assert.ok(swSource.includes("const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];"));
 

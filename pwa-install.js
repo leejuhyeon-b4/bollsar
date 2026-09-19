@@ -5,6 +5,7 @@
   const LEGACY_NEVER_KEYS = ['hongcal.install.never.v1'];
   const STANDALONE_SESSION_KEY = 'bollsar.analytics.standalone-session.v1';
   const LEGACY_STANDALONE_SESSION_KEYS = ['hongcal.analytics.standalone-session.v1'];
+  const REBRAND_NOTICE_KEY = 'bollsar.rebrand-notice.v1';
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
@@ -12,9 +13,14 @@
   let wrap = null;
   let previousFocus = null;
   let fallbackTimer = null;
+  let modalMode = null;
 
   migrateStorageValue(localStorage, NEVER_KEY, LEGACY_NEVER_KEYS);
   migrateStorageValue(sessionStorage, STANDALONE_SESSION_KEY, LEGACY_STANDALONE_SESSION_KEYS);
+
+  if (!isStandalone && readStorage(localStorage, REBRAND_NOTICE_KEY) === null) {
+    writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
+  }
 
   trackUsage('settlement_view', /\/settlement\.html$/.test(window.location.pathname));
   const imageSaveButton = document.querySelector('.js-save');
@@ -37,6 +43,13 @@
     });
   }
 
+  if (isStandalone && readStorage(localStorage, REBRAND_NOTICE_KEY) !== '1') {
+    injectModal();
+    setMode('rebrand');
+    showRebrandNotice();
+    return;
+  }
+
   if (isStandalone || readStorage(localStorage, NEVER_KEY) === '1') return;
 
   injectModal();
@@ -51,6 +64,7 @@
 
   window.addEventListener('appinstalled', function () {
     installPrompt = null;
+    writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
     trackUsage('pwa_install_success', true);
     hideModal();
   });
@@ -153,7 +167,14 @@
       writeStorage(localStorage, NEVER_KEY, '1');
       hideModal();
     });
-    wrap.querySelector('[data-pwa-install]').addEventListener('click', installApp);
+    wrap.querySelector('[data-pwa-install]').addEventListener('click', function () {
+      if (modalMode === 'rebrand') {
+        hideModal();
+        return;
+      }
+
+      installApp();
+    });
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && wrap && !wrap.hidden) hideModal();
     });
@@ -161,22 +182,52 @@
 
   function setMode (mode) {
     if (!wrap) return;
+
+    modalMode = mode;
+
+    const title = wrap.querySelector('#pwaInstallTitle');
+    const copy = wrap.querySelector('#pwaInstallCopy');
     const guide = wrap.querySelector('[data-pwa-guide]');
     const button = wrap.querySelector('[data-pwa-install]');
+    const never = wrap.querySelector('[data-pwa-never]');
+
+    if (mode === 'rebrand') {
+      title.textContent = '??? ???? ??????';
+      copy.textContent = '??? ??? ???? ???? ???????. ??? ?? ??? ??? ?????.';
+
+      guide.hidden = false;
+      button.hidden = false;
+      button.textContent = '??';
+      never.hidden = true;
+
+      if (isIOS) {
+        guide.innerHTML = '<strong>iPhone ? iPad ? ?? ??</strong><ol><li>?? ? ?? ??? iOS?? ???? ??? ?? ? ????.</li><li>? ???? ???? ????? ?? ?? ??? ? Safari?? ?? ? ??? ??? ???.</li><li>????? ?? ????? ??? ??? ??? ?? ?? ?? ???? ??? ???? ???.</li></ol>';
+      } else {
+        guide.innerHTML = '<strong>Android ? ?? ??</strong><ol><li>Chrome? ?? ??? ???? ? ?? ??? ???? ??? ? ????.</li><li>?? ??? ??? ? ???? ??? ?? ?????.</li></ol>';
+      }
+
+      return;
+    }
+
+    title.textContent = '???? ? ???';
+    copy.textContent = '?? ??? ???? ??? ??? ??, ??? ??? ??????? ??? ? ????.';
+
+    never.hidden = false;
 
     if (mode === 'install') {
       guide.hidden = true;
       button.hidden = false;
-      button.textContent = '볼살씨 설치';
+      button.textContent = '??? ??';
       return;
     }
 
     guide.hidden = false;
     button.hidden = true;
+
     if (mode === 'ios') {
-      guide.innerHTML = '<strong>iPhone Safari에서 설치하기</strong><ol><li>Safari의 공유 버튼을 누릅니다.</li><li>홈 화면에 추가를 선택합니다.</li><li>웹 앱으로 열기를 켜고 추가를 누릅니다.</li></ol>';
+      guide.innerHTML = '<strong>iPhone Safari?? ????</strong><ol><li>Safari? ?? ??? ????.</li><li>? ??? ??? ?????.</li><li>? ??? ??? ?? ??? ????.</li></ol>';
     } else {
-      guide.innerHTML = '<strong>브라우저 메뉴에서 설치하기</strong><ol><li>Chrome 또는 Edge의 메뉴를 엽니다.</li><li>앱 설치 또는 홈 화면에 추가를 선택합니다.</li></ol>';
+      guide.innerHTML = '<strong>???? ???? ????</strong><ol><li>Chrome ?? Edge? ??? ???.</li><li>? ?? ?? ? ??? ??? ?????.</li></ol>';
     }
   }
 
@@ -190,10 +241,24 @@
     await prompt.prompt();
     const choice = await prompt.userChoice;
     if (choice.outcome === 'accepted') {
+      writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
       trackUsage('pwa_install_accepted', true);
       hideModal();
     }
     else setMode('manual');
+  }
+
+  function showRebrandNotice () {
+    if (!wrap || !wrap.hidden) return;
+
+    previousFocus = document.activeElement;
+    wrap.hidden = false;
+    document.documentElement.classList.add('pwa-modal-open');
+
+    window.setTimeout(function () {
+      const target = wrap.querySelector('[data-pwa-install]');
+      if (target) target.focus();
+    }, 0);
   }
 
   function showModal () {
@@ -211,9 +276,19 @@
 
   function hideModal () {
     if (!wrap) return;
+
+    if (modalMode === 'rebrand') {
+      writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
+    }
+
     wrap.hidden = true;
+    modalMode = null;
+
     document.documentElement.classList.remove('pwa-modal-open');
-    if (previousFocus && previousFocus.focus) previousFocus.focus();
+
+    if (previousFocus && previousFocus.focus) {
+      previousFocus.focus();
+    }
   }
 
   function readStorage (storage, key) {
