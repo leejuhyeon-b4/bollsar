@@ -194,7 +194,7 @@ const PERFS = [
   { y:2026, m:11, d:12, t:'19:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
   { y:2026, m:11, d:13, t:'14:30', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
   { y:2026, m:11, d:13, t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
-  { y:2026, m:11, d:14, t:'14:00', cast:{ eli:'pjy',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' } },
+  { y:2026, m:11, d:14, t:'14:00', cast:{ eli:'pjy',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' }, events:[{ label:'막공' }] },
   { y:2026, m:11, d:14, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
   { y:2026, m:11, d:15, t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } }
 ];
