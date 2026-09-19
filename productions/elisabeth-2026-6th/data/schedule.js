@@ -183,3 +183,6 @@ const PERFS = [
   { y:2026, m:11, d:14, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
   { y:2026, m:11, d:15, t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } }
 ];
+
+/* Calendar navigation range for this production. */
+const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:11 } };

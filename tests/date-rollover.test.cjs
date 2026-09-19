@@ -10,7 +10,7 @@ const root = path.join(__dirname, '..');
 function todayAt (iso) {
   const source = fs.readFileSync(path.join(root, 'data.js'), 'utf8');
   const block = source.match(
-    /const KOREA_DATE_FORMATTER[\s\S]*?(?=const RANGE)/
+    /const KOREA_DATE_FORMATTER[\s\S]*?(?=const SEAT_COLORS)/
   )[0];
 
   const RealDate = Date;

@@ -13,6 +13,7 @@ const APP_SHELL = [
   './seat-lines.js',
   './manifest.json',
   './productions/elisabeth-2026-6th/data/schedule.js',
+  './productions/elisabeth-2026-6th/data/seat-map.js',
   './data.js',
   './pwa-install.js',
   './themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
