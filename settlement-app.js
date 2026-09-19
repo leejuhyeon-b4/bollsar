@@ -5,7 +5,7 @@ const $$ = s => document.querySelectorAll(s);
 const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
 const MOTION = typeof gsap !== 'undefined' && !mq('(prefers-reduced-motion: reduce)');
 
-if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
+if (!MOTION) console.warn('[볼살씨] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
   ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
   : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
 
@@ -38,8 +38,10 @@ let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id }
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
 let seatMapCentered = false;                    // 로그인 재렌더 전에도 최초 중앙 위치를 보장한다
 let overviewZoom = 1;
-const VISIT_COLOR_STORAGE_KEY = 'hongcal.visit-colors.v1';
-const FAVORITE_PAIR_STORAGE_KEY = 'hongcal.favorite-pairs.v1';
+const VISIT_COLOR_STORAGE_KEY = 'bollsar.visit-colors.v1';
+const LEGACY_VISIT_COLOR_STORAGE_KEYS = ['hongcal.visit-colors.v1'];
+const FAVORITE_PAIR_STORAGE_KEY = 'bollsar.favorite-pairs.v1';
+const LEGACY_FAVORITE_PAIR_STORAGE_KEYS = ['hongcal.favorite-pairs.v1'];
 let delMode     = false;      // 관극 기록 삭제 모드 — 켜면 각 칸 오른쪽 위에 ✕
 let newRecKey   = null;        // 기록 추가 폼 — 회차
 let newFloor    = '1';         //              — 층
@@ -49,8 +51,18 @@ let pairFix     = {};         // { roleId: actorId }
 let favoritePairs = [];
 const FAVORITE_MAX = 4;
 
+const scopedUserStorageKey = prefix => `${prefix}.${authUserId() || 'local'}`;
+const migratedScopedUserStorageKey = (prefix, legacyPrefixes) => {
+  const currentKey = scopedUserStorageKey(prefix);
+  migrateStorageValue(
+    localStorage,
+    currentKey,
+    legacyPrefixes.map(legacyPrefix => scopedUserStorageKey(legacyPrefix))
+  );
+  return currentKey;
+};
 const favoritePairStorageKey = () =>
-  `${FAVORITE_PAIR_STORAGE_KEY}.${authUserId() || 'local'}`;
+  migratedScopedUserStorageKey(FAVORITE_PAIR_STORAGE_KEY, LEGACY_FAVORITE_PAIR_STORAGE_KEYS);
 
 function loadFavoritePairs () {
   try {
@@ -133,7 +145,8 @@ function seatVisitCounts (list) {
 /* 앉은 횟수 → 색. 진하기 대신 아예 다른 색을 써서 떨어진 좌석끼리도 바로 구분된다.
    유저가 그 횟수 칸에 색을 안 골랐으면 null (좌석은 회색으로, 색 칸은 점선 빈칸으로). */
 const colorHex = id => (SEAT_COLORS.find(c => c.id === id) || SEAT_COLORS[0]).hex;
-const visitColorStorageKey = () => `${VISIT_COLOR_STORAGE_KEY}.${authUserId() || 'local'}`;
+const visitColorStorageKey = () =>
+  migratedScopedUserStorageKey(VISIT_COLOR_STORAGE_KEY, LEGACY_VISIT_COLOR_STORAGE_KEYS);
 function loadVisitColors () {
   try {
     const saved = JSON.parse(localStorage.getItem(visitColorStorageKey()) || '{}');

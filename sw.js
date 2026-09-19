@@ -1,7 +1,7 @@
-const CACHE_VERSION = 'v42';
-const CACHE_PREFIX = 'hongcal-';
+const CACHE_VERSION = 'v43';
+const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
-const LEGACY_CACHE_PREFIXES = ['aebaeryeok-'];
+const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
 
 const APP_SHELL = [
   './',

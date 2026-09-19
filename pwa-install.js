@@ -1,8 +1,10 @@
 (function () {
   'use strict';
 
-  const NEVER_KEY = 'hongcal.install.never.v1';
-  const STANDALONE_SESSION_KEY = 'hongcal.analytics.standalone-session.v1';
+  const NEVER_KEY = 'bollsar.install.never.v1';
+  const LEGACY_NEVER_KEYS = ['hongcal.install.never.v1'];
+  const STANDALONE_SESSION_KEY = 'bollsar.analytics.standalone-session.v1';
+  const LEGACY_STANDALONE_SESSION_KEYS = ['hongcal.analytics.standalone-session.v1'];
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
@@ -10,6 +12,9 @@
   let wrap = null;
   let previousFocus = null;
   let fallbackTimer = null;
+
+  migrateStorageValue(localStorage, NEVER_KEY, LEGACY_NEVER_KEYS);
+  migrateStorageValue(sessionStorage, STANDALONE_SESSION_KEY, LEGACY_STANDALONE_SESSION_KEYS);
 
   trackUsage('settlement_view', /\/settlement\.html$/.test(window.location.pathname));
   const imageSaveButton = document.querySelector('.js-save');
@@ -27,7 +32,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('./sw.js').catch(function (error) {
-        console.warn('[홍캘] 서비스 워커 등록 실패:', error);
+        console.warn('[볼살씨] 서비스 워커 등록 실패:', error);
       });
     });
   }
@@ -131,11 +136,11 @@
       <section class="pwa-install-box" role="dialog" aria-modal="true" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallCopy">
         <button type="button" class="pwa-install-x" data-pwa-close aria-label="닫기">&#10005;</button>
         <p class="pwa-install-kicker">HOME SCREEN</p>
-        <h2 class="pwa-install-title" id="pwaInstallTitle">홍캘을 홈 화면에</h2>
+        <h2 class="pwa-install-title" id="pwaInstallTitle">볼살씨를 홈 화면에</h2>
         <p class="pwa-install-copy" id="pwaInstallCopy">공연 일정과 정산판을 앱처럼 빠르게 열고, 저장된 화면은 오프라인에서도 확인할 수 있습니다.</p>
         <div class="pwa-install-guide" data-pwa-guide hidden></div>
         <div class="pwa-install-actions">
-          <button type="button" class="pwa-install-primary" data-pwa-install>홍캘 설치</button>
+          <button type="button" class="pwa-install-primary" data-pwa-install>볼살씨 설치</button>
           <button type="button" class="pwa-install-never" data-pwa-never>이 디바이스에서 다시 보지 않기</button>
         </div>
       </section>`;
@@ -162,7 +167,7 @@
     if (mode === 'install') {
       guide.hidden = true;
       button.hidden = false;
-      button.textContent = '홍캘 설치';
+      button.textContent = '볼살씨 설치';
       return;
     }
 

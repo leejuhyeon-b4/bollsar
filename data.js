@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   애배력 — 공용 데이터 · 헬퍼 (PRD_v3)
+   볼살씨 — 공용 데이터 · 헬퍼 (PRD_v3)
    ───────────────────────────────────────────────────────────
    스케줄 탭(index.html)과 정산판 탭(settlement.html)이 같은 회차·기록
    데이터를 쓰므로 한 파일로 분리한다. 각 페이지는 이 파일을 먼저 로드한 뒤
@@ -349,7 +349,8 @@ const SUPABASE_ANON = 'sb_publishable_bx73KKDi7lZkeaDoGnndrA_GySTgosF';
 /* 아이디를 `<id>@ID_EMAIL_DOMAIN` 가짜 이메일로 만들어 Supabase Auth 에 넣는다.
    Supabase 가 "email invalid" 를 뱉으면 이 도메인만 바꾸면 된다 (MX 있는 도메인 필요할 수 있음). */
 const ID_EMAIL_DOMAIN = 'bollsar.app';
-const REC_KEY      = 'aebaeryeok.records.v2';
+const REC_KEY = 'bollsar.records.v2';
+const LEGACY_REC_KEYS = ['aebaeryeok.records.v2'];
 const REMEMBER_KEY = 'bollsar.auth.remember';
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
@@ -419,10 +420,35 @@ async function authSignOut () { if (SB) await SB.auth.signOut(); }
    캐시 키를 Supabase user UUID별로 격리한다. 소유자를 판별할 수 없는 예전 전역 캐시는
    보존하되 앱에서 읽거나 자동 병합하지 않는다. 계정 전환 시 다른 사용자의 기록이
    섞이는 일을 막기 위해 로그인 상태에서는 절대 게스트 키를 조회하지 않는다. */
-const recordsStorageKey = user => `${REC_KEY}.${user && user.id ? `user.${user.id}` : 'guest'}`;
+function migrateStorageValue (storage, currentKey, legacyKeys) {
+  try {
+    const current = storage.getItem(currentKey);
+    if (current !== null) return current;
+    for (const legacyKey of legacyKeys) {
+      const legacy = storage.getItem(legacyKey);
+      if (legacy === null) continue;
+      storage.setItem(currentKey, legacy);
+      return legacy;
+    }
+  } catch (_) {}
+  return null;
+}
+
+const recordsStorageKeyFor = (prefix, user) =>
+  `${prefix}.${user && user.id ? `user.${user.id}` : 'guest'}`;
+const recordsStorageKey = user => recordsStorageKeyFor(REC_KEY, user);
+function migratedRecordsStorageKey (user = AUTH_USER) {
+  const currentKey = recordsStorageKey(user);
+  migrateStorageValue(
+    localStorage,
+    currentKey,
+    LEGACY_REC_KEYS.map(prefix => recordsStorageKeyFor(prefix, user))
+  );
+  return currentKey;
+}
 function loadLocalRecords (user = AUTH_USER) {
   try {
-    const list = JSON.parse(localStorage.getItem(recordsStorageKey(user)) || '[]');
+    const list = JSON.parse(localStorage.getItem(migratedRecordsStorageKey(user)) || '[]');
     return Array.isArray(list) ? list.filter(r => r && r.key) : [];
   } catch { return []; }
 }
@@ -725,7 +751,7 @@ function downloadAccountData () {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `hongcal-${new Date().toISOString().slice(0, 10)}.json`;
+  a.href = url; a.download = `bollsar-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
 
@@ -782,10 +808,10 @@ function mountAuth (onAuth) {
     wrap.querySelector('[data-account="logout"]').addEventListener('click', async () => { await authSignOut(); close(); });
     wrap.querySelector('[data-account="delete"]').addEventListener('click', async () => {
       if (!window.confirm('계정과 모든 관극 기록을 영구 삭제할까요? 먼저 기록 내보내기를 권장합니다.')) return;
-      const key = recordsStorageKey(AUTH_USER);
+      const keys = [REC_KEY, ...LEGACY_REC_KEYS].map(prefix => recordsStorageKeyFor(prefix, AUTH_USER));
       const { error } = await SB.rpc('delete_account');
       if (error) { err.textContent = '계정 삭제 기능을 준비하지 못했습니다. Supabase 보안 SQL 적용 여부를 확인해 주세요.'; return; }
-      try { localStorage.removeItem(key); } catch (_) {}
+      try { keys.forEach(key => localStorage.removeItem(key)); } catch (_) {}
       await authSignOut(); close();
     });
   };

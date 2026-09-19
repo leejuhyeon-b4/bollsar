@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "홍캘",
-  "short_name": "홍캘",
+  "name": "볼살씨",
+  "short_name": "볼살씨",
   "description": "강홍석 출연 스케줄과 나의 관극 기록을 한곳에서 보는 뮤지컬 캘린더",
   "lang": "ko-KR",
   "start_url": "./index.html",

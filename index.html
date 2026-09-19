@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-bGC+qD+VYTyHG214tkzBuulzkaYgdQnjpXnTeWGfht8=' 'sha256-WTmxgGQnfST3TfgSfXTfJZ2W8fN+0boImI3r1eusne8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'sha256-FIcTn1m+uiPm55D0fuBvi3gj1wrJfrGErUaSGxb9Bsw=' 'sha256-4rNBxFdcH/x8try7XdBPXAhzMtwDd5Qcm1Rdxt8Z14A=' 'sha256-xbjJCc7xVKr3KaYNm/DdA9SbXF6rcNdahrtXxqqHS0g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.google-analytics.com; font-src 'self'; connect-src 'self' https://ymzxbfyupsnyaqqawoyc.supabase.co wss://ymzxbfyupsnyaqqawoyc.supabase.co https://www.google-analytics.com https://region1.google-analytics.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
 <meta name="theme-color" content="#e9e3d5">
-<meta name="application-name" content="홍캘">
+<meta name="application-name" content="볼살씨">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="홍캘">
+<meta name="apple-mobile-web-app-title" content="볼살씨">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/common/icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/common/apple-touch-icon.png">
@@ -40,7 +40,7 @@
 <link rel="stylesheet" href="assets/common/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
-   애배력 — 스케줄 탭 (PRD_v3 3장)
+   볼살씨 — 스케줄 탭 (PRD_v3 3장)
 
    디자인: Claude Design 〈Fan Schedule Newspaper〉 — 신문 지면 미감.
    달력형이 이 탭의 중심 화면이고, 목록형은 같은 미감의 지면 기사 열로 둔다
@@ -448,7 +448,7 @@ const $$ = s => document.querySelectorAll(s);
 const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
 const MOTION = typeof gsap !== 'undefined' && !mq('(prefers-reduced-motion: reduce)');
 
-if (!MOTION) console.warn('[애배력] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
+if (!MOTION) console.warn('[볼살씨] 모션 꺼짐 — ' + (typeof gsap === 'undefined'
   ? 'GSAP을 불러오지 못했습니다 (CDN 차단 · 오프라인)'
   : '브라우저가 prefers-reduced-motion: reduce 를 요청했습니다'));
 

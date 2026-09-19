@@ -1,4 +1,4 @@
--- 홍캘 Supabase 보안 설정. Supabase SQL Editor에서 postgres 권한으로 실행한다.
+-- 볼살씨 Supabase 보안 설정. Supabase SQL Editor에서 postgres 권한으로 실행한다.
 
 create table if not exists public.records (
   user_id uuid not null references auth.users(id) on delete cascade,
