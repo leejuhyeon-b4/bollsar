@@ -458,13 +458,18 @@ test(
       'utf8'
     );
 
+    const app = fs.readFileSync(
+      path.join(root, 'schedule-app.js'),
+      'utf8'
+    );
+
     assert.match(
-      html,
+      app,
       /const past = all\.filter\(p => isPast\(p\)\)/
     );
 
     assert.match(
-      html,
+      app,
       /<span class="full">커튼콜데이<\/span><span class="short">커튼콜<\/span>/
     );
 
