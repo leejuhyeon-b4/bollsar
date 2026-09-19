@@ -58,7 +58,7 @@ for(const group of groups){
           ctx.drawImage(img,sx,sy,sw,sh,0,0,canvas.width,canvas.height);canvas.dataset.source=item.file;resolve();
         };
         img.onerror=()=>{console.warn('[정산판 이미지] 사진을 불러오지 못했습니다:',item.file);resolve();};
-        img.src='cast/'+encodeURIComponent(item.file);
+        img.src='productions/elisabeth-2026-6th/cast/'+encodeURIComponent(item.file);
       }));
     }section.append(row);
   }cast.append(section);
