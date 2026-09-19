@@ -132,7 +132,12 @@ function calendarHTML () {
   let cells = '';
   for (let i = 0; i < totalCells; i++) {
     const day = i - first + 1;
-    if (day < 1 || day > dim) { cells += `<div class="np-cell pad"></div>`; continue; }
+    if (day < 1 || day > dim) {
+      cells += SCHEDULE_VIEW.calendarCellHTML({
+        pad: true
+      });
+      continue;
+    }
     const dItems = (byDay[day] || []).sort((a, b) => a.t.localeCompare(b.t));
     const isToday = ym.y === TODAY.y && ym.m === TODAY.m && day === TODAY.d;
     const isSun = (i % 7) === 6;   // 일요일 = 마지막 열
@@ -143,15 +148,15 @@ function calendarHTML () {
     const eventText = eventLabel === '커튼콜데이'
       ? '<span class="full">커튼콜데이</span><span class="short">커튼콜</span>'
       : eventLabel;
-    const inner = dItems.length
-      ? `<img class="np-cell-photo" src="${PHOTO}" alt="${ACTORS[HONG].name}" loading="lazy">
-         <span class="np-cell-t">${dItems.map(p => p.t).join('·')}</span>
-         ${dEvents.length ? `<span class="np-cell-ev">${eventText}${dEvents.length > 1 ? ' +' + (dEvents.length - 1) : ''}</span>` : ''}`
-      : '';
-    cells += `<div class="${cls}" data-day="${day}">
-      <span class="n">${day}</span>
-      ${inner}
-    </div>`;
+    cells += SCHEDULE_VIEW.calendarCellHTML({
+      cls,
+      day,
+      times: dItems.map(p => p.t),
+      eventText,
+      eventCount: dEvents.length,
+      PHOTO,
+      actorName: ACTORS[HONG].name
+    });
   }
 
   const dow = WD.map((w, i) => `<div class="${i === 6 ? 'sun' : ''}">${w}</div>`).join('');
@@ -203,20 +208,27 @@ function listHTML () {
 
   const rows = upcoming.length
     ? upcoming.map(p => entryHTML(p)).join('')
-    : `<div class="np-empty"><div class="h">No upcoming entries.</div><div class="s">새 캐스팅표가 공개되면 반영됩니다</div></div>`;
+    : SCHEDULE_VIEW.emptyListHTML();
 
-  const pastBlock = past.length
-    ? `<button type="button" class="np-past" id="pastToggle">${showPast ? '▲ 지난 회차 접기' : `▼ 지난 회차 ${past.length}건`}</button>` +
-      (showPast ? past.map(p => entryHTML(p, 'past')).join('') : '')
+  const pastRows = showPast
+    ? past.map(p => entryHTML(p, 'past')).join('')
     : '';
 
-  return `<section>
-    <div class="np-listhead">
-      <h3>${ACTORS[HONG].name} 출연 회차</h3>
-      <span class="cnt">예정 ${upcoming.length} · 지난 ${past.length}</span>
-    </div>
-    <div class="np-sec-body">${rows}${pastBlock}</div>
-  </section>`;
+  const pastBlock = past.length
+    ? SCHEDULE_VIEW.pastToggleHTML({
+        showPast,
+        count: past.length,
+        rows: pastRows
+      })
+    : '';
+
+  return SCHEDULE_VIEW.listHTML({
+    actorName: ACTORS[HONG].name,
+    upcomingCount: upcoming.length,
+    pastCount: past.length,
+    rows,
+    pastBlock
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════

@@ -48,7 +48,61 @@
       </div>
     </button>`;
   }
+  function themeCalendarCellHTML ({
+    pad = false,
+    cls,
+    day,
+    times = [],
+    eventText = '',
+    eventCount = 0,
+    PHOTO,
+    actorName
+  }) {
+    if (pad) {
+      return `<div class="np-cell pad"></div>`;
+    }
 
+    const inner = times.length
+      ? `<img class="np-cell-photo" src="${PHOTO}" alt="${actorName}" loading="lazy">
+         <span class="np-cell-t">${times.join('·')}</span>
+         ${eventCount
+           ? `<span class="np-cell-ev">${eventText}${eventCount > 1 ? ' +' + (eventCount - 1) : ''}</span>`
+           : ''}`
+      : '';
+
+    return `<div class="${cls}" data-day="${day}">
+      <span class="n">${day}</span>
+      ${inner}
+    </div>`;
+  }
+
+  function themeEmptyListHTML () {
+    return `<div class="np-empty"><div class="h">No upcoming entries.</div><div class="s">새 캐스팅표가 공개되면 반영됩니다</div></div>`;
+  }
+
+  function themePastToggleHTML ({
+    showPast,
+    count,
+    rows
+  }) {
+    return `<button type="button" class="np-past" id="pastToggle">${showPast ? '▲ 지난 회차 접기' : `▼ 지난 회차 ${count}건`}</button>${rows}`;
+  }
+
+  function themeListHTML ({
+    actorName,
+    upcomingCount,
+    pastCount,
+    rows,
+    pastBlock
+  }) {
+    return `<section>
+      <div class="np-listhead">
+        <h3>${actorName} 출연 회차</h3>
+        <span class="cnt">예정 ${upcomingCount} · 지난 ${pastCount}</span>
+      </div>
+      <div class="np-sec-body">${rows}${pastBlock}</div>
+    </section>`;
+  }
   window.BollsarScheduleTheme = Object.freeze({
     id: 'elisabeth-2026-6th-lucheni',
 
@@ -60,7 +114,11 @@
     render: Object.freeze({
       viewTabsHTML: themeViewTabsHTML,
       leadHTML: themeLeadHTML,
-      entryHTML: themeEntryHTML
+      entryHTML: themeEntryHTML,
+      calendarCellHTML: themeCalendarCellHTML,
+      emptyListHTML: themeEmptyListHTML,
+      pastToggleHTML: themePastToggleHTML,
+      listHTML: themeListHTML
     })
   });
 })();

@@ -508,7 +508,25 @@ test(
       theme,
       /function themeViewTabsHTML/
     );
+    assert.match(
+      theme,
+      /calendarCellHTML:\s*themeCalendarCellHTML/
+    );
 
+    assert.match(
+      theme,
+      /emptyListHTML:\s*themeEmptyListHTML/
+    );
+
+    assert.match(
+      theme,
+      /pastToggleHTML:\s*themePastToggleHTML/
+    );
+
+    assert.match(
+      theme,
+      /listHTML:\s*themeListHTML/
+    );
     assert.match(
       theme,
       /function themeLeadHTML/
