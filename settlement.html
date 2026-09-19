@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="홍캘">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="ref/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="ref/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/common/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/common/apple-touch-icon.png">
 <title>정산판 — 엘리자벳 2026</title>
 <meta name="description" content="내가 본 뮤지컬 엘리자벳 2026 회차·좌석 기록과 관람 정산 · 좌석 배치도 · 페어 조합 즐겨찾기">
 
@@ -37,7 +37,7 @@
   gtag('config', 'G-VVZ9RJGYT1');
 </script>
 
-<link rel="stylesheet" href="ref/fonts.css">
+<link rel="stylesheet" href="assets/common/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
    애배력 — 정산판 탭 (PRD_v3 4장)
@@ -64,7 +64,7 @@
   --crumple:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='560'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.017' numOctaves='5' seed='9' stitchTiles='stitch' result='t'/><feDiffuseLighting in='t' lighting-color='%23fff' surfaceScale='3.2' diffuseConstant='1'><feDistantLight azimuth='58' elevation='56'/></feDiffuseLighting></filter><rect width='560' height='560' filter='url(%23p)'/><rect width='560' height='560' fill='%23fff' opacity='.5'/></svg>");
   --grain:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' fill='%23fff'/><rect width='150' height='150' filter='url(%23g)' opacity='.3'/></svg>");
 
-  /* 폰트는 ref/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
+  /* 폰트는 assets/common/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
      본문은 카페24 써라운드 에어 — 둥근 획의 고딕. 못 받으면 시스템 고딕으로 폴백.
      헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다. */
   --fraktur:"UnifrakturMaguntia","Hahmlet","Batang",serif;
@@ -444,7 +444,7 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 .seat { border:0 !important; box-shadow:none !important; }
 </style>
 
-<script src="ref/gsap.min.js"></script>
+<script src="assets/common/gsap.min.js"></script>
 <script src="seat-lines.js"></script>
 <script>
 (function () {

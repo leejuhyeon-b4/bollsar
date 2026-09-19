@@ -9,7 +9,7 @@ model: sonnet
 직접 코드를 고치지 않는다 — 점검하고 보고만 한다.
 
 ## 대상
-- 로컬 파일: `index.html`(스케줄), `settlement.html`(정산판), `data.js`, `ref/`
+- 로컬 파일: `index.html`(스케줄), `settlement.html`(정산판), `data.js`, `assets/`, `sources/`
 - 배포: `https://bollsar.vercel.app/` (index) · `https://bollsar.vercel.app/settlement.html`
 - 헤드리스 크롬: `"/c/Program Files/Google/Chrome/Application/chrome.exe"` (스크린샷은 `--headless --force-prefers-reduced-motion --virtual-time-budget=6000 --window-size=<w>,<h> --screenshot=<png>`)
 - 로컬 미리보기가 필요하면 `python -m http.server <port>` 로 띄운다
@@ -34,10 +34,10 @@ model: sonnet
 
 ### 3. 깨진 링크
 - 두 HTML 의 모든 `href` / `src` 를 뽑아 확인:
-  - 내부 상대경로(`ref/...`, `data.js`, `settlement.html`, `index.html`)는 파일이 실제 존재하는가
+  - 내부 상대경로(`assets/...`, `data.js`, `settlement.html`, `index.html`)는 파일이 실제 존재하는가
   - 네비게이션(스케줄 ↔ 정산판) 링크가 맞는가
   - 예매 버튼 등 외부 링크(`melon`, `interpark` 등)가 살아있는가 (`curl -sI -L`, 4xx/5xx 여부)
-  - 폰트/자산(`ref/fonts/*.woff2`, `ref/*.jpg`, `ref/gsap.min.js`) 참조가 실제 파일과 맞는가
+  - 폰트/자산(`assets/common/fonts/*.woff2`, `assets/**/*.jpg 또는 sources/**/*.jpg`, `assets/common/gsap.min.js`) 참조가 실제 파일과 맞는가
 - GA4 스니펫의 측정 ID가 placeholder(`G-XXXXXXXXXX`)로 남아있지 않은가
 
 ### 4. 모바일 화면

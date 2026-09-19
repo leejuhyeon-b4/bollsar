@@ -5,7 +5,7 @@
    데이터를 쓰므로 한 파일로 분리한다. 각 페이지는 이 파일을 먼저 로드한 뒤
    자기 화면 스크립트를 실행한다.
 
-   데이터 출처: 운영자 제공 〈캐스팅 스케줄〉 4장 (ref/KakaoTalk_20260909_*.jpg).
+   데이터 출처: 운영자 제공 〈캐스팅 스케줄〉 4장 (sources/elisabeth-2026-6th/schedule/original-*.jpg).
      프리뷰 2026-08-16 ~ 현재까지 공개된 마지막 회차 2026-10-23.
      후속 스케줄이 올라오면 이 파일의 PERFS(및 필요 시 RANGE.max)만 교체한다 —
      화면 코드는 손대지 않는다.
@@ -19,7 +19,7 @@ const WORK = {
   run:    '6연',                                     // 한국 초연부터 세어 여섯 번째 시즌
   venue:  '블루스퀘어 우리은행홀',
   period: { start: '2026-08-16', end: '2026-11-15' },  // 폐막 2026.11.15
-  poster: ''                                         // TODO: 2026 엘리자벳 공식 포스터를 ref/에 넣고 경로만 적기
+  poster: ''                                         // TODO: 2026 엘리자벳 공식 포스터를 assets/에 넣고 경로만 적기
 };
 
 /* ── 고정 주체 ── 정산판 기본값. "고정 해제" 시에만 공동출연 배우로 전환된다.
@@ -194,7 +194,7 @@ const PERFS = [
   { y:2026, m:11, d:12, t:'19:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
   { y:2026, m:11, d:13, t:'14:30', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },
   { y:2026, m:11, d:13, t:'19:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
-  { y:2026, m:11, d:14, t:'14:00', cast:{ eli:'pjy',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' }, events:[{ label:'막공' }] },
+  { y:2026, m:11, d:14, t:'14:00', cast:{ eli:'pjy',  tod:'sgs', lucheni:'hong', josef:'pms', sophie:'ja',  rudolf:'kws' }, events:[{ label:'막공', verified:true }] },
   { y:2026, m:11, d:14, t:'19:00', cast:{ eli:'rina', tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'jys' } },
   { y:2026, m:11, d:15, t:'15:00', cast:{ eli:'ljh',  tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } }
 ];
@@ -237,7 +237,7 @@ if (typeof document !== 'undefined') {
 }
 const RANGE = { min:{ y:2026, m:8 }, max:{ y:2026, m:11 } };
 
-/* ── 좌석 배치도 ── 블루스퀘어 우리은행홀 (ref/seat.jpg 〈등급별 좌석배치도〉 기준).
+/* ── 좌석 배치도 ── 블루스퀘어 우리은행홀 (sources/elisabeth-2026-6th/seatmap-original.jpg 〈등급별 좌석배치도〉 기준).
    등급색(VIP/R/S/A)은 쓰지 않는다 — 좌석 색은 유저가 고르고 방문 횟수로 진해진다
    (PRD_v3 4.1 / v2 7.2). 여기 담는 건 "어느 자리가 존재하는가" 뿐이다.
 

@@ -11,8 +11,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="홍캘">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="ref/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="ref/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/common/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/common/apple-touch-icon.png">
 <title>강홍석 스케줄 — 엘리자벳 2026</title>
 <meta name="description" content="뮤지컬 엘리자벳 2026 강홍석(루케니) 출연 회차 달력 · 회차별 캐스팅 · 커튼콜데이 등 이벤트">
 
@@ -37,7 +37,7 @@
   gtag('config', 'G-VVZ9RJGYT1');
 </script>
 
-<link rel="stylesheet" href="ref/fonts.css">
+<link rel="stylesheet" href="assets/common/fonts.css">
 <style>
 /* ═══════════════════════════════════════════════════════════
    애배력 — 스케줄 탭 (PRD_v3 3장)
@@ -64,7 +64,7 @@
   --crumple:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='560'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.017' numOctaves='5' seed='9' stitchTiles='stitch' result='t'/><feDiffuseLighting in='t' lighting-color='%23fff' surfaceScale='3.2' diffuseConstant='1'><feDistantLight azimuth='58' elevation='56'/></feDiffuseLighting></filter><rect width='560' height='560' filter='url(%23p)'/><rect width='560' height='560' fill='%23fff' opacity='.5'/></svg>");
   --grain:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='150' height='150' fill='%23fff'/><rect width='150' height='150' filter='url(%23g)' opacity='.3'/></svg>");
 
-  /* 폰트는 ref/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
+  /* 폰트는 assets/common/fonts.css 에서 로컬 로드 (이 PC는 웹폰트 CDN 이 막힘).
      본문은 카페24 써라운드 에어 — 둥근 획의 고딕. 못 받으면 시스템 고딕으로 폴백.
      헤드라인 한글은 Hahmlet, 라틴은 Playfair 로 신문 인상을 낸다. */
   --fraktur:"UnifrakturMaguntia","Hahmlet","Batang",serif;
@@ -169,8 +169,8 @@ a { color:var(--accent); text-decoration:none; }
 .np-lead-meta .dday { background:var(--ink); color:var(--paper); padding:2px 6px; white-space:nowrap; }
 
 /* ── 컷 사진 + 송곳 구멍 ──
-   루케니(강홍석) 사진을 신문 컷처럼 흑백으로 깔고, 그 위를 송곳 실루엣 모양으로
-   종이가 뚫린 것처럼 흰색으로 도려낸다. 마스크는 ref/c-hole-mask.png. */
+   루케니(강홍석) 사진을 신문 컷처럼 흑백으로 깐다.
+   기존 송곳 구멍 마스크 방식은 제거했다. */
 .np-lead-fig { margin:0; }
 .np-cut {
   position:relative; overflow:hidden; aspect-ratio:4/5;
@@ -397,7 +397,7 @@ a { color:var(--accent); text-decoration:none; }
 </style>
 
 <!-- 등장 애니메이션이 깜빡이지 않도록 본문보다 먼저 GSAP을 받아 둔다. -->
-<script src="ref/gsap.min.js"></script>
+<script src="assets/common/gsap.min.js"></script>
 <script>
 (function () {
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -478,10 +478,10 @@ const monthPerfs = () => hongPerfs().filter(inMonth).sort(cmpPerf);
 
 /* 달력 셀 안에 넣는 배우 사진 (강홍석 · 엘리자벳 루케니 공식 프로필).
    관리자 업로드 사진으로 교체 시 이 경로만 바꾸면 된다 (PRD_v3 3.1 / 3.2). */
-const PHOTO = 'ref/KakaoTalk_20260909_174603341.jpg';
+const PHOTO = 'assets/elisabeth-2026-6th-lucheni/calendar-photo.jpg';
 
 /* 헤드라인 옆 컷 사진 — 루케니 무대컷. 송곳 실루엣이 이 위를 뚫고 지나간다. */
-const LEAD_PHOTO = 'ref/KakaoTalk_20260909_174603341_01.jpg';
+const LEAD_PHOTO = 'assets/elisabeth-2026-6th-lucheni/lead-photo.jpg';
 
 /* ═══════════════════════════════════════════════════════════
    렌더

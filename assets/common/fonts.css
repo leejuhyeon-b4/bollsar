@@ -1,6 +1,6 @@
 /* 로컬 폰트 — 이 PC는 웹폰트 CDN(구글·jsDelivr)이 막혀 있어
-   woff2 를 저장소에 직접 넣고 상대경로로 부른다. (경로 기준: 이 파일 위치 = ref/)
-   HTML: <link rel="stylesheet" href="ref/fonts.css">
+   woff2 를 저장소에 직접 넣고 상대경로로 부른다. (경로 기준: 이 파일 위치 = assets/common/)
+   HTML: <link rel="stylesheet" href="assets/common/fonts.css">
 
    확정 폰트만 남김:
    - 제호(--fraktur): UnifrakturMaguntia
