@@ -51,14 +51,40 @@ let pairFix     = {};         // { roleId: actorId }
 let favoritePairs = [];
 const FAVORITE_MAX = 4;
 
-const scopedUserStorageKey = prefix => `${prefix}.${authUserId() || 'local'}`;
-const migratedScopedUserStorageKey = (prefix, legacyPrefixes) => {
-  const currentKey = scopedUserStorageKey(prefix);
+const scopedUserStorageSuffix = () =>
+  authUserId() || 'local';
+
+const productionScopedUserStorageKey =
+  prefix =>
+    `${prefix}.production.${ACTIVE_PRODUCTION_ID}.${scopedUserStorageSuffix()}`;
+
+const legacyScopedUserStorageKey =
+  prefix =>
+    `${prefix}.${scopedUserStorageSuffix()}`;
+
+const migratedScopedUserStorageKey = (
+  prefix,
+  legacyPrefixes
+) => {
+  const currentKey =
+    productionScopedUserStorageKey(
+      prefix
+    );
+
   migrateStorageValue(
     localStorage,
     currentKey,
-    legacyPrefixes.map(legacyPrefix => scopedUserStorageKey(legacyPrefix))
+    [
+      legacyScopedUserStorageKey(prefix),
+      ...legacyPrefixes.map(
+        legacyPrefix =>
+          legacyScopedUserStorageKey(
+            legacyPrefix
+          )
+      )
+    ]
   );
+
   return currentKey;
 };
 const favoritePairStorageKey = () =>

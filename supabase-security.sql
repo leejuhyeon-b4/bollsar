@@ -2,13 +2,45 @@
 
 create table if not exists public.records (
   user_id uuid not null references auth.users(id) on delete cascade,
+  production_id text not null,
   perf_key text not null,
   seat text,
   updated_at timestamptz not null default now(),
-  primary key (user_id, perf_key)
+  primary key (
+    user_id,
+    production_id,
+    perf_key
+  )
 );
 
-alter table public.records enable row level security;
+alter table public.records
+  add column if not exists
+  production_id text;
+
+update public.records
+set production_id =
+  'elisabeth-2026-6th'
+where production_id is null
+   or production_id = '';
+
+alter table public.records
+  alter column production_id
+  set not null;
+
+alter table public.records
+  drop constraint if exists
+  records_pkey;
+
+alter table public.records
+  add constraint records_pkey
+  primary key (
+    user_id,
+    production_id,
+    perf_key
+  );
+
+alter table public.records
+  enable row level security;
 
 drop policy if exists "records private to owner" on public.records;
 create policy "records private to owner"

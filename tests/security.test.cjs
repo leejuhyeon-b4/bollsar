@@ -11,13 +11,15 @@ const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'manifest
 
 const legacyUserARecords = JSON.stringify([{ key: 'legacy-user-a', seat: '1-A-1' }]);
 const legacyUserBRecords = JSON.stringify([{ key: 'legacy-user-b', seat: '1-A-2' }]);
+const oldUserBRecords = JSON.stringify([{ key: 'old-user-b', seat: '1-A-4' }]);
 const currentUserBRecords = JSON.stringify([{ key: 'current-user-b', seat: '1-A-3' }]);
 
 const values = new Map([
   ['aebaeryeok.records.v1', JSON.stringify([{ key: 'legacy-global', seat: '1-A-9' }])],
   ['aebaeryeok.records.v2.user.user-a', legacyUserARecords],
   ['aebaeryeok.records.v2.user.user-b', legacyUserBRecords],
-  ['bollsar.records.v2.user.user-b', currentUserBRecords],
+  ['bollsar.records.v2.user.user-b', oldUserBRecords],
+  ['bollsar.records.v2.production.elisabeth-2026-6th.user.user-b', currentUserBRecords],
   ['hongcal.test.copy', 'legacy-copy'],
   ['bollsar.test.preferred', 'current-value'],
   ['hongcal.test.preferred', 'legacy-value']
@@ -34,6 +36,7 @@ const context = {
   console: { warn () {}, error () {} },
   localStorage: storage,
   sessionStorage: storage,
+  WORK: { id: 'elisabeth-2026-6th' },
   gtag: (...args) => analytics.push(args)
 };
 
@@ -56,15 +59,16 @@ vm.runInContext(`${source}
   track('record_event', { perf: '2026|1|1|19:00', seat: '1-A-1', pair: 'x', source: 'test' });
 `, context);
 
-assert.equal(context.securityResult.guestKey, 'bollsar.records.v2.guest');
-assert.equal(context.securityResult.userAKey, 'bollsar.records.v2.user.user-a');
-assert.equal(context.securityResult.userBKey, 'bollsar.records.v2.user.user-b');
+assert.equal(context.securityResult.guestKey, 'bollsar.records.v2.production.elisabeth-2026-6th.guest');
+assert.equal(context.securityResult.userAKey, 'bollsar.records.v2.production.elisabeth-2026-6th.user.user-a');
+assert.equal(context.securityResult.userBKey, 'bollsar.records.v2.production.elisabeth-2026-6th.user.user-b');
 assert.notEqual(context.securityResult.userAKey, context.securityResult.userBKey);
 assert.notEqual(context.securityResult.guestKey, context.securityResult.userAKey);
 assert.equal(context.securityResult.initialRecords, '[]', 'legacy global records must stay quarantined');
 assert.equal(context.securityResult.userARecords, legacyUserARecords, 'same-user legacy records should migrate');
-assert.equal(values.get('bollsar.records.v2.user.user-a'), legacyUserARecords);
-assert.equal(context.securityResult.userBRecords, currentUserBRecords, 'new key must win over legacy data');
+assert.equal(values.get('bollsar.records.v2.production.elisabeth-2026-6th.user.user-a'), legacyUserARecords);
+assert.equal(context.securityResult.userBRecords, currentUserBRecords, 'production key must win over unscoped data');
+assert.equal(values.get('bollsar.records.v2.user.user-b'), oldUserBRecords);
 assert.equal(values.has('aebaeryeok.records.v1'), true, 'global legacy record remains quarantined');
 assert.equal(context.securityResult.copiedLegacyValue, 'legacy-copy');
 assert.equal(values.get('bollsar.test.copy'), 'legacy-copy');
@@ -75,10 +79,15 @@ assert.equal(context.securityResult.missingNumber, false);
 assert.equal(context.securityResult.missingLetter, false);
 assert.equal(JSON.stringify(analytics), JSON.stringify([['event', 'record_event', { source: 'test' }]]));
 
-assert.equal(manifest.name, '볼살씨');
-assert.equal(manifest.short_name, '볼살씨');
+assert.equal(manifest.name, '볼살씨의 하루');
+assert.equal(manifest.short_name, '볼살씨의 하루');
 assert.ok(source.includes("const REC_KEY = 'bollsar.records.v2';"));
 assert.ok(source.includes("const LEGACY_REC_KEYS = ['aebaeryeok.records.v2'];"));
+assert.ok(source.includes('const ACTIVE_PRODUCTION_ID = WORK.id;'));
+assert.ok(source.includes('production_id: ACTIVE_PRODUCTION_ID'));
+assert.ok(source.includes("'user_id,production_id,perf_key'"));
+assert.ok(source.includes("'production_id',"));
+assert.ok(settlementSource.includes('.production.${ACTIVE_PRODUCTION_ID}.'));
 assert.ok(settlementSource.includes("const VISIT_COLOR_STORAGE_KEY = 'bollsar.visit-colors.v1';"));
 assert.ok(settlementSource.includes("const LEGACY_VISIT_COLOR_STORAGE_KEYS = ['hongcal.visit-colors.v1'];"));
 assert.ok(settlementSource.includes("const FAVORITE_PAIR_STORAGE_KEY = 'bollsar.favorite-pairs.v1';"));
@@ -92,8 +101,8 @@ assert.ok(pwaSource.includes("if (isStandalone && readStorage(localStorage, REBR
 assert.equal(pwaSource.includes('???'), false);
 assert.ok(pwaSource.includes("if (modalMode === 'rebrand')"));
 assert.ok(pwaSource.includes("writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');"));
-assert.ok(pwaSource.includes('볼살씨 설치'));
-assert.ok(swSource.includes("const CACHE_VERSION = 'v46';"));
+assert.ok(pwaSource.includes('볼살씨의 하루 설치'));
+assert.ok(swSource.includes("const CACHE_VERSION = 'v48';"));
 assert.ok(swSource.includes("const CACHE_PREFIX = 'bollsar-';"));
 assert.ok(swSource.includes("const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];"));
 

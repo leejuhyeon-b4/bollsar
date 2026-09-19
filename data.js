@@ -85,11 +85,12 @@ const visitLabel = n => n >= 4 ? '4회+' : n + '회';
    3) SQL Editor 에서 아래 실행:
 
       create table if not exists public.records (
-        user_id    uuid not null references auth.users(id) on delete cascade,
-        perf_key   text not null,
-        seat       text,
-        updated_at timestamptz not null default now(),
-        primary key (user_id, perf_key)
+        user_id       uuid not null references auth.users(id) on delete cascade,
+        production_id text not null,
+        perf_key      text not null,
+        seat          text,
+        updated_at    timestamptz not null default now(),
+        primary key (user_id, production_id, perf_key)
       );
       alter table public.records enable row level security;
       create policy "records private to owner" on public.records
@@ -101,6 +102,7 @@ const SUPABASE_ANON = 'sb_publishable_bx73KKDi7lZkeaDoGnndrA_GySTgosF';
 /* 아이디를 `<id>@ID_EMAIL_DOMAIN` 가짜 이메일로 만들어 Supabase Auth 에 넣는다.
    Supabase 가 "email invalid" 를 뱉으면 이 도메인만 바꾸면 된다 (MX 있는 도메인 필요할 수 있음). */
 const ID_EMAIL_DOMAIN = 'bollsar.app';
+const ACTIVE_PRODUCTION_ID = WORK.id;
 const REC_KEY = 'bollsar.records.v2';
 const LEGACY_REC_KEYS = ['aebaeryeok.records.v2'];
 const REMEMBER_KEY = 'bollsar.auth.remember';
@@ -186,18 +188,38 @@ function migrateStorageValue (storage, currentKey, legacyKeys) {
   return null;
 }
 
+const recordOwnerSuffix = user =>
+  user && user.id
+    ? `user.${user.id}`
+    : 'guest';
+
 const recordsStorageKeyFor = (prefix, user) =>
-  `${prefix}.${user && user.id ? `user.${user.id}` : 'guest'}`;
-const recordsStorageKey = user => recordsStorageKeyFor(REC_KEY, user);
+  `${prefix}.production.${ACTIVE_PRODUCTION_ID}.${recordOwnerSuffix(user)}`;
+
+const legacyRecordsStorageKeyFor = (prefix, user) =>
+  `${prefix}.${recordOwnerSuffix(user)}`;
+
+const recordsStorageKey = user =>
+  recordsStorageKeyFor(REC_KEY, user);
+
 function migratedRecordsStorageKey (user = AUTH_USER) {
   const currentKey = recordsStorageKey(user);
+
   migrateStorageValue(
     localStorage,
     currentKey,
-    LEGACY_REC_KEYS.map(prefix => recordsStorageKeyFor(prefix, user))
+    [REC_KEY, ...LEGACY_REC_KEYS].map(
+      prefix =>
+        legacyRecordsStorageKeyFor(
+          prefix,
+          user
+        )
+    )
   );
+
   return currentKey;
 }
+
 function loadLocalRecords (user = AUTH_USER) {
   try {
     const list = JSON.parse(localStorage.getItem(migratedRecordsStorageKey(user)) || '[]');
@@ -210,12 +232,33 @@ let MY_RECORDS = loadLocalRecords();
 
 async function pullRecords () {
   if (!SB || !AUTH_USER) return;
-  const { data, error } = await SB.from('records').select('perf_key, seat');
-  if (error) { console.warn('[records] pull:', error.message); return; }
-  MY_RECORDS = (data || []).map(r => ({ key: r.perf_key, seat: r.seat }));
+
+  const { data, error } = await SB
+    .from('records')
+    .select('perf_key, seat')
+    .eq(
+      'production_id',
+      ACTIVE_PRODUCTION_ID
+    );
+
+  if (error) {
+    MY_RECORDS =
+      loadLocalRecords(AUTH_USER);
+
+    console.warn(
+      '[records] pull:',
+      error.message
+    );
+
+    return;
+  }
+
+  MY_RECORDS = (data || []).map(r => ({
+    key: r.perf_key,
+    seat: r.seat
+  }));
 }
 
-/* 로그인 직후: 이 사용자 UUID로 격리된 오프라인 캐시만 클라우드에 합친다. */
 async function mergeLocalIntoCloud () {
   if (!SB || !AUTH_USER) return;
   const local = loadLocalRecords(AUTH_USER);
@@ -228,20 +271,61 @@ async function mergeLocalIntoCloud () {
 }
 
 async function saveRecords () {
-  try { localStorage.setItem(recordsStorageKey(AUTH_USER), JSON.stringify(MY_RECORDS)); } catch {}
+  try {
+    localStorage.setItem(
+      recordsStorageKey(AUTH_USER),
+      JSON.stringify(MY_RECORDS)
+    );
+  } catch {}
+
   if (!SB || !AUTH_USER) return;
-  const rows = MY_RECORDS.map(r => ({ user_id: AUTH_USER.id, perf_key: r.key, seat: r.seat }));
+
+  const rows = MY_RECORDS.map(r => ({
+    user_id: AUTH_USER.id,
+    production_id:
+      ACTIVE_PRODUCTION_ID,
+    perf_key: r.key,
+    seat: r.seat
+  }));
+
   if (!rows.length) return;
-  const { error } = await SB.from('records').upsert(rows, { onConflict: 'user_id,perf_key' });
-  if (error) console.warn('[records] save:', error.message);
-}
-async function removeRecordRemote (key) {
-  if (!SB || !AUTH_USER) return;
-  const { error } = await SB.from('records').delete().eq('user_id', AUTH_USER.id).eq('perf_key', key);
-  if (error) console.warn('[records] delete:', error.message);
+
+  const { error } = await SB
+    .from('records')
+    .upsert(rows, {
+      onConflict:
+        'user_id,production_id,perf_key'
+    });
+
+  if (error) {
+    console.warn(
+      '[records] save:',
+      error.message
+    );
+  }
 }
 
-/* ═══ 공용 헬퍼 ═══ */
+async function removeRecordRemote (key) {
+  if (!SB || !AUTH_USER) return;
+
+  const { error } = await SB
+    .from('records')
+    .delete()
+    .eq('user_id', AUTH_USER.id)
+    .eq(
+      'production_id',
+      ACTIVE_PRODUCTION_ID
+    )
+    .eq('perf_key', key);
+
+  if (error) {
+    console.warn(
+      '[records] delete:',
+      error.message
+    );
+  }
+}
+
 const $  = s => document.querySelector(s);
 const el = h => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
 
@@ -497,7 +581,12 @@ function downloadAccountData () {
   const payload = {
     exported_at: new Date().toISOString(),
     account: authUserId(),
-    records: MY_RECORDS.map(r => ({ performance_key: r.key, seat: r.seat || null }))
+    production_id: ACTIVE_PRODUCTION_ID,
+    records: MY_RECORDS.map(r => ({
+      production_id: ACTIVE_PRODUCTION_ID,
+      performance_key: r.key,
+      seat: r.seat || null
+    }))
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -559,7 +648,79 @@ function mountAuth (onAuth) {
     wrap.querySelector('[data-account="logout"]').addEventListener('click', async () => { await authSignOut(); close(); });
     wrap.querySelector('[data-account="delete"]').addEventListener('click', async () => {
       if (!window.confirm('계정과 모든 관극 기록을 영구 삭제할까요? 먼저 기록 내보내기를 권장합니다.')) return;
-      const keys = [REC_KEY, ...LEGACY_REC_KEYS].map(prefix => recordsStorageKeyFor(prefix, AUTH_USER));
+      const keys = new Set([
+        recordsStorageKey(AUTH_USER),
+        ...[REC_KEY, ...LEGACY_REC_KEYS]
+          .map(
+            prefix =>
+              legacyRecordsStorageKeyFor(
+                prefix,
+                AUTH_USER
+              )
+          )
+      ]);
+
+      const uuidSuffix =
+        `user.${AUTH_USER.id}`;
+
+      const accountSuffix =
+        authUserId();
+
+      try {
+        for (
+          let i = 0;
+          i < localStorage.length;
+          i++
+        ) {
+          const key = localStorage.key(i);
+
+          if (!key) continue;
+
+          const isRecordKey =
+            [REC_KEY, ...LEGACY_REC_KEYS]
+              .some(
+                prefix =>
+                  key ===
+                    `${prefix}.${uuidSuffix}` ||
+                  (
+                    key.startsWith(
+                      `${prefix}.production.`
+                    ) &&
+                    key.endsWith(
+                      `.${uuidSuffix}`
+                    )
+                  )
+              );
+
+          const isPreferenceKey =
+            !!accountSuffix &&
+            [
+              'bollsar.visit-colors.v1',
+              'hongcal.visit-colors.v1',
+              'bollsar.favorite-pairs.v1',
+              'hongcal.favorite-pairs.v1'
+            ].some(
+              prefix =>
+                key ===
+                  `${prefix}.${accountSuffix}` ||
+                (
+                  key.startsWith(
+                    `${prefix}.production.`
+                  ) &&
+                  key.endsWith(
+                    `.${accountSuffix}`
+                  )
+                )
+            );
+
+          if (
+            isRecordKey ||
+            isPreferenceKey
+          ) {
+            keys.add(key);
+          }
+        }
+      } catch (_) {}
       const { error } = await SB.rpc('delete_account');
       if (error) { err.textContent = '계정 삭제 기능을 준비하지 못했습니다. Supabase 보안 SQL 적용 여부를 확인해 주세요.'; return; }
       try { keys.forEach(key => localStorage.removeItem(key)); } catch (_) {}

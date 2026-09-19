@@ -4,6 +4,7 @@
 
 /* ── 작품 ── */
 const WORK = {
+  id:     'elisabeth-2026-6th',
   title:  '엘리자벳',
   run:    '6연',                                     // 한국 초연부터 세어 여섯 번째 시즌
   venue:  '블루스퀘어 우리은행홀',

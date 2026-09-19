@@ -150,11 +150,11 @@
       <section class="pwa-install-box" role="dialog" aria-modal="true" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallCopy">
         <button type="button" class="pwa-install-x" data-pwa-close aria-label="닫기">&#10005;</button>
         <p class="pwa-install-kicker">HOME SCREEN</p>
-        <h2 class="pwa-install-title" id="pwaInstallTitle">볼살씨를 홈 화면에</h2>
+        <h2 class="pwa-install-title" id="pwaInstallTitle">볼살씨의 하루를 홈 화면에</h2>
         <p class="pwa-install-copy" id="pwaInstallCopy">공연 일정과 정산판을 앱처럼 빠르게 열고, 저장된 화면은 오프라인에서도 확인할 수 있습니다.</p>
         <div class="pwa-install-guide" data-pwa-guide hidden></div>
         <div class="pwa-install-actions">
-          <button type="button" class="pwa-install-primary" data-pwa-install>볼살씨 설치</button>
+          <button type="button" class="pwa-install-primary" data-pwa-install>볼살씨의 하루 설치</button>
           <button type="button" class="pwa-install-never" data-pwa-never>이 디바이스에서 다시 보지 않기</button>
         </div>
       </section>`;
@@ -192,8 +192,8 @@
     const never = wrap.querySelector('[data-pwa-never]');
 
     if (mode === 'rebrand') {
-      title.textContent = '홍캘이 볼살씨로 바뀌었습니다';
-      copy.textContent = '서비스 이름이 홍캘에서 볼살씨로 변경되었습니다. 계정과 관극 기록은 그대로 유지됩니다.';
+      title.textContent = '홍캘이 볼살씨의 하루로 바뀌었습니다';
+      copy.textContent = '서비스 이름이 홍캘에서 볼살씨의 하루로 변경되었습니다. 계정과 관극 기록은 그대로 유지됩니다.';
 
       guide.hidden = false;
       button.hidden = false;
@@ -201,15 +201,15 @@
       never.hidden = true;
 
       if (isIOS) {
-        guide.innerHTML = '<strong>iPhone · iPad 홈 화면 이름</strong><ol><li>기존 홈 화면 이름은 iOS에서 자동으로 바뀌지 않을 수 있습니다.</li><li>홈 화면에도 볼살씨로 표시하려면 기존 앱을 삭제한 뒤 Safari에서 다시 홈 화면에 추가해 주세요.</li><li>로그인하지 않은 상태에서만 저장한 기록이 있다면 삭제 전에 먼저 로그인해 기록을 동기화해 주세요.</li></ol>';
+        guide.innerHTML = '<strong>iPhone · iPad 홈 화면 이름</strong><ol><li>기존 홈 화면 이름은 iOS에서 자동으로 바뀌지 않을 수 있습니다.</li><li>홈 화면에도 볼살씨의 하루로 표시하려면 기존 앱을 삭제한 뒤 Safari에서 다시 홈 화면에 추가해 주세요.</li><li>로그인하지 않은 상태에서만 저장한 기록이 있다면 삭제 전에 먼저 로그인해 기록을 동기화해 주세요.</li></ol>';
       } else {
-        guide.innerHTML = '<strong>Android 홈 화면 이름</strong><ol><li>Chrome이 설치 정보를 갱신하면 홈 화면 이름도 볼살씨로 변경될 수 있습니다.</li><li>바로 바뀌지 않아도 앱 데이터와 기능은 최신 상태입니다.</li></ol>';
+        guide.innerHTML = '<strong>Android 홈 화면 이름</strong><ol><li>Chrome이 설치 정보를 갱신하면 홈 화면 이름도 볼살씨의 하루로 변경될 수 있습니다.</li><li>바로 바뀌지 않아도 앱 데이터와 기능은 최신 상태입니다.</li></ol>';
       }
 
       return;
     }
 
-    title.textContent = '볼살씨를 홈 화면에';
+    title.textContent = '볼살씨의 하루를 홈 화면에';
     copy.textContent = '공연 일정과 정산판을 앱처럼 빠르게 열고, 저장된 화면은 오프라인에서도 확인할 수 있습니다.';
 
     never.hidden = false;
@@ -217,7 +217,7 @@
     if (mode === 'install') {
       guide.hidden = true;
       button.hidden = false;
-      button.textContent = '볼살씨 설치';
+      button.textContent = '볼살씨의 하루 설치';
       return;
     }
 

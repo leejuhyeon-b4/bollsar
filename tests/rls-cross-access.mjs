@@ -16,6 +16,18 @@ const valueOf = name => {
 const baseUrl = valueOf('SUPABASE_URL');
 const publishableKey = valueOf('SUPABASE_ANON');
 const emailDomain = valueOf('ID_EMAIL_DOMAIN');
+const productionSource = fs.readFileSync(
+  new URL(
+    '../productions/elisabeth-2026-6th/data/schedule.js',
+    import.meta.url
+  ),
+  'utf8'
+);
+const productionMatch = productionSource.match(
+  /const WORK\s*=\s*\{\s*id:\s*'([^']+)'/
+);
+assert.ok(productionMatch, 'production id missing');
+const productionId = productionMatch[1];
 const runId = `${Date.now().toString(36)}${crypto.randomBytes(3).toString('hex')}`;
 const performanceKey = `rls-test|${runId}`;
 const accounts = [];
@@ -77,33 +89,39 @@ try {
   const userB = await createAccount('b');
 
   let result = await records(userA, 'POST', '', {
-    user_id: userA.id, perf_key: performanceKey, seat: '1-A-1'
+    user_id: userA.id,
+    production_id: productionId,
+    perf_key: performanceKey,
+    seat: '1-A-1'
   });
   assert.equal(result.response.ok, true, 'A could not insert its own record');
 
-  result = await records(userB, 'GET', `?user_id=eq.${userA.id}&perf_key=eq.${encodeURIComponent(performanceKey)}`);
+  result = await records(userB, 'GET', `?user_id=eq.${userA.id}&production_id=eq.${encodeURIComponent(productionId)}&perf_key=eq.${encodeURIComponent(performanceKey)}`);
   assert.equal(result.response.ok, true, 'B cross-select request failed unexpectedly');
   assert.deepEqual(result.body, [], 'B could read A record');
 
   result = await records(userB, 'POST', '', {
-    user_id: userA.id, perf_key: `${performanceKey}|forged`, seat: '1-A-2'
+    user_id: userA.id,
+    production_id: productionId,
+    perf_key: `${performanceKey}|forged`,
+    seat: '1-A-2'
   });
   assert.equal(result.response.ok, false, 'B could insert a record owned by A');
 
-  result = await records(userB, 'PATCH', `?user_id=eq.${userA.id}&perf_key=eq.${encodeURIComponent(performanceKey)}`, { seat: '2-B-2' });
+  result = await records(userB, 'PATCH', `?user_id=eq.${userA.id}&production_id=eq.${encodeURIComponent(productionId)}&perf_key=eq.${encodeURIComponent(performanceKey)}`, { seat: '2-B-2' });
   assert.equal(result.response.ok, true, 'B cross-update request failed unexpectedly');
   assert.deepEqual(result.body, [], 'B could update A record');
 
-  result = await records(userB, 'DELETE', `?user_id=eq.${userA.id}&perf_key=eq.${encodeURIComponent(performanceKey)}`);
+  result = await records(userB, 'DELETE', `?user_id=eq.${userA.id}&production_id=eq.${encodeURIComponent(productionId)}&perf_key=eq.${encodeURIComponent(performanceKey)}`);
   assert.equal(result.response.ok, true, 'B cross-delete request failed unexpectedly');
   assert.deepEqual(result.body, [], 'B could delete A record');
 
-  result = await records(userA, 'GET', `?perf_key=eq.${encodeURIComponent(performanceKey)}`);
+  result = await records(userA, 'GET', `?production_id=eq.${encodeURIComponent(productionId)}&perf_key=eq.${encodeURIComponent(performanceKey)}`);
   assert.equal(result.response.ok, true, 'A could not read its own record');
   assert.equal(result.body.length, 1, 'A record disappeared after B operations');
   assert.equal(result.body[0].seat, '1-A-1', 'A record was modified by B');
 
-  result = await records(userA, 'DELETE', `?perf_key=eq.${encodeURIComponent(performanceKey)}`);
+  result = await records(userA, 'DELETE', `?production_id=eq.${encodeURIComponent(productionId)}&perf_key=eq.${encodeURIComponent(performanceKey)}`);
   assert.equal(result.response.ok, true, 'A could not delete its own record');
   assert.equal(result.body.length, 1, 'A own-delete affected no rows');
 
