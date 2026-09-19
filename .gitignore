@@ -3,3 +3,8 @@ supabase/.temp/
 
 # Local-only visual reference
 ref/drawing.jpg
+.serena/
+node_modules/
+artifacts/
+*.before-*
+_patch_*.py
