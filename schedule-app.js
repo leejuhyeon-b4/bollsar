@@ -36,10 +36,16 @@ const monthPerfs = () => hongPerfs().filter(inMonth).sort(cmpPerf);
 
 /* 달력 셀 안에 넣는 배우 사진 (강홍석 · 엘리자벳 루케니 공식 프로필).
    관리자 업로드 사진으로 교체 시 이 경로만 바꾸면 된다 (PRD_v3 3.1 / 3.2). */
-const PHOTO = 'themes/elisabeth-2026-6th-lucheni/assets/schedule/calendar-photo.jpg';
+const SCHEDULE_THEME = window.BollsarScheduleTheme;
+
+if (!SCHEDULE_THEME || !SCHEDULE_THEME.assets) {
+  throw new Error('Schedule theme is not loaded');
+}
+
+const PHOTO = SCHEDULE_THEME.assets.calendarPhoto;
 
 /* 헤드라인 옆 컷 사진 — 루케니 무대컷. 송곳 실루엣이 이 위를 뚫고 지나간다. */
-const LEAD_PHOTO = 'themes/elisabeth-2026-6th-lucheni/assets/schedule/lead-photo.jpg';
+const LEAD_PHOTO = SCHEDULE_THEME.assets.leadPhoto;
 
 /* ═══════════════════════════════════════════════════════════
    렌더

@@ -451,6 +451,47 @@ test(
 );
 
 test(
+  'schedule visual asset paths are owned by the schedule theme',
+  () => {
+    const app = fs.readFileSync(
+      path.join(root, 'schedule-app.js'),
+      'utf8'
+    );
+
+    const theme = fs.readFileSync(
+      path.join(
+        root,
+        'themes',
+        'elisabeth-2026-6th-lucheni',
+        'schedule',
+        'view.js'
+      ),
+      'utf8'
+    );
+
+    assert.match(
+      app,
+      /window\.BollsarScheduleTheme/
+    );
+
+    assert.doesNotMatch(
+      app,
+      /themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\//
+    );
+
+    assert.match(
+      theme,
+      /calendarPhoto:\s*'themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\/calendar-photo\.jpg'/
+    );
+
+    assert.match(
+      theme,
+      /leadPhoto:\s*'themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\/lead-photo\.jpg'/
+    );
+  }
+);
+
+test(
   'schedule keeps past toggle and shortens curtain call on mobile',
   () => {
     const html = fs.readFileSync(

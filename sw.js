@@ -16,6 +16,7 @@ const APP_SHELL = [
   './productions/elisabeth-2026-6th/data/seat-map.js',
   './data.js',
   './schedule-app.js',
+  './themes/elisabeth-2026-6th-lucheni/schedule/view.js',
   './pwa-install.js',
   './themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
   './assets/common/gsap.min.js',
