@@ -83,7 +83,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v51';"
+    "const CACHE_VERSION = 'v52';"
   )
 );
 
@@ -145,6 +145,51 @@ assert.ok(
   settlementExportApp.includes(
     'settlementExportBackground'
   )
+);
+
+
+assert.ok(
+  registry.includes(
+    'settlementExportStylesheet'
+  )
+);
+
+assert.ok(
+  registry.includes(
+    'themes/elisabeth-2026-6th-lucheni/settlement/export.css'
+  )
+);
+
+assert.ok(
+  settlementExportHtml.includes(
+    'id="settlementExportThemeStylesheet"'
+  )
+);
+
+assert.equal(
+  settlementExportHtml.includes(
+    'themes/elisabeth-2026-6th-lucheni/settlement/export.css'
+  ),
+  false
+);
+
+assert.ok(
+  settlementExportApp.includes(
+    'settlementExportStylesheet'
+  )
+);
+
+assert.ok(
+  settlementExportApp.includes(
+    'exportThemeStylesheet.href'
+  )
+);
+
+assert.equal(
+  settlementExportApp.includes(
+    'themes/elisabeth-2026-6th-lucheni/settlement/export.css'
+  ),
+  false
 );
 
 console.log(

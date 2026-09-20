@@ -47,14 +47,43 @@ const exportTheme =
         theme.id === selectedThemeId
     );
 
+const exportStylesheet =
+  exportTheme?.settlementExportStylesheet;
+
 const exportBackground =
   exportTheme?.settlementExportBackground;
+
+if (!exportStylesheet) {
+  throw new Error(
+    `Settlement export stylesheet is missing for ${WORK.id}`
+  );
+}
 
 if (!exportBackground) {
   throw new Error(
     `Settlement export background is missing for ${WORK.id}`
   );
 }
+
+const exportThemeStylesheet =
+  document.getElementById(
+    'settlementExportThemeStylesheet'
+  );
+
+if (!exportThemeStylesheet) {
+  throw new Error(
+    'Settlement export stylesheet element is missing'
+  );
+}
+
+loads.push(
+  new Promise((resolve, reject) => {
+    exportThemeStylesheet.onload = resolve;
+    exportThemeStylesheet.onerror = reject;
+    exportThemeStylesheet.href =
+      exportStylesheet;
+  })
+);
 
 const exportBackdrop =
   document.querySelector('.backdrop');
