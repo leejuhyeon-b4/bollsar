@@ -83,7 +83,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v53';"
+    "const CACHE_VERSION = 'v54';"
   )
 );
 
@@ -235,6 +235,65 @@ assert.equal(
     'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'
   ),
   false
+);
+
+
+const settlementThemeCss =
+  fs.readFileSync(
+    path.join(
+      root,
+      'themes',
+      'elisabeth-2026-6th-lucheni',
+      'settlement',
+      'theme.css'
+    ),
+    'utf8'
+  );
+
+assert.ok(
+  settlement.includes(
+    'themes/elisabeth-2026-6th-lucheni/settlement/theme.css'
+  )
+);
+
+for (const selector of [
+  '.np-mast',
+  '.st-title',
+  '.st-tally',
+  '.rec-card',
+  '.gate-cta'
+]) {
+  assert.ok(
+    settlementThemeCss.includes(selector)
+  );
+}
+
+for (const geometry of [
+  '--seat:11px',
+  '--seat:15px',
+  '.seatrow {',
+  '.map-overview .is-fit .seatmap'
+]) {
+  assert.equal(
+    settlementThemeCss.includes(geometry),
+    false
+  );
+
+  assert.ok(
+    settlement.includes(geometry)
+  );
+}
+
+assert.ok(
+  settlement.includes(
+    '.seat { border:0 !important; box-shadow:none !important; }'
+  )
+);
+
+assert.ok(
+  sw.includes(
+    "'./themes/elisabeth-2026-6th-lucheni/settlement/theme.css'"
+  )
 );
 
 console.log(

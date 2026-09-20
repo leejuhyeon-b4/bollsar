@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v53';
+const CACHE_VERSION = 'v54';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
@@ -21,6 +21,7 @@ const APP_SHELL = [
   './pwa-install.js',
   './themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
   './themes/elisabeth-2026-6th-lucheni/settlement/export.css',
+  './themes/elisabeth-2026-6th-lucheni/settlement/theme.css',
   './assets/common/gsap.min.js',
   './assets/common/html2canvas-1.4.1.min.js',
   './themes/elisabeth-2026-6th-lucheni/fonts/cafe24ssurroundair-400.woff2',
