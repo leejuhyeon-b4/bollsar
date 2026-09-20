@@ -83,7 +83,67 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v50';"
+    "const CACHE_VERSION = 'v51';"
+  )
+);
+
+
+const settlementExportHtml =
+  fs.readFileSync(
+    path.join(
+      root,
+      'settlement-export.html'
+    ),
+    'utf8'
+  );
+
+const settlementExportApp =
+  fs.readFileSync(
+    path.join(
+      root,
+      'settlement-export.js'
+    ),
+    'utf8'
+  );
+
+const settlementBackgroundPath =
+  'themes/elisabeth-2026-6th-lucheni/assets/settlement/settlement-export-background.png';
+
+assert.ok(
+  registry.includes(
+    'settlementExportBackground'
+  )
+);
+
+assert.ok(
+  registry.includes(
+    settlementBackgroundPath
+  )
+);
+
+assert.ok(
+  settlementExportHtml.includes(
+    'src="theme-registry.js"'
+  )
+);
+
+assert.equal(
+  settlementExportHtml.includes(
+    settlementBackgroundPath
+  ),
+  false
+);
+
+assert.equal(
+  settlementExportApp.includes(
+    settlementBackgroundPath
+  ),
+  false
+);
+
+assert.ok(
+  settlementExportApp.includes(
+    'settlementExportBackground'
   )
 );
 

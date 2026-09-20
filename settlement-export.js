@@ -27,7 +27,52 @@ const groups = [
 const allActors=groups.flatMap(g=>g.actors);
 const loads=[];
 const loadImage=src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=src;});
-loads.push(loadImage('themes/elisabeth-2026-6th-lucheni/assets/settlement/settlement-export-background.png'));
+const themeRegistry =
+  window.BollsarThemeRegistry;
+
+if (!themeRegistry) {
+  throw new Error(
+    'Theme registry is unavailable'
+  );
+}
+
+const selectedThemeId =
+  themeRegistry.selectedThemeId(WORK.id);
+
+const exportTheme =
+  themeRegistry
+    .listForProduction(WORK.id)
+    .find(
+      theme =>
+        theme.id === selectedThemeId
+    );
+
+const exportBackground =
+  exportTheme?.settlementExportBackground;
+
+if (!exportBackground) {
+  throw new Error(
+    `Settlement export background is missing for ${WORK.id}`
+  );
+}
+
+const exportBackdrop =
+  document.querySelector('.backdrop');
+
+if (!exportBackdrop) {
+  throw new Error(
+    'Settlement export backdrop element is missing'
+  );
+}
+
+loads.push(
+  new Promise((resolve, reject) => {
+    exportBackdrop.onload = resolve;
+    exportBackdrop.onerror = reject;
+    exportBackdrop.src =
+      exportBackground;
+  })
+);
 const cast=document.getElementById('cast');
 for(const group of groups){
   const section=document.createElement('section');section.className='group'+(group.primary?' primary':'')+(group.centered?' centered':'')+(group.compact?' compact':'')+(group.bottom?' bottom':'');
@@ -186,4 +231,3 @@ window.exportSettlementPng=async()=>{
     canvas.toBlob(blob=>blob?resolve(blob):reject(Error('PNG encoding failed')),'image/png')
   );
 };
-

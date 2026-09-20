@@ -14,7 +14,9 @@
       scheduleView:
         'themes/elisabeth-2026-6th-lucheni/schedule/view.js',
       fonts:
-        'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'
+        'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
+      settlementExportBackground:
+        'themes/elisabeth-2026-6th-lucheni/assets/settlement/settlement-export-background.png'
     })
   ]);
 
