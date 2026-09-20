@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v48';
+const CACHE_VERSION = 'v49';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
@@ -15,6 +15,7 @@ const APP_SHELL = [
   './productions/elisabeth-2026-6th/data/schedule.js',
   './productions/elisabeth-2026-6th/data/seat-map.js',
   './data.js',
+  './theme-registry.js',
   './schedule-app.js',
   './themes/elisabeth-2026-6th-lucheni/schedule/view.js',
   './pwa-install.js',
