@@ -47,11 +47,20 @@ const exportTheme =
         theme.id === selectedThemeId
     );
 
+const exportFonts =
+  exportTheme?.fonts;
+
 const exportStylesheet =
   exportTheme?.settlementExportStylesheet;
 
 const exportBackground =
   exportTheme?.settlementExportBackground;
+
+if (!exportFonts) {
+  throw new Error(
+    `Settlement export fonts are missing for ${WORK.id}`
+  );
+}
 
 if (!exportStylesheet) {
   throw new Error(
@@ -64,6 +73,34 @@ if (!exportBackground) {
     `Settlement export background is missing for ${WORK.id}`
   );
 }
+
+const exportThemeFonts =
+  document.getElementById(
+    'settlementExportThemeFonts'
+  );
+
+if (!exportThemeFonts) {
+  throw new Error(
+    'Settlement export font stylesheet element is missing'
+  );
+}
+
+loads.push(
+  new Promise((resolve, reject) => {
+    exportThemeFonts.onload = () => {
+      requestAnimationFrame(() => {
+        document.fonts.ready.then(
+          resolve,
+          reject
+        );
+      });
+    };
+
+    exportThemeFonts.onerror = reject;
+    exportThemeFonts.href =
+      exportFonts;
+  })
+);
 
 const exportThemeStylesheet =
   document.getElementById(

@@ -83,7 +83,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v52';"
+    "const CACHE_VERSION = 'v53';"
   )
 );
 
@@ -188,6 +188,51 @@ assert.ok(
 assert.equal(
   settlementExportApp.includes(
     'themes/elisabeth-2026-6th-lucheni/settlement/export.css'
+  ),
+  false
+);
+
+
+assert.ok(
+  registry.includes(
+    "fonts:"
+  )
+);
+
+assert.ok(
+  registry.includes(
+    'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'
+  )
+);
+
+assert.ok(
+  settlementExportHtml.includes(
+    'id="settlementExportThemeFonts"'
+  )
+);
+
+assert.equal(
+  settlementExportHtml.includes(
+    'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'
+  ),
+  false
+);
+
+assert.ok(
+  settlementExportApp.includes(
+    'exportTheme?.fonts'
+  )
+);
+
+assert.ok(
+  settlementExportApp.includes(
+    'exportThemeFonts.href'
+  )
+);
+
+assert.equal(
+  settlementExportApp.includes(
+    'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'
   ),
   false
 );
