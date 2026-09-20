@@ -391,11 +391,11 @@ function seatRun (spec, aisles) {
 }
 
 /* 구역 → 블록 키. C2는 중앙이 갈라진 열의 뒷 토막이다 (3층 6열). */
-const ZONE_KEYS = { L:['L'], C:['C', 'C2'], R:['R'] };
+const ZONE_KEYS = { L:['L'], C:['C', 'C2', 'C3'], R:['R'] };
 
 /* 한 열의 좌석 전체 (좌·중앙·우 순) */
 const seatsInRow = (floor, row) =>
-  ['L', 'C', 'C2', 'R'].flatMap(b => seatRun(row[b], floor.aisles));
+  ['L', 'C', 'C2', 'C3', 'R'].flatMap(b => seatRun(row[b], floor.aisles));
 
 const floorById = id => SEAT_MAP.floors.find(f => f.id === id);
 

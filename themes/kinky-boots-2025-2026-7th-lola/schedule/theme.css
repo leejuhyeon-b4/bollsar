@@ -1,0 +1,639 @@
+/*
+  bollsar
+  theme_id: kinky-boots-2025-2026-7th-lola
+
+  Visual rule:
+  bottom -> skin -> leg -> upside-down red Kinky Boot -> top
+
+  Final boot and boxing-rope artwork is supplied as one theme asset.
+*/
+
+:root {
+  --paper:#160b0e;
+  --paper-2:#1d0d12;
+  --paper-3:#281117;
+
+  --ink:#f7eee4;
+  --ink-72:rgba(247,238,228,.90);
+  --ink-60:rgba(247,238,228,.76);
+  --ink-55:rgba(247,238,228,.68);
+  --ink-45:rgba(247,238,228,.56);
+  --ink-40:rgba(247,238,228,.42);
+  --ink-28:rgba(247,238,228,.28);
+  --ink-14:rgba(247,238,228,.14);
+
+  --accent:#e31937;
+  --kb-red:#ed193b;
+  --kb-burgundy:#4e101e;
+  --kb-gold:#d8b56c;
+  --kb-cream:#f7eee4;
+
+  --display:
+    "Arial Black",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    sans-serif;
+
+  --body:
+    "Arial",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    sans-serif;
+
+  --mono:
+    "Arial Narrow",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    sans-serif;
+}
+
+html,
+body {
+  background:#0d0709;
+}
+
+body {
+  color:var(--ink);
+  background-image:
+    radial-gradient(
+      circle at 78% 6%,
+      rgba(227,25,55,.14),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 15% 18%,
+      rgba(216,181,108,.08),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      #10080b 0%,
+      #170a0f 58%,
+      #0d0709 100%
+    );
+}
+
+.np-shell {
+  max-width:1100px;
+}
+
+@media (min-width:640px) {
+  .np-shell {
+    border-inline-color:
+      rgba(247,238,228,.10);
+  }
+}
+
+.np-mast {
+  border-bottom:
+    1px solid rgba(247,238,228,.28);
+}
+
+.np-nav {
+  border-bottom-color:
+    rgba(247,238,228,.18);
+}
+
+.np-nav [aria-current] {
+  color:var(--kb-cream);
+  border-bottom-color:var(--kb-red);
+}
+
+
+/* -------------------------------------------------
+   View switch
+-------------------------------------------------- */
+
+.np-vt {
+  border-color:
+    rgba(247,238,228,.28);
+}
+
+.np-vt button {
+  color:var(--ink-60);
+}
+
+.np-vt button + button {
+  border-left-color:
+    rgba(247,238,228,.20);
+}
+
+.np-vt button[aria-pressed="true"] {
+  background:var(--kb-red);
+  color:#fff;
+}
+
+
+/* -------------------------------------------------
+   HERO
+
+   LEFT  = upcoming + basic information
+   RIGHT = Angel leg / upside-down Kinky Boot
+
+   Correct vertical orientation inside the artwork:
+
+         TOP
+          |
+       RED BOOT
+          |
+         LEG
+          |
+        SKIN
+          |
+        BOTTOM
+-------------------------------------------------- */
+
+.kb-hero {
+  position:relative;
+  display:grid;
+  grid-template-columns:
+    minmax(0, .92fr)
+    minmax(360px, 1.08fr);
+
+  gap:26px;
+  min-height:330px;
+
+  margin-top:10px;
+  padding:
+    clamp(24px, 4vw, 44px);
+
+  overflow:hidden;
+
+  border:
+    1px solid rgba(247,238,228,.17);
+
+  border-bottom:
+    1px solid rgba(247,238,228,.17);
+
+  background:
+    linear-gradient(
+      115deg,
+      rgba(12,6,8,.98) 0%,
+      rgba(27,8,14,.96) 54%,
+      rgba(66,9,23,.72) 100%
+    );
+
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,.30);
+}
+
+.kb-hero::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(216,181,108,.05),
+      transparent 34%
+    );
+}
+
+.kb-hero-info {
+  position:relative;
+  z-index:4;
+
+  align-self:center;
+
+  max-width:520px;
+}
+
+.kb-match-label {
+  margin-bottom:22px;
+
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.30em;
+
+  color:var(--kb-gold);
+}
+
+.kb-hero .np-lead-kick {
+  color:var(--kb-red);
+
+  font-weight:800;
+  letter-spacing:.18em;
+}
+
+.kb-hero .np-lead-ttl {
+  margin:
+    6px 0 12px;
+
+  font-family:var(--display);
+  font-size:
+    clamp(28px, 4vw, 46px);
+
+  font-style:normal;
+  font-weight:900;
+  line-height:.98;
+  letter-spacing:-.055em;
+
+  color:var(--kb-cream);
+}
+
+.kb-title-dot {
+  color:var(--kb-red);
+}
+
+.kb-hero .np-lead-deck {
+  max-width:46ch;
+
+  color:var(--ink-72);
+  line-height:1.68;
+}
+
+.kb-next-meta {
+  margin-top:18px;
+}
+
+.kb-next-meta .dday {
+  background:var(--kb-red);
+  color:#fff;
+
+  font-weight:800;
+}
+
+.kb-facts {
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+
+  gap:8px;
+
+  margin:
+    22px 0 0;
+}
+
+.kb-facts > div {
+  min-width:0;
+
+  padding-top:9px;
+
+  border-top:
+    1px solid rgba(247,238,228,.20);
+}
+
+.kb-facts dt {
+  margin:0 0 5px;
+
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.16em;
+
+  color:var(--kb-gold);
+}
+
+.kb-facts dd {
+  margin:0;
+
+  font-size:12px;
+  line-height:1.45;
+
+  color:var(--kb-cream);
+}
+
+
+/* -------------------------------------------------
+   Angel artwork slot
+
+   Intentionally empty for now.
+
+   Final Astra asset rules:
+   - artwork stays on the RIGHT
+   - boot is at the TOP
+   - skin is at the BOTTOM
+   - one thick white boxing rope crosses the BOOT
+   - boot design must not be altered
+-------------------------------------------------- */
+
+.kb-angel-art {
+  position:relative;
+  z-index:2;
+
+  align-self:stretch;
+
+  min-height:280px;
+
+  overflow:hidden;
+  pointer-events:none;
+}
+
+.kb-angel-art img {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+
+/* -------------------------------------------------
+   Calendar
+-------------------------------------------------- */
+
+.kb-calendar-section {
+  margin-top:26px;
+}
+
+.kb-round-label {
+  margin-bottom:6px;
+
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.28em;
+
+  color:var(--kb-red);
+}
+
+.np-month {
+  padding-top:0;
+}
+
+.np-month button {
+  border-color:
+    rgba(247,238,228,.26);
+
+  color:var(--kb-cream);
+}
+
+.np-month .m-ttl {
+  color:var(--kb-cream);
+
+  font-family:var(--display);
+  font-size:22px;
+  font-style:normal;
+  font-weight:900;
+
+  letter-spacing:-.035em;
+}
+
+.np-month .m-sub {
+  color:var(--ink-55);
+}
+
+.np-cal {
+  margin-top:13px;
+
+  border-top:
+    2px solid var(--kb-red);
+
+  border-bottom:
+    1px solid rgba(247,238,228,.20);
+
+  background:
+    rgba(12,6,8,.42);
+}
+
+.np-dow {
+  border-bottom-color:
+    rgba(247,238,228,.20);
+}
+
+.np-dow div {
+  color:var(--ink-55);
+}
+
+.np-dow .sun {
+  color:var(--kb-red);
+}
+
+.np-cell {
+  position:relative;
+
+  min-height:94px;
+
+  border-right-color:
+    rgba(247,238,228,.10);
+
+  border-bottom-color:
+    rgba(247,238,228,.10);
+
+  background:
+    rgba(255,255,255,.012);
+}
+
+.np-cell:hover {
+  background:
+    rgba(227,25,55,.07);
+}
+
+.np-cell .n {
+  color:var(--ink-60);
+
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:700;
+}
+
+.np-cell.sun .n {
+  color:rgba(227,25,55,.82);
+}
+
+.np-cell.today .n {
+  color:var(--kb-red);
+
+  border-bottom-color:
+    var(--kb-red);
+}
+
+.np-cell.went {
+  outline:
+    1px solid var(--kb-gold);
+
+  outline-offset:
+    -1px;
+}
+
+.np-cell.kb-perf {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(227,25,55,.085),
+      rgba(255,255,255,.012)
+    );
+}
+
+.kb-cell-mark {
+  display:block;
+
+  width:18px;
+  height:2px;
+
+  margin-top:auto;
+
+  background:
+    var(--kb-red);
+
+  box-shadow:
+    0 0 8px rgba(227,25,55,.34);
+}
+
+.np-cell-t {
+  color:var(--kb-cream);
+
+  font-size:11px;
+  font-weight:800;
+}
+
+.np-cell-ev {
+  color:var(--kb-gold);
+
+  border-color:
+    rgba(216,181,108,.52);
+}
+
+
+/* -------------------------------------------------
+   List
+-------------------------------------------------- */
+
+.kb-entry {
+  grid-template-columns:
+    64px minmax(0,1fr) auto;
+
+  gap:14px;
+
+  border-top-color:
+    rgba(247,238,228,.13);
+
+  color:var(--kb-cream);
+}
+
+.kb-entry .lc {
+  border-right:
+    1px solid rgba(247,238,228,.16);
+
+  padding-right:12px;
+}
+
+.kb-entry .cat {
+  color:var(--kb-red);
+}
+
+.kb-entry .ttl {
+  color:var(--kb-cream);
+}
+
+.kb-entry .place {
+  color:var(--ink-55);
+}
+
+.kb-entry-time {
+  align-self:center;
+
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+
+  color:var(--kb-gold);
+}
+
+
+/* -------------------------------------------------
+   Mobile
+
+   Keep the same relationship:
+   INFO LEFT / ART RIGHT.
+
+   Art never overlaps the calendar.
+-------------------------------------------------- */
+
+@media (max-width:700px) {
+  .np-shell {
+    max-width:none;
+  }
+
+  .kb-hero {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(132px, 42%);
+
+    gap:8px;
+
+    min-height:258px;
+
+    padding:
+      21px 14px 18px;
+  }
+
+  .kb-match-label {
+    margin-bottom:12px;
+
+    font-size:9px;
+  }
+
+  .kb-hero .np-lead-ttl {
+    font-size:
+      clamp(22px, 7vw, 31px);
+  }
+
+  .kb-hero .np-lead-deck {
+    font-size:11px;
+  }
+
+  .kb-next-meta {
+    gap:5px;
+
+    font-size:11px;
+  }
+
+  .kb-facts {
+    grid-template-columns:1fr;
+
+    gap:4px;
+
+    margin-top:13px;
+  }
+
+  .kb-facts > div {
+    display:grid;
+
+    grid-template-columns:
+      48px minmax(0,1fr);
+
+    gap:5px;
+
+    padding-top:5px;
+  }
+
+  .kb-facts dt,
+  .kb-facts dd {
+    font-size:9px;
+  }
+
+  .kb-angel-art {
+    min-height:218px;
+
+    margin-right:-8px;
+  }
+
+  .kb-calendar-section {
+    margin-top:20px;
+  }
+
+  .np-cell {
+    min-height:70px;
+  }
+
+  .kb-cell-mark {
+    width:12px;
+  }
+
+  .kb-entry {
+    grid-template-columns:
+      46px minmax(0,1fr) auto;
+
+    gap:9px;
+  }
+
+  .kb-entry-time {
+    font-size:10px;
+  }
+}

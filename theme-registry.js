@@ -21,6 +21,17 @@
       settlementExportBackground:
         'themes/elisabeth-2026-6th-lucheni/assets/settlement/settlement-export-background.png'
     })
+,
+    Object.freeze({
+      id: 'kinky-boots-2025-2026-7th-lola',
+      productionId: 'kinky-boots-2025-2026-7th',
+      shortLabel:
+        '\ub864\ub77c \u00b7 \ud0b9\ud0a4\ubd80\uce20 7\uc5f0',
+      fullLabel:
+        '\ub864\ub77c \u00b7 \ud0b9\ud0a4\ubd80\uce20 7\uc5f0',
+      scheduleView:
+        'themes/kinky-boots-2025-2026-7th-lola/schedule/view.js'
+    })
   ]);
 
   const storageKey = productionId =>
