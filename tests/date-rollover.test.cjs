@@ -259,10 +259,25 @@ test(
       'utf8'
     );
 
-    const exportHtml = fs.readFileSync(
+    let exportHtml = fs.readFileSync(
       path.join(root, 'settlement-export.html'),
       'utf8'
     );
+
+    const exportThemeCssPath = path.join(
+      root,
+      'themes',
+      'elisabeth-2026-6th-lucheni',
+      'settlement',
+      'export.css'
+    );
+
+    if (fs.existsSync(exportThemeCssPath)) {
+      exportHtml += '\n' + fs.readFileSync(
+        exportThemeCssPath,
+        'utf8'
+      );
+    }
 
     const exportApp = fs.readFileSync(
       path.join(root, 'settlement-export.js'),
