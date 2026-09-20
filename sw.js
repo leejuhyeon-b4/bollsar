@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v56';
+const CACHE_VERSION = 'v57';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];

@@ -102,7 +102,7 @@ assert.equal(pwaSource.includes('???'), false);
 assert.ok(pwaSource.includes("if (modalMode === 'rebrand')"));
 assert.ok(pwaSource.includes("writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');"));
 assert.ok(pwaSource.includes('볼살씨의 하루 설치'));
-assert.ok(swSource.includes("const CACHE_VERSION = 'v56';"));
+assert.ok(swSource.includes("const CACHE_VERSION = 'v57';"));
 assert.ok(swSource.includes("const CACHE_PREFIX = 'bollsar-';"));
 assert.ok(swSource.includes("const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];"));
 
