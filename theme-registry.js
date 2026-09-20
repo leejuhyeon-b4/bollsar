@@ -8,9 +8,10 @@
     Object.freeze({
       id: 'elisabeth-2026-6th-lucheni',
       productionId: 'elisabeth-2026-6th',
-      shortLabel: '\ub8e8\ucf00\ub2c8 6\uc5f0',
+      shortLabel:
+        '\ub8e8\ucf00\ub2c8 \u00b7 \uc5d8\ub9ac\uc790\ubcb3 6\uc5f0',
       fullLabel:
-        '\uc5d8\ub9ac\uc790\ubcb3 2026 6\uc5f0 \u00b7 \ub8e8\ucf00\ub2c8',
+        '\ub8e8\ucf00\ub2c8 \u00b7 \uc5d8\ub9ac\uc790\ubcb3 6\uc5f0',
       scheduleView:
         'themes/elisabeth-2026-6th-lucheni/schedule/view.js',
       fonts:
