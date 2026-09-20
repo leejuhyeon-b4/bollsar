@@ -83,7 +83,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v54';"
+    "const CACHE_VERSION = 'v55';"
   )
 );
 
@@ -293,6 +293,57 @@ assert.ok(
 assert.ok(
   sw.includes(
     "'./themes/elisabeth-2026-6th-lucheni/settlement/theme.css'"
+  )
+);
+
+
+assert.ok(
+  settlementThemeCss.includes(
+    '/* Settlement seat presentation */'
+  )
+);
+
+for (const selector of [
+  '.st-floor-lbl',
+  '.stage-bar',
+  '.seatmap',
+  '.seat.strong-l',
+  '.is-fit .seat.on',
+  '.map-overview::backdrop'
+]) {
+  assert.ok(
+    settlementThemeCss.includes(selector)
+  );
+}
+
+for (const geometry of [
+  '--seat:11px',
+  '--seat:15px',
+  '--aisle:round(',
+  '.seatrow {'
+]) {
+  assert.ok(
+    settlement.includes(geometry)
+  );
+}
+
+assert.equal(
+  settlementThemeCss.includes(
+    '--seat:11px'
+  ),
+  false
+);
+
+assert.equal(
+  settlementThemeCss.includes(
+    '--seat:15px'
+  ),
+  false
+);
+
+assert.ok(
+  settlement.includes(
+    '.seat { border:0 !important; box-shadow:none !important; }'
   )
 );
 

@@ -43,20 +43,17 @@
 /* ═══ 좌석 배치도 ═══
    좌석번호를 그대로 grid-column으로 써서 실제 부채꼴 배열이 나온다. */
 .st-floor { margin-top:14px; }
-.st-floor + .st-floor { margin-top:18px; padding-top:14px; border-top:1px dashed var(--ink-28); }
+.st-floor + .st-floor { margin-top:18px; padding-top:14px; }
 .st-floor-lbl {
   display:inline-block; margin-bottom:6px; padding:2px 8px;
-  border:1px solid var(--ink-40); font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--ink-60);
 }
 .stage-bar {
   margin:2px 0 9px; padding:4px 0; text-align:center;
-  background:var(--ink-14); border:1px solid var(--ink-28);
-  font-family:var(--mono); font-size:12px; letter-spacing:.4em; color:var(--ink-60);
 }
 /* 배치도는 읽기 전용 — 누르는 곳이 아니므로 손가락 커서를 쓰지 않는다. */
 .seatmap-scroll { position:relative; }
 /* 배경을 평평한 종이색으로 깔아 좌석 사이 미세 틈으로 종이 질감이 비쳐 흔들리는 걸 막는다 */
-.seatmap { position:relative; display:flex; flex-direction:column; padding-bottom:4px; background:var(--paper); }
+.seatmap { position:relative; display:flex; flex-direction:column; padding-bottom:4px; }
 .seatrow { display:grid; grid-template-rows:var(--seat-h, var(--seat)); height:var(--seat-h, var(--seat)); align-items:stretch; justify-items:stretch; width:max-content; gap:0; }
 /* 공유 경계는 위/왼쪽만 그리고, 노출된 아래/오른쪽만 더한다. */
 .seat {
@@ -64,23 +61,19 @@
   min-width:var(--seat); min-height:var(--seat-h, var(--seat));
   max-width:var(--seat); max-height:var(--seat-h, var(--seat));
   border:0; box-sizing:border-box;
-  --stroke:1px; --stroke-l:var(--ink-40); --stroke-t:var(--ink-40); --stroke-e:var(--ink-40);
+  --stroke:1px;
   --stroke-r:transparent; --stroke-b:transparent;
-  background-color:var(--paper-3);
   border-style:solid;
   border-width:var(--stroke);
   border-color:var(--stroke-t) var(--stroke-r) var(--stroke-b) var(--stroke-l);
   cursor:default;
-  display:grid; place-items:center; grid-row:1; align-self:stretch; justify-self:stretch;
-  font-family:var(--mono); line-height:1; padding:0;
+  display:grid; place-items:center; grid-row:1; align-self:stretch; justify-self:stretch; line-height:1; padding:0;
 }
 .seat.edge-r { --stroke-r:var(--stroke-e); }
 .seat.edge-b { --stroke-b:var(--stroke-e); }
-.seat.strong-l { --stroke-l:var(--ink-55); }
-.seat.strong-t { --stroke-t:var(--ink-55); }
-.rl {
-  font-family:var(--mono); font-size:calc(var(--seat) * .6); line-height:1;
-  color:var(--ink-55); text-align:center; white-space:nowrap; align-self:center; grid-row:1;
+
+
+.rl { font-size:calc(var(--seat) * .6); line-height:1; text-align:center; white-space:nowrap; align-self:center; grid-row:1;
 }
 
 /* 좌석은 정수 픽셀로, 반올림 뒤 남는 폭은 복도에 배분해 열 끝을 반듯하게 유지한다. */
@@ -97,16 +90,13 @@
 .is-fit .seat {
   --stroke:.5px;
   overflow:hidden;
-  font-size:calc(var(--seat) * .66); font-weight:700;
-  color:var(--ink-72);                             /* 5의 배수 방향표시 */
+  font-size:calc(var(--seat) * .66);                             /* 5의 배수 방향표시 */
 }
 .is-fit .seat.on {                                 /* 방문 좌석 — 번호·테두리 진하게 */
-  color:var(--ink);
-  --stroke-l:var(--ink-55); --stroke-t:var(--ink-55); --stroke-e:var(--ink-55);
 }
-.is-fit .seat.on.edge-r { --stroke-r:var(--ink-55); }
-.is-fit .seat.on.edge-b { --stroke-b:var(--ink-55); }
-.is-fit .seat.nofill { background-color:var(--ink-14); }
+
+
+
 .is-fit .map-hint { display:none; }
 @media (max-width:600px) {
   .is-fit .seatmap {
@@ -120,13 +110,13 @@
   .np-mast { padding-top:56px; }
   .np-login { top:6px; min-height:44px; }
   .np-shell { --pad:14px; }
-  .np-wordmark { font-size:21px; }
+
   .st-head { grid-template-columns:52px 1fr; gap:11px; }
   .st-poster { width:52px; height:52px; }
-  .st-title { font-size:21px; }
+
   .role-name { width:100%; }
   .gate { min-height:250px; }
-  .gate-locked { max-height:360px; filter:none; opacity:.2; }
+
   .gate-cta { padding:20px 10px 16px; }
 }
 
@@ -134,15 +124,14 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
 .map-overview {
   width:calc(100vw - 20px); height:calc(100dvh - 20px);
   max-width:none; max-height:none; padding:12px;
-  border:1px solid var(--ink); background:var(--paper); color:var(--ink);
   overflow:hidden;
 }
 .map-overview[open] { display:grid; grid-template-rows:auto minmax(0,1fr); gap:8px; }
-.map-overview::backdrop { background:rgba(23,21,15,.66); }
+
 .map-overview-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.map-overview-head strong { font-family:var(--display); font-size:15px; }
+
 .map-overview-tools { display:flex; align-items:center; gap:5px; }
-.map-overview-zoom { min-width:38px; text-align:center; font-family:var(--mono); font-size:11px; }
+.map-overview-zoom { min-width:38px; text-align:center; }
 .map-overview-stage {
   min-height:0; display:flex; overflow:auto;
   overscroll-behavior:contain; -webkit-overflow-scrolling:touch;

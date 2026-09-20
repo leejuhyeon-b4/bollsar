@@ -282,3 +282,110 @@ body.logged-in .gate-cta { display:none; }
 
 /* ═══ 등장 애니메이션 대기 ═══ */
 .pre-anim .np-mast > *, .pre-anim .np-nav > *, .pre-anim .np-main > * { opacity:0; }
+
+/* Settlement seat presentation */
+.st-floor + .st-floor {
+  border-top:1px dashed var(--ink-28);
+}
+
+.st-floor-lbl {
+  border:1px solid var(--ink-40);
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  color:var(--ink-60);
+}
+
+.stage-bar {
+  background:var(--ink-14);
+  border:1px solid var(--ink-28);
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.4em;
+  color:var(--ink-60);
+}
+
+.seatmap {
+  background:var(--paper);
+}
+
+.seat {
+  background-color:var(--paper-3);
+  font-family:var(--mono);
+  --stroke-l:var(--ink-40);
+  --stroke-t:var(--ink-40);
+  --stroke-e:var(--ink-40);
+}
+
+.seat.strong-l {
+  --stroke-l:var(--ink-55);
+}
+
+.seat.strong-t {
+  --stroke-t:var(--ink-55);
+}
+
+.rl {
+  font-family:var(--mono);
+  color:var(--ink-55);
+}
+
+.is-fit .seat {
+  font-weight:700;
+  color:var(--ink-72);
+}
+
+.is-fit .seat.on {
+  color:var(--ink);
+  --stroke-l:var(--ink-55);
+  --stroke-t:var(--ink-55);
+  --stroke-e:var(--ink-55);
+}
+
+.is-fit .seat.on.edge-r {
+  --stroke-r:var(--ink-55);
+}
+
+.is-fit .seat.on.edge-b {
+  --stroke-b:var(--ink-55);
+}
+
+.is-fit .seat.nofill {
+  background-color:var(--ink-14);
+}
+
+.map-overview {
+  border:1px solid var(--ink);
+  background:var(--paper);
+  color:var(--ink);
+}
+
+.map-overview::backdrop {
+  background:rgba(23,21,15,.66);
+}
+
+.map-overview-head strong {
+  font-family:var(--display);
+  font-size:15px;
+}
+
+.map-overview-zoom {
+  font-family:var(--mono);
+  font-size:11px;
+}
+
+@media (max-width:600px) {
+  .np-wordmark {
+    font-size:21px;
+  }
+
+  .st-title {
+    font-size:21px;
+  }
+
+  .gate-locked {
+    max-height:360px;
+    filter:none;
+    opacity:.2;
+  }
+}
