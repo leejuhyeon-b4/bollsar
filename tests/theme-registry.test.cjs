@@ -83,7 +83,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v55';"
+    "const CACHE_VERSION = 'v56';"
   )
 );
 
@@ -344,6 +344,37 @@ assert.equal(
 assert.ok(
   settlement.includes(
     '.seat { border:0 !important; box-shadow:none !important; }'
+  )
+);
+
+
+assert.ok(
+  registry.includes(
+    'position: absolute;'
+  )
+);
+
+assert.ok(
+  registry.includes(
+    'left: 0;'
+  )
+);
+
+assert.ok(
+  registry.includes(
+    'top: 14px;'
+  )
+);
+
+assert.ok(
+  registry.includes(
+    '@media (max-width:600px)'
+  )
+);
+
+assert.ok(
+  registry.includes(
+    'top: 6px;'
   )
 );
 

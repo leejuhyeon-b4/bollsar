@@ -107,7 +107,10 @@
 
     style.textContent = `
       .bollsar-theme-picker {
-        position: relative;
+        position: absolute;
+        left: 0;
+        top: 14px;
+        z-index: 20;
         display: inline-block;
         vertical-align: middle;
         font: inherit;
@@ -127,6 +130,12 @@
 
       .bollsar-theme-picker > summary::-webkit-details-marker {
         display: none;
+      }
+
+      @media (max-width:600px) {
+        .bollsar-theme-picker {
+          top: 6px;
+        }
       }
 
       .bollsar-theme-menu {
