@@ -1,0 +1,69 @@
+{
+  "scene": "LOLA_Blockout_01",
+  "stage": "PRE-MATERIAL BLOCKOUT. No rig, animation, transparency, or detailed wrinkles.",
+  "coordinates": "Z up; front -Y; anatomical right -X",
+  "collections": {
+    "01_Mannequin": [
+      "MANNEQUIN_Slim_NeckCut_Torso",
+      "MANNEQUIN_R_MidThigh_ClosedCut",
+      "MANNEQUIN_L_MidThigh_ClosedCut"
+    ],
+    "02_Gown": [
+      "GOWN_Strapless_Bodice_TRUE_OpenBack",
+      "GOWN_Defined_Waist",
+      "GOWN_Long_Skirt_And_Volumetric_Train"
+    ],
+    "03_Boxing_Shorts": [
+      "SHORTS_High_Waistband",
+      "SHORTS_Hip_Yoke",
+      "SHORTS_R_Leg",
+      "SHORTS_R_Hem",
+      "SHORTS_L_Leg",
+      "SHORTS_L_Hem"
+    ],
+    "04_Gloves_Strap": [
+      "GLOVE_R_Fist",
+      "GLOVE_R_Thumb",
+      "GLOVE_R_Cuff",
+      "GLOVE_L_Fist",
+      "GLOVE_L_Thumb",
+      "GLOVE_L_Cuff",
+      "GLOVES_Black_Neck_Strap"
+    ],
+    "05_Accent": [
+      "ACCENT_Small_Side_Sheer_OPAQUE_Proxy"
+    ],
+    "90_Studio": [
+      "STUDIO_Floor",
+      "STUDIO_Key",
+      "STUDIO_Fill",
+      "STUDIO_Back",
+      "CAM_Inspection"
+    ]
+  },
+  "cut_z": 1.04,
+  "opening_bottom_z": 1.13,
+  "train_back_y": 2.15,
+  "camera": {
+    "type": "ORTHO",
+    "scale": 3.7,
+    "resolution": [
+      1100,
+      1100
+    ],
+    "elevation_degrees": 10,
+    "radius": 8,
+    "target": [
+      0,
+      0.65,
+      1.29
+    ]
+  },
+  "source_references": [
+    "../imagegen/kinky-boots-lola-mannequin-final-hero.png",
+    "../imagegen/kinky-boots-lola-mannequin-final-4-view.png"
+  ],
+  "render_engine": "Cycles CPU, 24 samples, denoised",
+  "model_object_count": 20,
+  "total_object_count": 25
+}

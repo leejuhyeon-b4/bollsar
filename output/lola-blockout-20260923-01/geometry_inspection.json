@@ -1,0 +1,369 @@
+{
+  "status": "PASS",
+  "rays_tested": 45,
+  "scene": "LOLA_Blockout_01",
+  "objects": 25,
+  "notes": "Geometry rays complement the 8-direction and close-up render review; approval is still pending.",
+  "samples": [
+    {
+      "z": 1.18,
+      "angle": 0.6965,
+      "elevation": -12,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.23619692772626877,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.6965,
+      "elevation": 3,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.23627927899360657,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.6965,
+      "elevation": 15,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.23634350299835205,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.742,
+      "elevation": -12,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.2389647215604782,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.742,
+      "elevation": 3,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.23898598551750183,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.742,
+      "elevation": 15,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.2390030175447464,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.7875,
+      "elevation": -12,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.24122389405965805,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.7875,
+      "elevation": 3,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.2412000373005867,
+      "underside_visible": false
+    },
+    {
+      "z": 1.18,
+      "angle": 0.7875,
+      "elevation": 15,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.2411823347210884,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.55175,
+      "elevation": -12,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.21493558958172798,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.55175,
+      "elevation": 3,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.21546735614538193,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.55175,
+      "elevation": 15,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.21588212624192238,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.698,
+      "elevation": -12,
+      "hit": "MANNEQUIN_R_MidThigh_ClosedCut",
+      "radial_depth": 0.17044200003147125,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.698,
+      "elevation": 3,
+      "hit": "MANNEQUIN_R_MidThigh_ClosedCut",
+      "radial_depth": 0.1693095564842224,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.698,
+      "elevation": 15,
+      "hit": "MANNEQUIN_R_MidThigh_ClosedCut",
+      "radial_depth": 0.16793954372406006,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.84425,
+      "elevation": -12,
+      "hit": "MANNEQUIN_R_MidThigh_ClosedCut",
+      "radial_depth": 0.18501995503902435,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.84425,
+      "elevation": 3,
+      "hit": "MANNEQUIN_R_MidThigh_ClosedCut",
+      "radial_depth": 0.18481087684631348,
+      "underside_visible": false
+    },
+    {
+      "z": 1.3,
+      "angle": 0.84425,
+      "elevation": 15,
+      "hit": "MANNEQUIN_R_MidThigh_ClosedCut",
+      "radial_depth": 0.18440168350934982,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.4035,
+      "elevation": -12,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.1556900292634964,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.4035,
+      "elevation": 3,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.15469352714717388,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.4035,
+      "elevation": 15,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.1837884858250618,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.657,
+      "elevation": -12,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.1821172684431076,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.657,
+      "elevation": 3,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.18271885812282562,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.657,
+      "elevation": 15,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.18319226056337357,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.9105000000000001,
+      "elevation": -12,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.20104463398456573,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.9105000000000001,
+      "elevation": 3,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.201369009912014,
+      "underside_visible": false
+    },
+    {
+      "z": 1.48,
+      "angle": 0.9105000000000001,
+      "elevation": 15,
+      "hit": "SHORTS_R_Leg",
+      "radial_depth": 0.201629139482975,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.39610000000000006,
+      "elevation": -12,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.15526197478175163,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.39610000000000006,
+      "elevation": 3,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.15745022147893906,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.39610000000000006,
+      "elevation": 15,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.15914355963468552,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.673,
+      "elevation": -12,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.16944511234760284,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.673,
+      "elevation": 3,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.1713809072971344,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.673,
+      "elevation": 15,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.17287923395633698,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.9499,
+      "elevation": -12,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.19137276709079742,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.9499,
+      "elevation": 3,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.1928173378109932,
+      "underside_visible": false
+    },
+    {
+      "z": 1.68,
+      "angle": 0.9499,
+      "elevation": 15,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.19393052905797958,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.565,
+      "elevation": -12,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.16608962044119835,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.565,
+      "elevation": 3,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.17120084539055824,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.565,
+      "elevation": 15,
+      "hit": "GOWN_Long_Skirt_And_Volumetric_Train",
+      "radial_depth": 0.17485123872756958,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.747,
+      "elevation": -12,
+      "hit": "SHORTS_High_Waistband",
+      "radial_depth": 0.1493813544511795,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.747,
+      "elevation": 3,
+      "hit": "SHORTS_High_Waistband",
+      "radial_depth": 0.15543337911367416,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.747,
+      "elevation": 15,
+      "hit": "SHORTS_Hip_Yoke",
+      "radial_depth": 0.15783566236495972,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.929,
+      "elevation": -12,
+      "hit": "SHORTS_High_Waistband",
+      "radial_depth": 0.16244740039110184,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.929,
+      "elevation": 3,
+      "hit": "SHORTS_High_Waistband",
+      "radial_depth": 0.16816359013319016,
+      "underside_visible": false
+    },
+    {
+      "z": 1.82,
+      "angle": 0.929,
+      "elevation": 15,
+      "hit": "SHORTS_High_Waistband",
+      "radial_depth": 0.17231734842061996,
+      "underside_visible": false
+    }
+  ]
+}
