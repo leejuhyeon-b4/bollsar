@@ -120,7 +120,7 @@ function entryHTML (p, extra) {
     role,
     went,
     badges,
-    PHOTO,
+    PHOTO: special ? SPECIAL_CALENDAR_PHOTO : PHOTO,
     WORK,
     dowShort,
     special,
