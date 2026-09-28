@@ -346,6 +346,25 @@ function track (name, params) {
   } catch (e) {}
 }
 
+/* One-off/special schedules kept separate from production PERFS. */
+const SPECIAL_EVENTS = Object.freeze([
+  Object.freeze({
+    y:2026, m:11, d:28, t:'16:00',
+    special:true,
+    displayWithProductionId:'elisabeth-2026-6th',
+    title:'2026 우주최강쇼 - 길리버셜 스튜디오',
+    venue:'경희대학교 평화의전당',
+    cast:{},
+    castLabel:'강홍석 & 킹키부츠 엔젤 외',
+    detailUrl:'https://m.ticketlink.co.kr/product/65916',
+    events:[{ label:'우주최강쇼', verified:true }]
+  })
+]);
+
+const specialEventsForActiveProduction = () =>
+  SPECIAL_EVENTS.filter(p =>
+    !p.displayWithProductionId || p.displayWithProductionId === WORK.id
+  );
 const perfKey  = p => [p.y, p.m, p.d, p.t].join('|');
 const daysIn   = (y, m) => new Date(y, m, 0).getDate();
 const firstDow = (y, m) => new Date(y, m - 1, 1).getDay();
@@ -354,12 +373,12 @@ const idx      = o => o.y * 12 + o.m;
 const actorName  = id => (ACTORS[id] || {}).name || '—';
 const perfFromKey = key => {
   const [y, m, d, t] = key.split('|');
-  return PERFS.find(p => p.y === +y && p.m === +m && p.d === +d && p.t === t);
+  return [...PERFS, ...specialEventsForActiveProduction()].find(p => p.y === +y && p.m === +m && p.d === +d && p.t === t);
 };
 
 /* 강홍석이 오르는 회차만 */
 const isHongPerf = p => Object.values(p.cast).includes(HONG);
-const hongPerfs  = () => PERFS.filter(isHongPerf);
+const hongPerfs  = () => [...PERFS.filter(isHongPerf), ...specialEventsForActiveProduction()].sort(cmpPerf);
 
 /* 강홍석이 맡은 배역 (이 회차 기준) */
 const hongRole = p => ROLES.find(r => p.cast[r.id] === HONG) || null;
