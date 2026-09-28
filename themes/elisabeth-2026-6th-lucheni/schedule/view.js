@@ -189,7 +189,7 @@
           <a class="np-btn solid"
              href="${p.detailUrl}"
              target="_blank"
-             rel="noopener noreferrer">?? ??? &amp; ????</a>
+             rel="noopener noreferrer">전체 캐스트 &amp; 상세정보</a>
         </div>`
       : check;
     return `
