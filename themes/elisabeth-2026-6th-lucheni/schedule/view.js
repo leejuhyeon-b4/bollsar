@@ -18,10 +18,10 @@
     displayTitle = WORK.title,
     displayVenue = WORK.venue || ''
   }) {
-    const leadKick = special ? '다가오는 스페셜 스케줄' : '다가오는 회차';
+    const leadKick = special ? '다가오는 어트랙션 - 킹키부츠 퍼레이드' : '다가오는 회차';
     const leadTitle = special ? displayTitle : `뮤지컬 &lsquo;${displayTitle}&rsquo;${role ? ` ${role} 역` : ''}`;
     const leadVenueText = displayVenue ? ' · ' + displayVenue : '';
-    const leadAlt = special ? `${ACTORS[HONG].name} 스페셜 스케줄` : `${ACTORS[HONG].name} — ${role || '루케니'} 무대컷`;
+    const leadAlt = special ? `${ACTORS[HONG].name} 킹키부츠 퍼레이드` : `${ACTORS[HONG].name} — ${role || '루케니'} 무대컷`;
     const leadCaption = special ? ACTORS[HONG].name : `Luigi Lucheni · ${ACTORS[HONG].name}`;
 
     return `<section class="np-lead">
@@ -50,7 +50,7 @@
     displayTitle = WORK.title,
     displayVenue = WORK.venue || ''
   }) {
-    const entryCategory = special ? '스페셜 스케줄' : '뮤지컬 회차';
+    const entryCategory = special ? '어트랙션' : '뮤지컬 회차';
     const entryTitle = `${displayTitle}${!special && role ? ` — ${role} 역` : ''}`;
     const entryVenue = displayVenue || '극장 미정 · 공식 공지 예정';
 
@@ -184,6 +184,14 @@
     workTitle,
     venue
   }) {
+    const sheetAction = p.special && p.detailUrl
+      ? `<div class="np-check">
+          <a class="np-btn solid"
+             href="${p.detailUrl}"
+             target="_blank"
+             rel="noopener noreferrer">?? ??? &amp; ????</a>
+        </div>`
+      : check;
     return `
     <div class="np-sheet-head">
       <span>${dowLabel}요일 · ${dday}</span>
@@ -196,10 +204,10 @@
     ${dayNav}
     <div class="np-hr"></div>
     <table class="np-cast">
-      <caption>${p.special ? '출연' : '이 회차 캐스팅'}</caption>
+      <caption>${p.special ? '킹키부츠 퍼레이드' : '이 회차 캐스팅'}</caption>
       <tbody>${rows}</tbody>
     </table>
-    ${evHTML}${hist}${check}`;
+    ${evHTML}${hist}${sheetAction}`;
   }
 
   window.BollsarScheduleTheme = Object.freeze({
@@ -207,6 +215,7 @@
 
     assets: Object.freeze({
       calendarPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/schedule/calendar-photo.jpg',
+      specialCalendarPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/schedule/universe-show-calendar-photo.jpg',
       leadPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/schedule/lead-photo.jpg'
     }),
 
