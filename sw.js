@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v57';
+const CACHE_VERSION = 'v58';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
@@ -38,7 +38,8 @@ const APP_SHELL = [
   './themes/elisabeth-2026-6th-lucheni/assets/schedule/lead-photo.jpg',
   './assets/common/icon-192.png',
   './assets/common/icon-512.png',
-  './assets/common/apple-touch-icon.png'
+  './assets/common/apple-touch-icon.png',
+  './themes/elisabeth-2026-6th-lucheni/assets/schedule/universe-show-calendar-photo.jpg',
 ];
 
 self.addEventListener('install', event => {

@@ -48,6 +48,7 @@ if (
 
 const SCHEDULE_VIEW = SCHEDULE_THEME.render;
 const PHOTO = SCHEDULE_THEME.assets.calendarPhoto;
+const SPECIAL_CALENDAR_PHOTO = SCHEDULE_THEME.assets.specialCalendarPhoto || PHOTO;
 
 /* 헤드라인 옆 컷 사진 — 루케니 무대컷. 송곳 실루엣이 이 위를 뚫고 지나간다. */
 const LEAD_PHOTO = SCHEDULE_THEME.assets.leadPhoto;
@@ -163,7 +164,7 @@ function calendarHTML () {
       times: dItems.map(p => p.t),
       eventText,
       eventCount: dEvents.length,
-      PHOTO,
+      PHOTO: dItems.some(p => p.special) ? SPECIAL_CALENDAR_PHOTO : PHOTO,
       actorName: ACTORS[HONG].name
     });
   }
@@ -234,7 +235,7 @@ function sheetHTML (p) {
   const role = special ? '' : (hongRole(p) || {}).name || '';
   const went = !special && loggedIn && !!recordFor(p);
   const kicker = [
-    special ? '<em class="cat">스페셜 스케줄</em>' : '<em class="cat">뮤지컬 회차</em>',
+    special ? '<em class="cat">어트랙션</em>' : '<em class="cat">뮤지컬 회차</em>',
     p.history ? '<em class="np-mini hist">캐스팅 변경</em>' : '',
     went ? '<em class="np-mini went">✓ 담음</em>' : ''
   ].filter(Boolean).join('');
