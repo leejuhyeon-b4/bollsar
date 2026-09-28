@@ -1,0 +1,32 @@
+[
+  {
+    "file": "train_090.png",
+    "angle": 90,
+    "scale": 3.7,
+    "elevation": 10
+  },
+  {
+    "file": "train_270.png",
+    "angle": 270,
+    "scale": 3.7,
+    "elevation": 10
+  },
+  {
+    "file": "hero_045.png",
+    "angle": 45,
+    "scale": 3.7,
+    "elevation": 10
+  },
+  {
+    "file": "opening_close.png",
+    "angle": 30,
+    "scale": 1.03,
+    "elevation": 3
+  },
+  {
+    "file": "opening_low.png",
+    "angle": 45,
+    "scale": 0.82,
+    "elevation": -12
+  }
+]

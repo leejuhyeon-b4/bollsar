@@ -1,0 +1,99 @@
+{
+  "scene": "LOLA_Shape_Pass_01",
+  "untouched": [
+    "MANNEQUIN_Slim_NeckCut_Torso",
+    "MANNEQUIN_R_MidThigh_ClosedCut",
+    "MANNEQUIN_L_MidThigh_ClosedCut",
+    "GOWN_Strapless_Bodice_TRUE_OpenBack",
+    "GOWN_Defined_Waist",
+    "SHORTS_High_Waistband",
+    "GLOVE_R_Fist",
+    "GLOVE_R_Thumb",
+    "GLOVE_R_Cuff",
+    "GLOVE_L_Fist",
+    "GLOVE_L_Thumb",
+    "GLOVE_L_Cuff",
+    "GLOVES_Black_Neck_Strap",
+    "ACCENT_Small_Side_Sheer_OPAQUE_Proxy",
+    "STUDIO_Floor"
+  ],
+  "aperture_checks": [
+    {
+      "z": 1.2,
+      "fraction": -0.5,
+      "hit": "R1_GOWN_Long_Skirt_And_Volumetric_Train"
+    },
+    {
+      "z": 1.2,
+      "fraction": 0,
+      "hit": "R1_MANNEQUIN_R_MidThigh_ClosedCut"
+    },
+    {
+      "z": 1.2,
+      "fraction": 0.5,
+      "hit": "R1_MANNEQUIN_R_MidThigh_ClosedCut"
+    },
+    {
+      "z": 1.35,
+      "fraction": -0.5,
+      "hit": "R1_MANNEQUIN_R_MidThigh_ClosedCut"
+    },
+    {
+      "z": 1.35,
+      "fraction": 0,
+      "hit": "R1_MANNEQUIN_R_MidThigh_ClosedCut"
+    },
+    {
+      "z": 1.35,
+      "fraction": 0.5,
+      "hit": "R1_MANNEQUIN_R_MidThigh_ClosedCut"
+    },
+    {
+      "z": 1.55,
+      "fraction": -0.5,
+      "hit": "R1_SHORTS_R_Continuous_Leg"
+    },
+    {
+      "z": 1.55,
+      "fraction": 0,
+      "hit": "R1_SHORTS_R_Continuous_Leg"
+    },
+    {
+      "z": 1.55,
+      "fraction": 0.5,
+      "hit": "R1_SHORTS_R_Continuous_Leg"
+    },
+    {
+      "z": 1.73,
+      "fraction": -0.5,
+      "hit": "R1_SHORTS_R_Continuous_Leg"
+    },
+    {
+      "z": 1.73,
+      "fraction": 0,
+      "hit": "R1_SHORTS_R_Continuous_Leg"
+    },
+    {
+      "z": 1.73,
+      "fraction": 0.5,
+      "hit": "R1_SHORTS_R_Continuous_Leg"
+    },
+    {
+      "z": 1.84,
+      "fraction": -0.5,
+      "hit": "R1_GOWN_Long_Skirt_And_Volumetric_Train"
+    },
+    {
+      "z": 1.84,
+      "fraction": 0,
+      "hit": "R1_SHORTS_High_Waistband"
+    },
+    {
+      "z": 1.84,
+      "fraction": 0.5,
+      "hit": "R1_SHORTS_High_Waistband"
+    }
+  ],
+  "materials_changed": false,
+  "source_blend": "../lola-blockout-20260923-01/lola-blockout.blend"
+}
