@@ -13,38 +13,54 @@
   function themeLeadHTML ({
     p, dday, role, deck,
     WORK, LEAD_PHOTO,
-    ACTORS, HONG, dowShort
+    ACTORS, HONG, dowShort,
+    special = false,
+    displayTitle = WORK.title,
+    displayVenue = WORK.venue || ''
   }) {
+    const leadKick = special ? '다가오는 스페셜 스케줄' : '다가오는 회차';
+    const leadTitle = special ? displayTitle : `뮤지컬 &lsquo;${displayTitle}&rsquo;${role ? ` ${role} 역` : ''}`;
+    const leadVenueText = displayVenue ? ' · ' + displayVenue : '';
+    const leadAlt = special ? `${ACTORS[HONG].name} 스페셜 스케줄` : `${ACTORS[HONG].name} — ${role || '루케니'} 무대컷`;
+    const leadCaption = special ? ACTORS[HONG].name : `Luigi Lucheni · ${ACTORS[HONG].name}`;
+
     return `<section class="np-lead">
       <div class="np-lead-text">
-        <div class="np-lead-kick">다가오는 회차</div>
-        <h2 class="np-lead-ttl">뮤지컬 &lsquo;${WORK.title}&rsquo;${role ? ` ${role} 역` : ''}</h2>
+        <div class="np-lead-kick">${leadKick}</div>
+        <h2 class="np-lead-ttl">${leadTitle}</h2>
         <p class="np-lead-deck">${deck}</p>
         <div class="np-lead-meta">
           <span class="dday">${dday}</span>
-          <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${WORK.venue ? ' · ' + WORK.venue : ''}</span>
+          <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${leadVenueText}</span>
         </div>
       </div>
       <figure class="np-lead-fig">
         <div class="np-cut">
-          <img src="${LEAD_PHOTO}" alt="${ACTORS[HONG].name} — ${role || '루케니'} 무대컷" loading="lazy">
+          <img src="${LEAD_PHOTO}" alt="${leadAlt}" loading="lazy">
         </div>
-        <figcaption>Luigi Lucheni · ${ACTORS[HONG].name}</figcaption>
+        <figcaption>${leadCaption}</figcaption>
       </figure>
     </section>`;
   }
 
   function themeEntryHTML ({
     p, extra, key, role, went, badges,
-    PHOTO, WORK, dowShort
+    PHOTO, WORK, dowShort,
+    special = false,
+    displayTitle = WORK.title,
+    displayVenue = WORK.venue || ''
   }) {
+    const entryCategory = special ? '스페셜 스케줄' : '뮤지컬 회차';
+    const entryTitle = `${displayTitle}${!special && role ? ` — ${role} 역` : ''}`;
+    const entryVenue = displayVenue || '극장 미정 · 공식 공지 예정';
+
     return `<button type="button" class="np-entry${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}">
       <div class="lc"><div class="big">${p.d}</div><div class="sm">${p.m}월 ${dowShort(p)}</div></div>
       <img class="np-entry-photo" src="${PHOTO}" alt="" loading="lazy">
       <div>
-        <div class="tags"><em class="cat">뮤지컬 회차</em>${badges}</div>
-        <span class="ttl">${WORK.title}${role ? ` — ${role} 역` : ''}</span>
-        <span class="place">${WORK.venue || '극장 미정 · 공식 공지 예정'}</span>
+        <div class="tags"><em class="cat">${entryCategory}</em>${badges}</div>
+        <span class="ttl">${entryTitle}</span>
+        <span class="place">${entryVenue}</span>
       </div>
     </button>`;
   }
@@ -180,7 +196,7 @@
     ${dayNav}
     <div class="np-hr"></div>
     <table class="np-cast">
-      <caption>이 회차 캐스팅</caption>
+      <caption>${p.special ? '출연' : '이 회차 캐스팅'}</caption>
       <tbody>${rows}</tbody>
     </table>
     ${evHTML}${hist}${check}`;

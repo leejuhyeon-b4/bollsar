@@ -74,10 +74,12 @@ function leadHTML () {
   if (!p) return '';
   const diff = Math.round((new Date(p.y, p.m - 1, p.d) - new Date(TODAY.y, TODAY.m - 1, TODAY.d)) / 86400000);
   const dday = diff === 0 ? 'D-DAY' : diff > 0 ? 'D-' + diff : 'D+' + Math.abs(diff);
-  const role = (hongRole(p) || {}).name || '';
+  const special = p.special === true;
+  const role = special ? '' : (hongRole(p) || {}).name || '';
 
   let deck;
-  if ((p.events || []).length) deck = `${p.events.map(e => e.label).join(' · ')} 등 회차 이벤트가 예정돼 있습니다.`;
+  if (special) deck = `${p.castLabel || ACTORS[HONG].name + ' 외'} 출연 예정입니다.`;
+  else if ((p.events || []).length) deck = `${p.events.map(e => e.label).join(' · ')} 등 회차 이벤트가 예정돼 있습니다.`;
   else if (p.history) deck = `직전 캐스팅 변경이 반영된 회차입니다.`;
   else deck = `${ACTORS[HONG].name} 배우의 출연이 예정된 회차입니다.`;
 
@@ -90,15 +92,19 @@ function leadHTML () {
     LEAD_PHOTO,
     ACTORS,
     HONG,
-    dowShort
+    dowShort,
+    special,
+    displayTitle: special ? p.title : WORK.title,
+    displayVenue: special ? p.venue : (WORK.venue || '')
   });
 }
 
 /* ── 지면 기사 한 줄 (목록형) ── */
 function entryHTML (p, extra) {
   const key = perfKey(p);
-  const role = (hongRole(p) || {}).name || '';
-  const went = loggedIn && !!recordFor(p);
+  const special = p.special === true;
+  const role = special ? '' : (hongRole(p) || {}).name || '';
+  const went = !special && loggedIn && !!recordFor(p);
 
   const badges = [
     ...(p.events || []).map(e => `<em class="np-mini${e.verified ? '' : ' unv'}">${e.label}${e.verified ? '' : ' · 미검증'}</em>`),
@@ -115,7 +121,10 @@ function entryHTML (p, extra) {
     badges,
     PHOTO,
     WORK,
-    dowShort
+    dowShort,
+    special,
+    displayTitle: special ? p.title : WORK.title,
+    displayVenue: special ? p.venue : (WORK.venue || '')
   });
 }
 
@@ -141,7 +150,7 @@ function calendarHTML () {
     const dItems = (byDay[day] || []).sort((a, b) => a.t.localeCompare(b.t));
     const isToday = ym.y === TODAY.y && ym.m === TODAY.m && day === TODAY.d;
     const isSun = (i % 7) === 6;   // 일요일 = 마지막 열
-    const dWent = loggedIn && dItems.some(p => recordFor(p));   // 담은 회차가 있는 날
+    const dWent = loggedIn && dItems.some(p => !p.special && recordFor(p));   // 담은 회차가 있는 날
     const cls = ['np-cell', isToday ? 'today' : '', isSun ? 'sun' : '', dWent ? 'went' : ''].join(' ').replace(/\s+/g, ' ').trim();
     const dEvents = dItems.flatMap(p => p.events || []);
     const eventLabel = dEvents[0]?.label || '';
@@ -212,6 +221,7 @@ function listHTML () {
 function sheetHTML (p) {
   const diff = Math.round((new Date(p.y, p.m - 1, p.d) - new Date(TODAY.y, TODAY.m - 1, TODAY.d)) / 86400000);
   const dday = diff === 0 ? 'D-DAY' : diff > 0 ? 'D-' + diff : 'D+' + Math.abs(diff);
+  const special = p.special === true;
 
   const sameDay = hongPerfs().filter(q => q.y === p.y && q.m === p.m && q.d === p.d).sort(cmpPerf);
   const dayNav = sameDay.length > 1
@@ -221,15 +231,17 @@ function sheetHTML (p) {
       }).join('')}</div>`
     : '';
 
-  const role = (hongRole(p) || {}).name || '';
-  const went = loggedIn && !!recordFor(p);
+  const role = special ? '' : (hongRole(p) || {}).name || '';
+  const went = !special && loggedIn && !!recordFor(p);
   const kicker = [
-    '<em class="cat">뮤지컬 회차</em>',
+    special ? '<em class="cat">스페셜 스케줄</em>' : '<em class="cat">뮤지컬 회차</em>',
     p.history ? '<em class="np-mini hist">캐스팅 변경</em>' : '',
     went ? '<em class="np-mini went">✓ 담음</em>' : ''
   ].filter(Boolean).join('');
 
-  const rows = ROLES.map(r => {
+  const rows = special
+    ? `<tr><th>출연</th><td><span class="on">${p.castLabel || '강홍석 외'}</span></td></tr>`
+    : ROLES.map(r => {
     const a = p.cast[r.id];
     if (!a) return '';
     const alts = r.actors.filter(x => x !== a);
@@ -247,8 +259,15 @@ function sheetHTML (p) {
         <span>${p.history.when} 반영 · 예정 캐스팅은 이력에 보관됩니다</span></div>`
     : '';
 
-  const rec = recordFor(p);
-  const check = loggedIn
+  const rec = special ? null : recordFor(p);
+  const check = special
+    ? `<div class="np-check">
+        <a class="np-btn solid"
+           href="${p.detailUrl}"
+           target="_blank"
+           rel="noopener noreferrer">전체 캐스트 &amp; 상세정보</a>
+      </div>`
+    : loggedIn
     ? `<div class="np-check">
         <button type="button" class="np-btn ${rec ? 'solid' : ''} js-check" aria-pressed="${!!rec}">${rec ? '✓ 이 회차 담음' : '이 회차 담기'}</button>
         ${rec ? '' : `<span class="hint">눌러서 관극 기록을 남기세요</span>`}
@@ -270,8 +289,8 @@ function sheetHTML (p) {
     evHTML,
     hist,
     check,
-    workTitle: WORK.title,
-    venue: WORK.venue || ''
+    workTitle: special ? p.title : WORK.title,
+    venue: special ? p.venue : (WORK.venue || '')
   });
 }
 
