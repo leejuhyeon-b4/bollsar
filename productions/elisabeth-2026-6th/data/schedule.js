@@ -176,6 +176,7 @@ const PERFS = [
   { y:2026, m:11, d:7,  t:'19:00', cast:{ eli:'pjy',  tod:'kes', lucheni:'ny',   josef:'pms', sophie:'ja',  rudolf:'kws' } },
   { y:2026, m:11, d:8,  t:'15:00', cast:{ eli:'rina', tod:'sgs', lucheni:'pet',  josef:'myg', sophie:'sjy', rudolf:'jys' } },
   { y:2026, m:11, d:10, t:'14:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'ny',   josef:'pms', sophie:'sjy', rudolf:'kws' } },
+  { y:2026, m:11, d:10, t:'19:30', cast:{ eli:'rina', tod:'kjs', lucheni:'hong', josef:'pms', sophie:'sjy', rudolf:'kws' }, events:[{ label:'yes24day', verified:true }], notice:'EMK 멤버십 스탬프 적립이 불가합니다.' },
   { y:2026, m:11, d:11, t:'14:30', cast:{ eli:'ljh',  tod:'kes', lucheni:'ny',   josef:'myg', sophie:'ja',  rudolf:'jys' } },
   { y:2026, m:11, d:12, t:'19:30', cast:{ eli:'pjy',  tod:'kjs', lucheni:'pet',  josef:'pms', sophie:'ja',  rudolf:'kws' } },
   { y:2026, m:11, d:13, t:'14:30', cast:{ eli:'rina', tod:'sgs', lucheni:'hong', josef:'myg', sophie:'sjy', rudolf:'jys' } },

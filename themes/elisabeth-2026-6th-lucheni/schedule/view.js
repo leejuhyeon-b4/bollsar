@@ -207,7 +207,7 @@
       <caption>${p.special ? '킹키부츠 퍼레이드' : '이 회차 캐스팅'}</caption>
       <tbody>${rows}</tbody>
     </table>
-    ${evHTML}${hist}${sheetAction}`;
+    ${evHTML}${p.notice ? `<p class="np-sheet-sub">${p.notice}</p>` : ""}${hist}${sheetAction}`;
   }
 
   window.BollsarScheduleTheme = Object.freeze({
