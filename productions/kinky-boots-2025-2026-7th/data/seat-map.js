@@ -96,3 +96,15 @@ const SEAT_MAP = {
     }
   ]
 };
+
+/* Tour seat-record metadata. Actual numbered maps remain venue data. */
+const TOUR_SEAT_VENUES = Object.freeze({
+  '고양아람누리 아람극장': { code:'GOY', floors:4 },
+  '성남아트센터 오페라하우스': { code:'SNM' },
+  'GS칼텍스 예울마루 대극장': { code:'YSU' },
+  '한국소리문화의전당 모악당': { code:'JJO' },
+  '용인포은아트홀': { code:'YIN' },
+  '광주예술의전당 대극장': { code:'GWJ' },
+  '계명아트센터': { code:'DGU' },
+  '부산 드림씨어터': { code:'BSN' }
+});
