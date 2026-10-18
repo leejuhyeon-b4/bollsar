@@ -180,8 +180,20 @@ function seatVisitCounts (list) {
 /* 앉은 횟수 → 색. 진하기 대신 아예 다른 색을 써서 떨어진 좌석끼리도 바로 구분된다.
    유저가 그 횟수 칸에 색을 안 골랐으면 null (좌석은 회색으로, 색 칸은 점선 빈칸으로). */
 const colorHex = id => (SEAT_COLORS.find(c => c.id === id) || SEAT_COLORS[0]).hex;
-const visitColorStorageKey = () =>
-  migratedScopedUserStorageKey(VISIT_COLOR_STORAGE_KEY, LEGACY_VISIT_COLOR_STORAGE_KEYS);
+const visitColorStorageKey = () => {
+  const themeId = window.BollsarThemeRegistry.selectedThemeId(ACTIVE_PRODUCTION_ID);
+  const currentKey = `${VISIT_COLOR_STORAGE_KEY}.production.${ACTIVE_PRODUCTION_ID}.theme.${themeId}.${scopedUserStorageSuffix()}`;
+  const legacyKeys = [productionScopedUserStorageKey(VISIT_COLOR_STORAGE_KEY)];
+  // The old shared palette belongs to the original Elisabeth theme.
+  if (ACTIVE_PRODUCTION_ID === 'elisabeth-2026-6th') {
+    legacyKeys.push(
+      legacyScopedUserStorageKey(VISIT_COLOR_STORAGE_KEY),
+      ...LEGACY_VISIT_COLOR_STORAGE_KEYS.map(legacyScopedUserStorageKey)
+    );
+  }
+  migrateStorageValue(localStorage, currentKey, legacyKeys);
+  return currentKey;
+};
 function loadVisitColors () {
   try {
     const saved = JSON.parse(localStorage.getItem(visitColorStorageKey()) || '{}');

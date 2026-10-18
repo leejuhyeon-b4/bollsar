@@ -46,11 +46,9 @@ for (const [production, theme] of Object.entries(productions)) {
       const kinky = production.startsWith('kinky');
       const base = `themes/${theme}`;
       const styles = ['themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'];
+      if (page === 'settlement') styles.push('themes/elisabeth-2026-6th-lucheni/settlement/theme.css');
       if (kinky) styles.push(`${base}/schedule/theme.css`);
-      if (page === 'settlement') {
-        styles.push('themes/elisabeth-2026-6th-lucheni/settlement/theme.css'); // Existing shared dialog styles precede the production override.
-        if (kinky) styles.push(`${base}/settlement/theme.css`);
-      }
+      if (page === 'settlement' && kinky) styles.push(`${base}/settlement/theme.css`);
       if (page === 'schedule' && kinky) styles.push(`${base}/schedule/lola-viewer.css`);
       assert.deepEqual(loaded.filter(x => x.tag === 'link').map(x => x.href), styles);
       const scripts = [
@@ -71,6 +69,16 @@ for (const [production, theme] of Object.entries(productions)) {
   }
 }
 
+test('first visit defaults to Lucheni and preserves an explicit saved production', async () => {
+  for (const page of ['schedule', 'settlement']) {
+    const fresh = await boot(page);
+    assert.equal(fresh.context.window.BollsarProduction.id, 'elisabeth-2026-6th');
+    assert.equal(fresh.values.get('bollsar.production.v1'), 'elisabeth-2026-6th');
+    const saved = await boot(page, '', 'kinky-boots-2025-2026-7th');
+    assert.equal(saved.context.window.BollsarProduction.id, 'kinky-boots-2025-2026-7th');
+  }
+});
+
 test('validated query overrides saved selection; invalid query falls back safely', async () => {
   const kinky = 'kinky-boots-2025-2026-7th', elisabeth = 'elisabeth-2026-6th';
   assert.equal((await boot('schedule', `?production=${elisabeth}`, kinky)).context.window.BollsarProduction.id, elisabeth);
@@ -78,7 +86,7 @@ test('validated query overrides saved selection; invalid query falls back safely
     const result = await boot('schedule', `?production=${encodeURIComponent(invalid)}`, elisabeth);
     assert.equal(result.context.window.BollsarProduction.id, elisabeth);
     const fallback = await boot('settlement', `?production=${encodeURIComponent(invalid)}`, invalid);
-    assert.equal(fallback.context.window.BollsarProduction.id, kinky);
+    assert.equal(fallback.context.window.BollsarProduction.id, elisabeth);
     assert.equal(fallback.loaded.some(x => (x.src || x.href).includes(invalid)), false);
   }
 });
