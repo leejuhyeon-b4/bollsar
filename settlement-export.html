@@ -2,16 +2,28 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>엘리자벳 · 2026 6연 정산판 미리보기</title>
+<title>킹키부츠 · 2025–2026 7연 정산판 미리보기</title>
 <link id="settlementExportThemeFonts" rel="stylesheet">
 <link id="settlementExportThemeStylesheet" rel="stylesheet">
 </head>
 <body>
 <main id="board">
-  <img class="backdrop" alt="엘리자벳 궁전 배경과 금색 테두리">
-  <div class="text subtitle">2026 6연 정산판</div>
-  <div class="text venue">블루스퀘어 우리은행홀<div class="period">공연 기간<br>2026.08.16 ~ 2026.11.15</div></div>
-  <div class="text tally">관람횟수 / 총 공연 횟수<div class="value" id="total"></div></div>
+  <img class="backdrop" alt="흰 종이를 담은 갈색 이력서 파일">
+    <div class="resume-clip" aria-hidden="true">
+    <img class="resume-clip-loop" src="themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-clip-inner-loop.svg" alt="">
+  </div>
+  <header class="kb-export-header">
+    <img class="resume-logo" src="themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-title-red-glitter.png" alt="킹키부츠">
+    <div class="text subtitle">2025–2026 7연 정산판</div>
+    <div class="text venue">서울 · 샤롯데씨어터</div>
+    <div class="text tally">관람 이력 / 총 회차<div class="value" id="total"></div></div>
+    <div id="regional-stats" aria-label="지방 공연 관람 횟수와 총 회차"></div>
+    <div class="resume-photo">
+      <img src="themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-id-photo.jpg" alt="롤라 증명사진">
+    </div>
+    <span class="accepted-stamp">ACCEPTED</span>
+    <dl class="resume-details"><div><dt>이름</dt><dd>사이먼</dd></div><div><dt>활동명</dt><dd>롤라</dd></div><div><dt>거주지</dt><dd>런던</dd></div><div><dt>배정 직무</dt><dd class="designer-handwriting">디자이너</dd></div></dl>
+  </header>
   <div id="cast"></div>
   <section class="pair-box" id="pair-box" aria-label="페어 조합 최대 4개" hidden>
     <h2>페어 조합</h2>
@@ -30,11 +42,12 @@
   </div>
 </main>
 <script src="assets/common/html2canvas-1.4.1.min.js"></script>
-<script src="productions/elisabeth-2026-6th/data/schedule.js"></script>
-<script src="productions/elisabeth-2026-6th/data/seat-map.js"></script>
+<script src="productions/kinky-boots-2025-2026-7th/data/schedule.js"></script>
+<script src="productions/kinky-boots-2025-2026-7th/data/seat-map.js"></script>
 <script src="data.js"></script>
-<script src="theme-registry.js"></script>
+<script src="theme-registry.js?v=kinky-resume-v7"></script>
 <script src="seat-lines.js"></script>
-<script src="settlement-export.js"></script>
+<script src="themes/kinky-boots-2025-2026-7th-lola/assets/settlement/portrait-crops.js"></script>
+<script src="settlement-export.js?v=kinky-resume-v12"></script>
 </body>
 </html>

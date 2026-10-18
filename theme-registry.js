@@ -30,7 +30,13 @@
       fullLabel:
         '\ub864\ub77c \u00b7 \ud0b9\ud0a4\ubd80\uce20 7\uc5f0',
       scheduleView:
-        'themes/kinky-boots-2025-2026-7th-lola/schedule/view.js'
+        'themes/kinky-boots-2025-2026-7th-lola/schedule/view.js',
+      fonts:
+        'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
+      settlementExportStylesheet:
+        'themes/kinky-boots-2025-2026-7th-lola/settlement/export.css',
+      settlementExportBackground:
+        'themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-resume-paper-v3.png'
     })
   ]);
 
@@ -52,8 +58,7 @@
     null;
 
   function selectedThemeId (productionId) {
-    const available =
-      listForProduction(productionId);
+    const available = listForProduction(productionId);
 
     if (!available.length) return null;
 
@@ -214,8 +219,7 @@
       return;
     }
 
-    const available =
-      listForProduction(productionId);
+    const available = THEMES;
 
     if (!available.length) return;
 
@@ -279,11 +283,16 @@
           picker.open = false;
 
           if (
-            theme.id ===
+            theme.productionId === productionId && theme.id ===
             selectedThemeId(
               productionId
             )
           ) {
+            return;
+          }
+
+          if (theme.productionId !== productionId) {
+            window.BollsarProduction?.select(theme.productionId);
             return;
           }
 

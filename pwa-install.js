@@ -5,7 +5,7 @@
   const LEGACY_NEVER_KEYS = ['hongcal.install.never.v1'];
   const STANDALONE_SESSION_KEY = 'bollsar.analytics.standalone-session.v1';
   const LEGACY_STANDALONE_SESSION_KEYS = ['hongcal.analytics.standalone-session.v1'];
-  const REBRAND_NOTICE_KEY = 'bollsar.rebrand-notice.v2';
+  const REBRAND_NOTICE_KEY = 'bollsar.kinky-boots-7th-notice.v2';
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
@@ -18,9 +18,7 @@
   migrateStorageValue(localStorage, NEVER_KEY, LEGACY_NEVER_KEYS);
   migrateStorageValue(sessionStorage, STANDALONE_SESSION_KEY, LEGACY_STANDALONE_SESSION_KEYS);
 
-  if (!isStandalone && readStorage(localStorage, REBRAND_NOTICE_KEY) === null) {
-    writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
-  }
+
 
   trackUsage('settlement_view', /\/settlement\.html$/.test(window.location.pathname));
   const imageSaveButton = document.querySelector('.js-save');
@@ -43,7 +41,7 @@
     });
   }
 
-  if (isStandalone && readStorage(localStorage, REBRAND_NOTICE_KEY) !== '1') {
+  if (readStorage(localStorage, REBRAND_NOTICE_KEY) !== '1') {
     injectModal();
     setMode('rebrand');
     showRebrandNotice();
@@ -64,7 +62,6 @@
 
   window.addEventListener('appinstalled', function () {
     installPrompt = null;
-    writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
     trackUsage('pwa_install_success', true);
     hideModal();
   });
@@ -164,7 +161,7 @@
       button.addEventListener('click', hideModal);
     });
     wrap.querySelector('[data-pwa-never]').addEventListener('click', function () {
-      writeStorage(localStorage, NEVER_KEY, '1');
+      writeStorage(localStorage, modalMode === 'rebrand' ? REBRAND_NOTICE_KEY : NEVER_KEY, '1');
       hideModal();
     });
     wrap.querySelector('[data-pwa-install]').addEventListener('click', function () {
@@ -192,19 +189,15 @@
     const never = wrap.querySelector('[data-pwa-never]');
 
     if (mode === 'rebrand') {
-      title.textContent = '홍캘이 볼살씨의 하루로 바뀌었습니다';
-      copy.textContent = '서비스 이름이 홍캘에서 볼살씨의 하루로 변경되었습니다. 계정과 관극 기록은 그대로 유지됩니다.';
+      title.textContent = '킹키부츠 7연 테마 오픈!';
+      copy.textContent = '2025-26 7연 킹키부츠 테마가 오픈되었어요. 왼쪽 상단에서 테마를 선택하시면 2025-26 7연 킹키부츠의 스케줄과 정산판 기능을 사용할 수 있어요.';
 
-      guide.hidden = false;
+      guide.hidden = true;
+      guide.textContent = '';
       button.hidden = false;
       button.textContent = '확인';
-      never.hidden = true;
-
-      if (isIOS) {
-        guide.innerHTML = '<strong>iPhone · iPad 홈 화면 이름</strong><ol><li>기존 홈 화면 이름은 iOS에서 자동으로 바뀌지 않을 수 있습니다.</li><li>홈 화면에도 볼살씨의 하루로 표시하려면 기존 앱을 삭제한 뒤 Safari에서 다시 홈 화면에 추가해 주세요.</li><li>로그인하지 않은 상태에서만 저장한 기록이 있다면 삭제 전에 먼저 로그인해 기록을 동기화해 주세요.</li></ol>';
-      } else {
-        guide.innerHTML = '<strong>Android 홈 화면 이름</strong><ol><li>Chrome이 설치 정보를 갱신하면 홈 화면 이름도 볼살씨의 하루로 변경될 수 있습니다.</li><li>바로 바뀌지 않아도 앱 데이터와 기능은 최신 상태입니다.</li></ol>';
-      }
+      never.hidden = false;
+      never.textContent = '다시 보지 않기';
 
       return;
     }
@@ -241,7 +234,6 @@
     await prompt.prompt();
     const choice = await prompt.userChoice;
     if (choice.outcome === 'accepted') {
-      writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
       trackUsage('pwa_install_accepted', true);
       hideModal();
     }
@@ -277,9 +269,7 @@
   function hideModal () {
     if (!wrap) return;
 
-    if (modalMode === 'rebrand') {
-      writeStorage(localStorage, REBRAND_NOTICE_KEY, '1');
-    }
+
 
     wrap.hidden = true;
     modalMode = null;

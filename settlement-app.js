@@ -33,6 +33,7 @@ function enter () {
 /* 로그인 상태는 Supabase 세션이 결정한다 (data.js mountAuth). 시작은 로그아웃 → 게이트. */
 let loggedIn    = false;
 let hongOnly    = true;    // 📌 기본값 — 강홍석 회차만. 한 번 더 누르면 전 회차.
+let includeTour = true;  // 지방 공연 포함 (기본 ON)
 let completedOnly = true;  // 기본값 — 오늘 이전에 끝난 회차만 정산한다.
 let visitColors = { ...DEFAULT_VISIT_COLORS };  // { 앉은횟수: 색id }
 let heldColor   = null;                         // 터치용 — 팔레트에서 눌러 '들고 있는' 색
@@ -146,22 +147,30 @@ function saveFavoritePairs () {
 
 
 /* ═══ 집계 ═══ */
+function isTourPerf (perf) {
+  return !!perf && !!perf.venue && perf.venue !== WORK.venue;
+}
+
 function myRecords () {
   return MY_RECORDS
     .map(rec => ({ rec, perf: perfFromKey(rec.key) }))
     .filter(x => x.perf
+      && (includeTour || !isTourPerf(x.perf))
       && (!hongOnly || isHongPerf(x.perf))
       && (!completedOnly || isPast(x.perf)))
     .sort((a, b) => cmpPerf(a.perf, b.perf));
 }
-const denominator = () => PERFS.filter(perf =>
-  (!hongOnly || isHongPerf(perf))
+const settlementPerformances = () => PERFS.filter(perf =>
+  (includeTour || !isTourPerf(perf))
+  && (!hongOnly || isHongPerf(perf))
   && (!completedOnly || isPast(perf))
-).length;
+);
+const denominator = () => settlementPerformances().length;
 
 function seatVisitCounts (list) {
   const map = new Map();
-  list.forEach(({ rec }) => {
+  list.forEach(({ perf, rec }) => {
+    if ((perf.venue || WORK.venue) !== SEAT_MAP.venue) return;
     if (!rec.seat) return;
     map.set(rec.seat, (map.get(rec.seat) || 0) + 1);
   });
@@ -265,6 +274,10 @@ function bodyHTML () {
       <input type="checkbox" class="js-completed-only" ${completedOnly ? 'checked' : ''}>
       <b>지난 회차만 정산</b><small>해제하면 예정 회차도 포함</small>
     </label>
+    <label class="st-period-filter">
+      <input type="checkbox" class="js-include-tour" ${includeTour ? 'checked' : ''}>
+      <b>지방 공연 포함</b><small>해제하면 서울 회차만 표시</small>
+    </label>
     ${hongOnly ? '' : '<p class="st-all-note">아래 기록 추가에서 모든 회차를 담을 수 있습니다.</p>'}
   </div>`;
 
@@ -278,7 +291,7 @@ function bodyHTML () {
         <button type="button" class="np-btn sm js-map-overview">확대해서 보기</button>
       </div>
       ${slotsHTML()}
-      ${seatMapHTML(list)}
+      ${seatMapHTML(list)}${tourSeatsHTML(list)}
     </div>
     ${recordsHTML(list)}
     ${favoritePairsHTML(list)}
@@ -328,6 +341,37 @@ function slotsHTML () {
 
 /* ── 좌석 배치도 — 1·2·3층 전부, 읽기 전용.
    색은 관극 기록에서만 채워진다 (앉은 횟수마다 다른 색). ── */
+/* 지방 공연장별 좌석 기록. 서울 좌석배치도와 합산하지 않는다. */
+function tourSeatsHTML (list) {
+  if (typeof TOUR_SEAT_VENUES === 'undefined') return '';
+  const groups = new Map();
+
+  list.forEach(({ perf, rec }) => {
+    const venue = perf.venue || WORK.venue;
+    if (!TOUR_SEAT_VENUES[venue]) return;
+    if (!rec.seat || !/^(TV:|GY:)/.test(rec.seat)) return;
+
+    const seats = groups.get(venue) || new Map();
+    seats.set(rec.seat, (seats.get(rec.seat) || 0) + 1);
+    groups.set(venue, seats);
+  });
+
+  if (!groups.size) return '';
+
+  return [...groups.entries()].map(([venue, seats]) => {
+    const items = [...seats.entries()].map(([id, count]) =>
+      `<div>${seatLabel(id)} · ${count}회</div>`
+    ).join('');
+
+    return `<div class="st-sec">
+      <div class="st-sec-head">
+        <span class="cnt">${venue}</span>
+      </div>
+      <div class="np-check">${items}</div>
+    </div>`;
+  }).join('');
+}
+
 function seatMapHTML (list) {
   const counts = seatVisitCounts(list);
   const aisleScale = .35;
@@ -393,7 +437,7 @@ function recordsHTML (list) {
   const rows = list.length
     ? list.map(({ rec, perf }) => `<div class="rec-card">
         <div class="top">
-          <span class="when">${perf.m}.${perf.d} ${perf.t}</span>
+          <span class="when">${perf.y}.${perf.m}.${perf.d} ${perf.t} · ${isTourPerf(perf) ? perf.venue : '서울'}</span>
           <span class="seatinfo">${rec.seat ? seatLabel(rec.seat) : '좌석 미정'}</span>
         </div>
         <div class="cast">${castLine(perf)}</div>
@@ -415,9 +459,53 @@ function recordsHTML (list) {
 }
 
 /* ── 페어 조합 즐겨찾기 (배역별 상대 배우 조합을 골라 담아 둔다) ── */
+/* === KINKY PAIR ORDER V18 START === */
+
+const KINKY_PAIR_ROLE_ORDER = [
+  '찰리',
+  '롤라',
+  '로렌',
+  '돈',
+  '니콜라'
+];
+
+const KINKY_PAIR_ACTOR_ORDER = {
+  '찰리': ['김호영','이재환','신재범'],
+  '롤라': ['강홍석','백형훈','서경수'],
+  '로렌': ['한재아','허윤슬'],
+  '돈': ['신승환','심재현','김동현'],
+  '니콜라': ['이루원','유주연']
+};
+
+function kinkyOrderedRoles () {
+  const rank = name => {
+    const i = KINKY_PAIR_ROLE_ORDER.indexOf(name);
+    return i < 0 ? 999 : i;
+  };
+
+  return [...doubleRoles()].sort(
+    (a,b) => rank(a.name) - rank(b.name)
+  );
+}
+
+function kinkyOrderedActors (role) {
+  const wanted = KINKY_PAIR_ACTOR_ORDER[role.name];
+  if (!wanted) return [...role.actors];
+
+  const rank = id => {
+    const i = wanted.indexOf(actorName(id));
+    return i < 0 ? 999 : i;
+  };
+
+  return [...role.actors].sort(
+    (a,b) => rank(a) - rank(b)
+  );
+}
+
+/* === KINKY PAIR ORDER V18 END === */
 function favoritePairsHTML (list) {
-  const picker = doubleRoles().map(r => {
-    const chips = r.actors.map(aId => {
+  const picker = kinkyOrderedRoles().map(r => {
+    const chips = kinkyOrderedActors(r).map(aId => {
       const on = pairFix[r.id] === aId;
       return `<button type="button" class="chip js-pair-fix" data-role="${r.id}" data-actor="${aId}" aria-pressed="${on}">${actorName(aId)}</button>`;
     }).join('');
@@ -469,6 +557,7 @@ const castLine = perf => ROLES
 function addRecordHTML () {
   const taken = new Set(MY_RECORDS.map(r => r.key));
   const opts = PERFS
+    .filter(p => includeTour || !isTourPerf(p))
     .filter(p => !hongOnly || isHongPerf(p))
     .sort(cmpPerf);
 
@@ -477,7 +566,7 @@ function addRecordHTML () {
   const perfSel = opts.map(p => {
     const k = perfKey(p);
     const isTaken = taken.has(k);
-    return `<option value="${k}"${isTaken ? ' disabled' : ''}${k === newRecKey ? ' selected' : ''}>${p.m}월 ${p.d}일 ${p.t}${isTaken ? ' · 기록 있음' : ''}</option>`;
+    return `<option value="${k}"${isTaken ? ' disabled' : ''}${k === newRecKey ? ' selected' : ''}>${p.y}.${p.m}.${p.d} ${p.t} · ${isTourPerf(p) ? p.venue : '서울'}${isTaken ? ' · 기록 있음' : ''}</option>`;
   }).join('');
 
   const floor = floorById(newFloor) || SEAT_MAP.floors[0];
@@ -522,11 +611,20 @@ function fitMapOverview () {
 }
 
 let settlementExportFramePromise;
+const developerPortraitEditing=['localhost','127.0.0.1','[::1]'].includes(location.hostname)&&new URLSearchParams(location.search).get('editPhotos')==='1';
 function settlementExportFrame () {
   if (settlementExportFramePromise) return settlementExportFramePromise;
   settlementExportFramePromise = new Promise((resolve, reject) => {
     const frame = document.createElement('iframe');
-    frame.src = 'settlement-export.html';
+    if (!['elisabeth-2026-6th','kinky-boots-2025-2026-7th'].includes(WORK.id)) {
+      throw Error('Unsupported settlement production');
+    }
+    const exportPage = WORK.id === 'elisabeth-2026-6th'
+      ? 'themes/elisabeth-2026-6th-lucheni/settlement/export.html'
+      : 'settlement-export.html';
+    const exportParams = new URLSearchParams({v:'kinky-resume-v12',production:WORK.id});
+    if (developerPortraitEditing) exportParams.set('editPhotos','1');
+    frame.src = exportPage+'?'+exportParams;
     frame.title = '정산판 이미지 생성';
     frame.setAttribute('aria-hidden', 'true');
     Object.assign(frame.style, {
@@ -567,18 +665,15 @@ async function previewSettlementImage (button) {
   try {
     const frame = await settlementExportFrame();
     const target = frame.contentWindow;
-    const performances = PERFS.filter(perf =>
-      (!hongOnly || isHongPerf(perf)) && (!completedOnly || isPast(perf))
-    );
+    const performances = settlementPerformances();
     const records = myRecords();
     const pairs = favoritePairs.slice(0, FAVORITE_MAX).map(fix => ({
       names:ROLES.filter(role => fix[role.id]).map(role => actorName(fix[role.id])).slice(0, 4),
       watched:recordsMatchingFix(records, fix).length,
       total:performances.filter(perf => Object.entries(fix).every(([role, actor]) => perf.cast[role] === actor)).length
     }));
-    target.setSettlementPreview({ visitColors:{ ...visitColors }, records, performances });
+    target.setSettlementPreview({ visitColors:{ ...visitColors }, records, performances, includeTour });
     target.setPairCombinations(pairs);
-    await new Promise(resolve => target.requestAnimationFrame(() => target.requestAnimationFrame(resolve)));
     const blob = await target.exportSettlementPng();
     const url = URL.createObjectURL(blob);
     clearSettlementPreview();
@@ -594,6 +689,7 @@ async function previewSettlementImage (button) {
     button.disabled = false;
   }
 }
+
 
 /* ═══════════════════════════════════════════════════════════
    이벤트 바인딩
@@ -613,6 +709,13 @@ function bind () {
     render();
   });
 
+  const tourToggle = $('.js-include-tour');
+  if (tourToggle) tourToggle.addEventListener('change', () => {
+    includeTour = tourToggle.checked;
+    newRecKey = null;
+    pairFix = {};
+    render();
+  });
   const overview = $('#mapOverview');
   const overviewOpen = $('.js-map-overview');
   if (overviewOpen) overviewOpen.addEventListener('click', () => {
@@ -659,7 +762,38 @@ function bind () {
   });
 
   const recPerf = $('.js-rec-perf');
-  if (recPerf) recPerf.addEventListener('change', e => { newRecKey = e.target.value; });
+  if (recPerf) {
+    const updateAddSeatFields = () => {
+      const tourSelected = isTourPerf(perfFromKey(recPerf.value));
+
+      ['.js-nf', '.js-nr', '.js-nn'].forEach(selector => {
+        const control = $(selector);
+        if (control) control.disabled = tourSelected;
+      });
+
+      const form = recPerf.closest('.rec-add');
+      if (!form) return;
+
+      let hint = form.querySelector('.js-tour-add-hint');
+      if (!hint) {
+        hint = document.createElement('p');
+        hint.className = 'rec-empty js-tour-add-hint';
+        form.appendChild(hint);
+      }
+
+      hint.textContent = tourSelected
+        ? '지방 회차는 여기서 먼저 기록을 추가하고, 스케줄 탭에서 해당 공연장 좌석을 선택해 주세요.'
+        : '';
+      hint.hidden = !tourSelected;
+    };
+
+    recPerf.addEventListener('change', e => {
+      newRecKey = e.target.value;
+      updateAddSeatFields();
+    });
+
+    updateAddSeatFields();
+  }
 
   const nf = $('.js-nf');
   if (nf) nf.addEventListener('change', e => { newFloor = e.target.value; newRow = null; newNo = null; render(); });
@@ -673,7 +807,11 @@ function bind () {
     const key = ($('.js-rec-perf') || {}).value || newRecKey;
     const f = ($('.js-nf') || {}).value, r = ($('.js-nr') || {}).value, n = ($('.js-nn') || {}).value;
     if (!key || MY_RECORDS.some(x => x.key === key)) return;
-    const seat = (f && r && n) ? seatId(f, r, n) : null;
+    const selectedPerf = perfFromKey(key);
+    if (!selectedPerf) return;
+    const seat = !isTourPerf(selectedPerf) && f && r && n
+      ? seatId(f, r, n)
+      : null;
     MY_RECORDS.push({ key, seat });
     track('add_record', { has_seat:!!seat, source:'settlement' });
     saveRecords();
@@ -744,7 +882,7 @@ $('.js-save-confirm').addEventListener('click', () => {
   const link = document.createElement('a');
   const stamp = new Date().toLocaleDateString('sv-SE', { timeZone:'Asia/Seoul' });
   link.href = pendingSettlementImage.url;
-  link.download = `엘리자벳-2026-6연-정산판-${stamp}.png`;
+  link.download = `${WORK.title}-${WORK.run}-정산판-${stamp}.png`;
   document.body.append(link);
   link.click();
   link.remove();

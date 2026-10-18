@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v59';
+const CACHE_VERSION = 'v84';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
@@ -14,13 +14,24 @@ const APP_SHELL = [
   './manifest.json',
   './productions/elisabeth-2026-6th/data/schedule.js',
   './productions/elisabeth-2026-6th/data/seat-map.js',
+  './productions/kinky-boots-2025-2026-7th/data/schedule.js',
+  './productions/kinky-boots-2025-2026-7th/data/seat-map.js',
   './data.js',
   './theme-registry.js',
+  './production-loader.js',
   './schedule-app.js',
   './themes/elisabeth-2026-6th-lucheni/schedule/view.js',
   './pwa-install.js',
   './themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
   './themes/elisabeth-2026-6th-lucheni/settlement/export.css',
+  './themes/elisabeth-2026-6th-lucheni/settlement/export.html',
+  './themes/elisabeth-2026-6th-lucheni/settlement/export.js',
+  './themes/kinky-boots-2025-2026-7th-lola/settlement/export.css',
+  './themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-resume-paper-v3.png',
+  './themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-title-red-glitter.png',
+  './themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-id-photo.jpg',
+  './themes/kinky-boots-2025-2026-7th-lola/assets/settlement/portrait-crops.js',
+  './themes/kinky-boots-2025-2026-7th-lola/assets/settlement/portrait-text-cleanup.png',
   './themes/elisabeth-2026-6th-lucheni/settlement/theme.css',
   './assets/common/gsap.min.js',
   './assets/common/html2canvas-1.4.1.min.js',
