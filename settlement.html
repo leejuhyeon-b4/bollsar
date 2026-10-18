@@ -37,8 +37,6 @@
   gtag('config', 'G-VVZ9RJGYT1');
 </script>
 
-<link rel="stylesheet" href="themes/elisabeth-2026-6th-lucheni/fonts/fonts.css">
-<link rel="stylesheet" href="themes/elisabeth-2026-6th-lucheni/settlement/theme.css">
 <style>
 /* ═══ 좌석 배치도 ═══
    좌석번호를 그대로 grid-column으로 써서 실제 부채꼴 배열이 나온다. */
@@ -195,20 +193,28 @@ html:has(.map-overview[open]), html:has(.save-preview[open]) { overflow:hidden; 
   <img id="savePreviewImage" alt="저장할 정산판 미리보기">
   <p id="savePreviewTitle">이 이미지로 저장할까요?</p>
   <div class="save-preview-actions">
+    <button type="button" class="np-btn ghost js-photo-adjust" hidden>사진 조정</button>
     <button type="button" class="np-btn solid js-save-confirm">지금 저장하기</button>
     <button type="button" class="np-btn ghost js-save-later">나중에 저장하기</button>
   </div>
+  <section id="portraitEditor" class="portrait-editor" aria-label="배우 사진 조정" hidden>
+    <label>사진 <select id="portraitChoice"></select></label>
+    <canvas id="portraitPreview" width="180" height="240" aria-label="선택한 배우의 사진 미리보기"></canvas>
+    <label>크기 <input id="portraitZoom" type="range" min="100" max="800" step="1"><output id="portraitZoomValue"></output></label>
+    <label>좌우 <input id="portraitX" type="range" min="0" max="100" step="1"><output id="portraitXValue"></output></label>
+    <label>상하 <input id="portraitY" type="range" min="0" max="100" step="1"><output id="portraitYValue"></output></label>
+    <p>개발용 고정값입니다. 저장 창에서 프로젝트의 <code>themes/kinky-boots-2025-2026-7th-lola/assets/settlement/portrait-crops.js</code> 파일을 선택하세요. 저장한 값이 배포 이미지에 적용됩니다.</p>
+    <div class="save-preview-actions">
+      <button type="button" class="np-btn ghost js-photo-reset">이 사진 초기화</button>
+      <button type="button" class="np-btn solid js-photo-apply">고정값 저장</button>
+      <button type="button" class="np-btn ghost js-photo-cancel">취소</button>
+    </div>
+  </section>
 </dialog>
 
 <!-- 공용 데이터 · 헬퍼 (스케줄 탭과 공유) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js" integrity="sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="productions/elisabeth-2026-6th/data/schedule.js?v=elisabeth-nov10-2026"></script>
-<script src="productions/elisabeth-2026-6th/data/seat-map.js"></script>
-<script src="data.js"></script>
-<script src="theme-registry.js"></script>
-<script src="settlement-app.js"></script>
-
-<script src="pwa-install.js"></script>
+<script src="production-loader.js" data-page="settlement"></script>
 
 </body>
 </html>

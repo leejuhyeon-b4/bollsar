@@ -1,0 +1,31 @@
+/*
+ * Kinky Boots settlement V21
+ *
+ * 화면 상단, 종이색, 질감, masthead, navigation은
+ * schedule/theme.css가 그대로 담당한다.
+ */
+
+.np-main,
+#wrap{
+  background:transparent !important;
+}
+
+/*
+ * settlement.html의 구형 신문 masthead 요소.
+ * 킹키 스케줄 화면에서는 사용하지 않는다.
+ */
+.np-wordmark,
+.np-mast-slug,
+.np-byline .by-name{
+  display:none !important;
+}
+
+.save-preview.photo-editing{width:min(480px,calc(100vw - 24px));max-height:90dvh;overflow:auto;margin:auto}
+.portrait-editor{display:grid;gap:12px;text-align:left}
+.portrait-editor[hidden],.save-preview [hidden]{display:none!important}
+.portrait-editor>label{display:grid;grid-template-columns:55px minmax(0,1fr) 48px;gap:8px;align-items:center}
+.portrait-editor select{grid-column:2/4;min-width:0;width:100%;padding:7px}
+.portrait-editor canvas{display:block;margin:auto;width:150px;height:200px}
+.portrait-editor p{font-size:12px;margin:0;line-height:1.6}
+.portrait-editor code{overflow-wrap:anywhere}
+.js-photo-adjust,.portrait-editor .js-photo-reset{grid-column:1/-1}

@@ -216,8 +216,10 @@ test(
 
     assert.match(
       app,
-      /const denominator = \(\) => PERFS\.filter\(perf =>[\s\S]*?\(!completedOnly \|\| isPast\(perf\)\)[\s\S]*?\)\.length;/
+      /const settlementPerformances = \(\) => PERFS\.filter\(perf =>[\s\S]*?\(!completedOnly \|\| isPast\(perf\)\)[\s\S]*?\);/
     );
+
+    assert.match(app,/const denominator = \(\) => settlementPerformances\(\)\.length;/);
 
     assert.match(
       app,

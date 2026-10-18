@@ -410,18 +410,46 @@ function seatRun (spec, aisles) {
 }
 
 /* 구역 → 블록 키. C2는 중앙이 갈라진 열의 뒷 토막이다 (3층 6열). */
-const ZONE_KEYS = { L:['L'], C:['C', 'C2'], R:['R'] };
+const ZONE_KEYS = { L:['L'], C:['C', 'C2', 'C3'], R:['R'] };
 
 /* 한 열의 좌석 전체 (좌·중앙·우 순) */
 const seatsInRow = (floor, row) =>
-  ['L', 'C', 'C2', 'R'].flatMap(b => seatRun(row[b], floor.aisles));
+  ['L', 'C', 'C2', 'C3', 'R'].flatMap(b => seatRun(row[b], floor.aisles));
 
 const floorById = id => SEAT_MAP.floors.find(f => f.id === id);
 
 /* 좌석 id ↔ 사람이 읽는 이름 */
 const seatId    = (floorId, row, no) => `${floorId}-${row}-${no}`;
 const seatLabel = id => {
-  const [f, r, no] = String(id).split('-');
+  const text = String(id || '');
+  const tour = text.match(/^TV:(GOY|SNM|YSU|JJO|YIN|GWJ|DGU|BSN):([1-9]):([A-Za-z0-9가-힣_-]{1,12}):([1-9]\d?):([1-9]\d{0,2})$/);
+  if (tour) {
+    if (tour[1] === 'BSN') {
+      const floor = tour[2];
+      const zone = tour[3];
+      const row = tour[4];
+      const no = tour[5];
+
+      return zone === 'WC'
+        ? `부산 드림씨어터 ${floor}층 ${row}열 휠체어석 W${no}`
+        : `부산 드림씨어터 ${floor}층 ${row}열 ${no}번`;
+    }
+    if (tour[1] === 'GWJ') {
+      return `광주예술의전당 ${tour[2]}층 ${tour[3]}열 ${tour[5]}번`;
+    }
+    if (tour[1] === 'JJO') {
+      return `전주 모악당 ${tour[2]}층 ${tour[3]}블록 ${tour[5]}번`;
+    }
+    const name = Object.keys(TOUR_SEAT_VENUES).find(
+      v => TOUR_SEAT_VENUES[v].code === tour[1]
+    ) || tour[1];
+    return `${name} ${tour[2]}층 ${tour[3]}구역 ${tour[4]}열 ${tour[5]}번`;
+  }
+
+  const gy = text.match(/^GY:([1-4]):([A-Z0-9]+):(\d+):(\d+)$/);
+  if (gy) return `고양 ${gy[1]}층 ${gy[2]}구역 ${gy[3]}열 ${gy[4]}번`;
+
+  const [f, r, no] = text.split('-');
   return `${f}층 ${r}열 ${no}번`;
 };
 

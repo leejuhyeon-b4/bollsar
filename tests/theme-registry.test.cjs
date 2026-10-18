@@ -34,6 +34,23 @@ const sw =
     path.join(root, 'sw.js'),
     'utf8'
   );
+const loader = fs.readFileSync(path.join(root, 'production-loader.js'), 'utf8');
+
+for (const [theme, production, background] of [
+  ['elisabeth-2026-6th-lucheni', 'elisabeth-2026-6th', 'settlement-export-background.png'],
+  ['kinky-boots-2025-2026-7th-lola', 'kinky-boots-2025-2026-7th', 'kinky-resume-paper-v3.png']
+]) {
+  assert.ok(registry.includes(`id: '${theme}'`));
+  assert.ok(registry.includes(`productionId: '${production}'`));
+  assert.ok(registry.includes(`themes/${theme}/schedule/view.js`));
+  assert.ok(registry.includes(`themes/${theme}/settlement/export.css`));
+  assert.ok(registry.includes(`themes/${theme}/assets/settlement/${background}`));
+}
+
+for (const [entry, page] of [[index, 'schedule'], [settlement, 'settlement']]) {
+  assert.ok(entry.includes(`<script src="production-loader.js" data-page="${page}"></script>`));
+  assert.doesNotMatch(entry, /<script src="(?:productions\/|data\.js|theme-registry\.js|schedule-app\.js|settlement-app\.js)/);
+}
 
 assert.ok(
   registry.includes(
@@ -67,12 +84,12 @@ assert.ok(
 
 assert.match(
   index,
-  /data\.js"><\/script>\s*<script src="theme-registry\.js"><\/script>\s*<script src="themes\/elisabeth-2026-6th-lucheni\/schedule\/view\.js"/
+  /<script src="production-loader\.js" data-page="schedule"><\/script>/
 );
 
 assert.match(
   settlement,
-  /data\.js"><\/script>\s*<script src="theme-registry\.js"><\/script>\s*<script src="settlement-app\.js"/
+  /<script src="production-loader\.js" data-page="settlement"><\/script>/
 );
 
 assert.ok(
@@ -83,7 +100,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v57';"
+    "const CACHE_VERSION = 'v84';"
   )
 );
 
@@ -123,7 +140,7 @@ assert.ok(
 
 assert.ok(
   settlementExportHtml.includes(
-    'src="theme-registry.js"'
+    'src="theme-registry.js?v=kinky-resume-v7"'
   )
 );
 
@@ -251,9 +268,7 @@ const settlementThemeCss =
   );
 
 assert.ok(
-  settlement.includes(
-    'themes/elisabeth-2026-6th-lucheni/settlement/theme.css'
-  )
+  loader.includes("await load('themes/elisabeth-2026-6th-lucheni/settlement/theme.css', true);")
 );
 
 for (const selector of [
