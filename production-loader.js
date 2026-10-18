@@ -8,7 +8,7 @@
   let saved;
   try { saved = localStorage.getItem('bollsar.production.v1'); } catch (_) {}
   const id = Object.hasOwn(themes, requested) ? requested
-    : Object.hasOwn(themes, saved) ? saved : 'kinky-boots-2025-2026-7th';
+    : Object.hasOwn(themes, saved) ? saved : 'elisabeth-2026-6th';
   const theme = `themes/${themes[id]}`;
   const kinky = id === 'kinky-boots-2025-2026-7th';
   try { localStorage.setItem('bollsar.production.v1', id); } catch (_) {}
@@ -41,11 +41,9 @@
   }
   window.productionReady = (async () => {
     await load('themes/elisabeth-2026-6th-lucheni/fonts/fonts.css', true);
+    if (page === 'settlement') await load('themes/elisabeth-2026-6th-lucheni/settlement/theme.css', true);
     if (kinky) await load(`${theme}/schedule/theme.css`, true);
-    if (page === 'settlement') {
-      await load('themes/elisabeth-2026-6th-lucheni/settlement/theme.css', true);
-      if (kinky) await load(`${theme}/settlement/theme.css`, true);
-    }
+    if (page === 'settlement' && kinky) await load(`${theme}/settlement/theme.css`, true);
     if (page === 'schedule' && kinky) await load(`${theme}/schedule/lola-viewer.css`, true);
     await load(`productions/${id}/data/schedule.js`);
     await load(`productions/${id}/data/seat-map.js`);
