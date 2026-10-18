@@ -29,3 +29,7 @@
 .portrait-editor p{font-size:12px;margin:0;line-height:1.6}
 .portrait-editor code{overflow-wrap:anywhere}
 .js-photo-adjust,.portrait-editor .js-photo-reset{grid-column:1/-1}
+
+@media (max-width:600px) {
+  .rec-add .js-rec-perf { width:100%; max-width:280px; min-width:0; }
+}
