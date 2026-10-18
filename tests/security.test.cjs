@@ -105,6 +105,18 @@ const hideModalSource = pwaSource.slice(pwaSource.indexOf('  function hideModal 
 assert.ok(hideModalSource.includes('wrap.hidden = true;'));
 assert.equal(hideModalSource.includes('writeStorage('), false, 'closing the notice must not persist dismissal');
 assert.ok(pwaSource.includes('볼살씨의 하루 설치'));
+const onLoadSource = pwaSource.match(/  const onLoad = callback => \{[\s\S]*?\n  \};/)[0];
+for (const readyState of ['loading', 'interactive', 'complete']) {
+  const callbacks = [], called = [];
+  const pwaContext = vm.createContext({document:{readyState},window:{addEventListener(event, callback){
+    assert.equal(event,'load');callbacks.push(callback);
+  }},called});
+  vm.runInContext(onLoadSource+"\nonLoad(()=>called.push('initialized'));",pwaContext);
+  assert.equal(called.length,readyState==='complete'?1:0);
+  assert.equal(callbacks.length,readyState==='complete'?0:1);
+  for (const callback of callbacks) callback();
+  assert.deepEqual(called,['initialized']);
+}
 assert.ok(swSource.includes("const CACHE_VERSION = 'v84';"));
 assert.ok(swSource.includes("const CACHE_PREFIX = 'bollsar-';"));
 assert.ok(swSource.includes("const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];"));

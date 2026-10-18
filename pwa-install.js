@@ -14,6 +14,10 @@
   let previousFocus = null;
   let fallbackTimer = null;
   let modalMode = null;
+  const onLoad = callback => {
+    if (document.readyState === 'complete') callback();
+    else window.addEventListener('load', callback);
+  };
 
   migrateStorageValue(localStorage, NEVER_KEY, LEGACY_NEVER_KEYS);
   migrateStorageValue(sessionStorage, STANDALONE_SESSION_KEY, LEGACY_STANDALONE_SESSION_KEYS);
@@ -34,7 +38,7 @@
   }
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
+    onLoad(function () {
       navigator.serviceWorker.register('./sw.js').catch(function (error) {
         console.warn('[볼살씨] 서비스 워커 등록 실패:', error);
       });
@@ -66,7 +70,7 @@
     hideModal();
   });
 
-  window.addEventListener('load', function () {
+  onLoad(function () {
     fallbackTimer = window.setTimeout(function () {
       setMode(isIOS ? 'ios' : 'manual');
       showModal();
