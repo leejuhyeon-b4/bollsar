@@ -375,6 +375,10 @@ body.logged-in .gate-cta { display:none; }
 }
 
 @media (max-width:600px) {
+  .np-mast { padding-top:56px; }
+  .np-login { top:6px; min-height:44px; }
+  .np-shell { --pad:14px; }
+
   .np-wordmark {
     font-size:21px;
   }

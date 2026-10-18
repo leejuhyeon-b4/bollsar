@@ -117,7 +117,7 @@ for (const readyState of ['loading', 'interactive', 'complete']) {
   for (const callback of callbacks) callback();
   assert.deepEqual(called,['initialized']);
 }
-assert.ok(swSource.includes("const CACHE_VERSION = 'v85';"));
+assert.ok(swSource.includes("const CACHE_VERSION = 'v86';"));
 assert.ok(swSource.includes("const CACHE_PREFIX = 'bollsar-';"));
 assert.ok(swSource.includes("const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];"));
 
