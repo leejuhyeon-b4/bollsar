@@ -201,7 +201,7 @@
 
   const ASSETS = 'themes/kinky-boots-2025-2026-7th-lola/assets/schedule/';
   function pageHTML({tabs,lead,content}) {
-    return `<section class="kb-top-layout"><div class="kb-top-left">${tabs}${lead}</div><aside class="kb-empty-frame" role="region" aria-label="롤라 3D 모델, 좌우로 드래그하거나 방향키로 회전"><img class="kb-lola-fallback" src="themes/kinky-boots-2025-2026-7th-lola/assets/schedule/hero-boot-54d0.png" alt="킨키부츠 무대 의상 이미지"></aside></section>${content}`;
+    return `<section class="kb-top-layout"><div class="kb-top-left">${tabs}${lead}</div><aside class="kb-empty-frame" role="region" aria-label="롤라 3D 모델, 좌우로 드래그하거나 방향키로 회전"><span class="kb-lola-hint">↻ 드래그해서 돌려보세요</span><img class="kb-lola-fallback" src="themes/kinky-boots-2025-2026-7th-lola/assets/schedule/hero-boot-54d0.png" alt="킨키부츠 무대 의상 이미지"></aside></section>${content}`;
   }
   function viewTabsHTML({view}) {
     return `<div class="kb-view-rail"><div class="np-vt" role="tablist" aria-label="보기 전환">

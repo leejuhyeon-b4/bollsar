@@ -10,8 +10,8 @@
  --display:'Roboto Slab','Rockwell','Arial Black',sans-serif;--body:'Noto Sans KR','Malgun Gothic',sans-serif;--mono:'IBM Plex Mono',monospace;
  --line:rgba(111,73,42,.55);--paper-texture:url('../assets/schedule/record-paper-no-lower-curves.png?v=no-curves-20261018');
 }
-html{background:var(--paper)}
-body{color:var(--ink);font-family:var(--body);font-weight:500;background-color:var(--paper);background-image:var(--paper-texture),radial-gradient(ellipse at 28% 30%,#fff8e9a8,transparent 63%),radial-gradient(ellipse at 97% 4%,#aa744427,transparent 36%),radial-gradient(ellipse at 4% 90%,#ab74442e,transparent 32%);background-size:100% 100%,auto,auto,auto;background-repeat:no-repeat;background-blend-mode:multiply,normal,normal,normal;background-attachment:scroll}
+html{background:#F0E0DA}
+body{color:var(--ink);font-family:var(--body);font-weight:500;background-color:#F0E0DA;background-image:var(--paper-texture),radial-gradient(ellipse at 28% 30%,#fff8e9a8,transparent 63%),radial-gradient(ellipse at 97% 4%,#aa744427,transparent 36%),radial-gradient(ellipse at 4% 90%,#ab74442e,transparent 32%);background-size:100% 100%,auto,auto,auto;background-repeat:no-repeat;background-blend-mode:multiply,normal,normal,normal;background-attachment:scroll}
 button,a{-webkit-tap-highlight-color:transparent}button{font-family:inherit;color:inherit}
 button:focus-visible,a:focus-visible,[role='button']:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .np-shell{max-width:1180px;border:0;padding:0 30px}
