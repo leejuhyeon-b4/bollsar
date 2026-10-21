@@ -20,3 +20,15 @@
 .kb-empty-frame > canvas:active { cursor: grabbing; }
 .kb-empty-frame[data-lola-failed] > .kb-lola-fallback { display: block; }
 .kb-empty-frame:focus-visible { outline: 2px solid var(--accent); }
+
+.kb-lola-hint {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 1;
+  font: 400 9px/1.5 var(--body);
+  color: var(--ink);
+  opacity: .55;
+  pointer-events: none;
+  user-select: none;
+}
