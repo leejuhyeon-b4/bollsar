@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const {test}=require('node:test');
-const source=fs.readFileSync('themes/kinky-boots-2025-2026-7th-lola/schedule/view.js','utf8');
+const source=fs.readFileSync('themes/kinky-boots-2025-2026-7th-lola/scheduletab/view.js','utf8');
 function counter(readResult,client=true){
  const output={textContent:'------'},listeners={},timers=[],calls=[];
  const button={disabled:false};

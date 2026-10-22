@@ -42,16 +42,16 @@
   window.productionReady = (async () => {
     await load('themes/elisabeth-2026-6th-lucheni/fonts/fonts.css', true);
     if (page === 'settlement') await load('themes/elisabeth-2026-6th-lucheni/settlement/theme.css', true);
-    if (kinky) await load(`${theme}/schedule/theme.css`, true);
+    if (kinky) await load(`${theme}/scheduletab/theme.css`, true);
     if (page === 'settlement' && kinky) await load(`${theme}/settlement/theme.css`, true);
-    if (page === 'schedule' && kinky) await load(`${theme}/schedule/lola-viewer.css`, true);
+    if (page === 'schedule' && kinky) await load(`${theme}/scheduletab/lola-viewer.css`, true);
     await load(`productions/${id}/data/schedule.js`);
     await load(`productions/${id}/data/seat-map.js`);
     await load('data.js');
     await load('theme-registry.js');
-    if (page === 'schedule') await load(`${theme}/schedule/view.js`);
+    if (page === 'schedule') await load(`${theme}/scheduletab/view.js`);
     await load(page === 'schedule' ? 'schedule-app.js' : 'settlement-app.js');
-    if (page === 'schedule' && kinky) await load(`${theme}/schedule/lola-viewer.js`, false, true);
+    if (page === 'schedule' && kinky) await load(`${theme}/scheduletab/lola-viewer.js`, false, true);
     await load('pwa-install.js');
   })();
 })();

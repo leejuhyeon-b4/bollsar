@@ -3,7 +3,7 @@
 클라이언트 쪽 보호는 저장소에 반영되어 있지만 다음 항목은 Supabase 프로젝트 설정이라
 배포 전에 대시보드에서 별도로 적용해야 한다.
 
-1. [완료: 2026-09-11] `supabase-security.sql`을 원격 프로젝트에 적용했다. 임시 계정
+1. [완료: 2026-09-11] `database/supabase-security.sql`을 원격 프로젝트에 적용했다. 임시 계정
    두 개로 `records`의 교차 조회·삽입·수정·삭제가 모두 차단됨을 확인했고 계정과
    테스트 데이터도 삭제했다.
 2. [완료: 2026-09-11] Authentication → Sign In / Providers → Email의 비밀번호 최소

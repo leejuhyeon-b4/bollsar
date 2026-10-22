@@ -480,7 +480,7 @@ test(
         root,
         'themes',
         'elisabeth-2026-6th-lucheni',
-        'schedule',
+        'scheduletab',
         'view.js'
       ),
       'utf8'
@@ -493,7 +493,7 @@ test(
 
     assert.doesNotMatch(
       app,
-      /themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\//
+      /themes\/elisabeth-2026-6th-lucheni\/assets\/scheduletab\//
     );
 
     assert.match(
@@ -556,12 +556,12 @@ test(
 
     assert.match(
       theme,
-      /calendarPhoto:\s*'themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\/calendar-photo\.jpg'/
+      /calendarPhoto:\s*'productions\/elisabeth-2026-6th\/cast\/강홍석\.jpg'/
     );
 
     assert.match(
       theme,
-      /leadPhoto:\s*'themes\/elisabeth-2026-6th-lucheni\/assets\/schedule\/lead-photo\.jpg'/
+      /leadPhoto:\s*'themes\/elisabeth-2026-6th-lucheni\/assets\/scheduletab\/lead-photo\.jpg'/
     );
   }
 );

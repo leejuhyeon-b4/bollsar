@@ -47,20 +47,23 @@ for (const [production, theme] of Object.entries(productions)) {
       const base = `themes/${theme}`;
       const styles = ['themes/elisabeth-2026-6th-lucheni/fonts/fonts.css'];
       if (page === 'settlement') styles.push('themes/elisabeth-2026-6th-lucheni/settlement/theme.css');
-      if (kinky) styles.push(`${base}/schedule/theme.css`);
+      if (kinky) styles.push(`${base}/scheduletab/theme.css`);
       if (page === 'settlement' && kinky) styles.push(`${base}/settlement/theme.css`);
-      if (page === 'schedule' && kinky) styles.push(`${base}/schedule/lola-viewer.css`);
+      if (page === 'schedule' && kinky) styles.push(`${base}/scheduletab/lola-viewer.css`);
       assert.deepEqual(loaded.filter(x => x.tag === 'link').map(x => x.href), styles);
       const scripts = [
         `productions/${production}/data/schedule.js`,
         `productions/${production}/data/seat-map.js`, 'data.js', 'theme-registry.js'
       ];
-      if (page === 'schedule') scripts.push(`${base}/schedule/view.js`);
+      if (page === 'schedule') scripts.push(`${base}/scheduletab/view.js`);
       scripts.push(`${page}-app.js`);
-      if (page === 'schedule' && kinky) scripts.push(`${base}/schedule/lola-viewer.js`);
+      if (page === 'schedule' && kinky) scripts.push(`${base}/scheduletab/lola-viewer.js`);
       scripts.push('pwa-install.js');
       assert.deepEqual(loaded.filter(x => x.tag === 'script').map(x => x.src), scripts);
-      const viewer = loaded.find(x => x.src === `${base}/schedule/lola-viewer.js`);
+      for (const asset of [...styles, ...scripts]) {
+        assert.ok(fs.existsSync(asset), `loaded path must exist: ${asset}`);
+      }
+      const viewer = loaded.find(x => x.src === `${base}/scheduletab/lola-viewer.js`);
       if (viewer) assert.equal(viewer.type, 'module');
       assert.equal(context.window.BollsarProduction.id, production);
       for (const link of links) assert.equal(new URL(link.href).searchParams.get('production'), production);

@@ -13,7 +13,7 @@
       fullLabel:
         '\ub8e8\ucf00\ub2c8 \u00b7 \uc5d8\ub9ac\uc790\ubcb3 6\uc5f0',
       scheduleView:
-        'themes/elisabeth-2026-6th-lucheni/schedule/view.js',
+        'themes/elisabeth-2026-6th-lucheni/scheduletab/view.js',
       fonts:
         'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
       settlementExportStylesheet:
@@ -30,7 +30,7 @@
       fullLabel:
         '\ub864\ub77c \u00b7 \ud0b9\ud0a4\ubd80\uce20 7\uc5f0',
       scheduleView:
-        'themes/kinky-boots-2025-2026-7th-lola/schedule/view.js',
+        'themes/kinky-boots-2025-2026-7th-lola/scheduletab/view.js',
       fonts:
         'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
       settlementExportStylesheet:

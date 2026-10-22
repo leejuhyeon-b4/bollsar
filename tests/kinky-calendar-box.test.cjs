@@ -2,10 +2,25 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const {test} = require('node:test');
-const source = fs.readFileSync('themes/kinky-boots-2025-2026-7th-lola/schedule/view.js','utf8');
+const source = fs.readFileSync('themes/kinky-boots-2025-2026-7th-lola/scheduletab/view.js','utf8');
 const context = {window:{setTimeout(){}},MutationObserver:class {observe(){}},requestAnimationFrame(){},document:{readyState:'loading',addEventListener(){},querySelector(){return {}},querySelectorAll(){return []}}};
 vm.runInNewContext(source,context);
 const render = context.window.BollsarScheduleTheme.render;
+
+test('theme CSS resolves local assets after separating shared paper from schedule artwork',()=>{
+ const path=require('node:path');
+ const base='themes/kinky-boots-2025-2026-7th-lola/scheduletab/';
+ const css=fs.readFileSync(base+'theme.css','utf8');
+ assert.match(css,/\.\.\/assets\/shared\/record-paper-no-lower-curves\.png/);
+ assert.match(css,/\.\.\/assets\/scheduletab\/kinky-official-wordmark\.png/);
+ for(const [,asset] of css.matchAll(/url\(['"]?([^)'"?]+)(?:\?[^)'" ]*)?['"]?\)/g)) {
+  assert.ok(fs.existsSync(path.resolve(base,asset)),`CSS asset must exist: ${asset}`);
+ }
+ const html=render.pageHTML({tabs:'',lead:'',content:''});
+ assert.doesNotMatch(html,/hero-boot|<img class="kb-lola-fallback"/);
+ assert.doesNotMatch(fs.readFileSync(base+'lola-viewer.js','utf8'),/hero-boot/);
+ assert.equal(fs.readdirSync(base+'../assets/scheduletab').some(name=>name.startsWith('hero-boot')),false);
+});
 
 test('active view follows the real view value',()=>{
  for(const value of ['calendar','list']) {
@@ -19,6 +34,7 @@ test('single shoebox image, time and event stay outside the box, portrait suppor
  const red=render.calendarCellHTML({...common,times:['14:00','19:00'],PHOTO:'actor.png',actorName:'강홍석'});
  const green=render.calendarCellHTML({...common,times:[],hasOtherPerf:true});
  assert.match(red,/price-simon-box-vivid.png/);assert.match(green,/price-son-box.png/);
+ for(const html of [red,green]) assert.ok(fs.existsSync(html.match(/class="kb-box" src="([^"]+)"/)[1]));
  assert.equal((red.match(/class="kb-box"/g)||[]).length,1);
  assert.match(red,/kb-actor/);assert.match(red,/14:00/);assert.match(red,/19:00/);
  assert(red.indexOf('kb-perf-meta')>red.indexOf('class="kb-box"'));
@@ -29,7 +45,7 @@ test('single shoebox image, time and event stay outside the box, portrait suppor
   const asset=fs.readFileSync(`tests/fixtures/kinky/price-${brand}-box.svg`,'utf8');
   assert.match(asset,/x="72" y="120" width="336" height="132"/);
   assert.equal((asset.match(/<image /g)||[]).length,2); // blank box and one complete oval
-  const png=fs.readFileSync(`themes/kinky-boots-2025-2026-7th-lola/assets/schedule/price-${brand}-box${brand==='simon'?'-vivid':''}.png`);
+  const png=fs.readFileSync(`themes/kinky-boots-2025-2026-7th-lola/assets/scheduletab/price-${brand}-box${brand==='simon'?'-vivid':''}.png`);
   assert.equal(png.subarray(1,4).toString(),'PNG');assert.equal(png.readUInt32BE(16),480);assert.equal(png.readUInt32BE(20),280);
  }
 });
@@ -48,7 +64,7 @@ test('vivid red box preserves the original gold label and filters only the box i
 test('outer two-column layout spans tabs and main event, including list view',()=>{
  const html=render.pageHTML({tabs:'TABS',lead:'MAIN EVENT',content:'CALENDAR OR LIST'});
  assert.match(html,/<section class="kb-top-layout"><div class="kb-top-left">TABSMAIN EVENT<\/div><aside class="kb-empty-frame" role="region" aria-label="롤라 3D 모델, 좌우로 드래그하거나 방향키로 회전">/);
- assert.match(html,/<img class="kb-lola-fallback" src="[^"]+\/hero-boot-54d0\.png" alt="킨키부츠 무대 의상 이미지"><\/aside><\/section>CALENDAR OR LIST$/);
+ assert.match(html,/<span class="kb-lola-fallback" role="status">3D 모델을 불러오지 못했습니다\.<\/span><\/aside><\/section>CALENDAR OR LIST$/);
  assert.doesNotMatch(html,/aria-hidden="true"/);
 });
 

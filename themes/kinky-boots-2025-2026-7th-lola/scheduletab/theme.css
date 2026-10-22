@@ -8,7 +8,7 @@
  --ink-72:#4f3526;--ink-60:#644932;--ink-55:#6b4e37;--ink-45:#765d45;
  --ink-40:#9c7d5d;--ink-28:#b8a080;--ink-14:#cbb696;--accent:#9d2923;
  --display:'Roboto Slab','Rockwell','Arial Black',sans-serif;--body:'Noto Sans KR','Malgun Gothic',sans-serif;--mono:'IBM Plex Mono',monospace;
- --line:rgba(111,73,42,.55);--paper-texture:url('../assets/schedule/record-paper-no-lower-curves.png?v=no-curves-20261018');
+ --line:rgba(111,73,42,.55);--paper-texture:url('../assets/shared/record-paper-no-lower-curves.png?v=no-curves-20261018');
 }
 html{background:#F0E0DA}
 body{color:var(--ink);font-family:var(--body);font-weight:500;background-color:#F0E0DA;background-image:var(--paper-texture),radial-gradient(ellipse at 28% 30%,#fff8e9a8,transparent 63%),radial-gradient(ellipse at 97% 4%,#aa744427,transparent 36%),radial-gradient(ellipse at 4% 90%,#ab74442e,transparent 32%);background-size:100% 100%,auto,auto,auto;background-repeat:no-repeat;background-blend-mode:multiply,normal,normal,normal;background-attachment:scroll}
@@ -65,7 +65,7 @@ button:focus-visible,a:focus-visible,[role='button']:focus-visible{outline:2px s
 .kb-print-details{display:flex;align-items:center;justify-content:space-around;gap:20px;min-height:140px;padding:15px 8%;pointer-events:none;user-select:none;position:relative;border-bottom:3px double var(--line)}
 .kb-watermark{font:italic 800 76px/.75 'Roboto Slab',serif;color:#7d522915;transform:rotate(-10deg);letter-spacing:-.09em}.kb-watermark>span{display:block;font:800 36px/1 'Oswald',sans-serif;letter-spacing:-.025em;margin-left:35px}
 .kb-watermark{position:relative;color:transparent}
-.kb-watermark::before{content:'';position:absolute;inset:0;background:#7d522915;-webkit-mask:url('../assets/schedule/kinky-official-wordmark.png') center/contain no-repeat;mask:url('../assets/schedule/kinky-official-wordmark.png') center/contain no-repeat}
+.kb-watermark::before{content:'';position:absolute;inset:0;background:#7d522915;-webkit-mask:url('../assets/scheduletab/kinky-official-wordmark.png') center/contain no-repeat;mask:url('../assets/scheduletab/kinky-official-wordmark.png') center/contain no-repeat}
 .kb-record-stamp{font:600 10px/1.5 'Oswald',var(--body);letter-spacing:.04em;text-align:center;padding:8px 12px;border:3px double #962f2850;color:#962f2860;transform:rotate(-7deg)}
 .kb-print-motto{font:italic 600 14px/1.6 var(--display);color:#6d452b77;transform:rotate(-8deg)}
 .np-foot{margin-top:22px;border-top:1px solid var(--line);color:var(--ink-55);padding:12px 0 24px;font:500 10px/1.7 var(--body)}.np-foot p{font:inherit;letter-spacing:0}
@@ -117,7 +117,7 @@ button:focus-visible,a:focus-visible,[role='button']:focus-visible{outline:2px s
     #8b0000 !important;
 
   background-image:
-    url("../assets/schedule/red-glitter-fine.png") !important;
+    url("../assets/scheduletab/red-glitter-fine.png") !important;
 
   background-repeat:
     repeat !important;

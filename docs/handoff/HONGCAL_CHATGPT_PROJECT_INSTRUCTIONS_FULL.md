@@ -26,9 +26,9 @@
 2. **현재 실제 workspace와 실행 중인 코드**
 3. **`HONGCAL_HANDOFF.md`**
 4. 현재 코드와 일치하는 기타 프로젝트 문서
-5. `PRD_v3.md`
-6. `PRD_v2.md`
-7. `PRD-1st.md` 및 그 밖의 과거 기획 문서
+5. `docs/product/PRD_v3.md`
+6. `docs/product/PRD_v2.md`
+7. `docs/product/PRD-1st.md` 및 그 밖의 과거 기획 문서
 
 과거 문서와 현재 코드가 다르다고 해서 과거 문서에 맞춰 현재 구현을 되돌리지 않는다.
 

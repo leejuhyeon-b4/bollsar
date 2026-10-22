@@ -1,3 +1,5 @@
+> 2026-10-22 경로 정리: 이 문서는 과거 구현·결정의 기록입니다. 최신 폴더 구조와 실행 파일은 루트 README.md 및 실제 코드를 기준으로 확인합니다.
+
 아래 전체를 새 프로젝트 **[개발] 볼살씨**의 첫 채팅에 그대로 붙여넣으면 돼.  
 이번 정리는 대화 내용만이 아니라 **Codex with ChatGPT의 현재 `musicalender` workspace를 직접 확인해서 현재 파일 구조·Git 상태·실제 구현 코드와 대조한 상태**로 작성했어.
 
@@ -179,7 +181,7 @@ elisabeth-2026-6th-lucheni
 
 ## 3.1 PRD 초안 — 작품/다중 배우 서비스
 
-`PRD-1st.md`
+`docs/product/PRD-1st.md`
 
 초기 기획은 훨씬 큰 플랫폼이었다.
 
@@ -222,7 +224,7 @@ Vercel
 
 ## 3.2 PRD v2 — 배우 중심 플랫폼
 
-`PRD_v2.md`
+`docs/product/PRD_v2.md`
 
 작품 중심 구조를 폐기하고 배우 중심으로 변경했다.
 
@@ -261,7 +263,7 @@ Vercel
 
 ## 3.3 PRD v3 — 강홍석 전용 PWA
 
-`PRD_v3.md`
+`docs/product/PRD_v3.md`
 
 범위를 크게 줄였다.
 
@@ -413,13 +415,13 @@ musicalender/
 │
 ├─ AGENTS.md
 ├─ data.js
-├─ DESIGN2.md
+├─ docs/design/DESIGN2.md
 ├─ index.html
 ├─ manifest.json
 ├─ og-image.png
-├─ PRD-1st.md
-├─ PRD_v2.md
-├─ PRD_v3.md
+├─ docs/product/PRD-1st.md
+├─ docs/product/PRD_v2.md
+├─ docs/product/PRD_v3.md
 ├─ pwa-install.js
 ├─ seat-lines.js
 ├─ SECURITY.md
@@ -427,7 +429,7 @@ musicalender/
 ├─ settlement-export.html
 ├─ settlement-export.js
 ├─ settlement.html
-├─ supabase-security.sql
+├─ database/supabase-security.sql
 ├─ sw.js
 └─ vercel.json
 ```
@@ -1936,7 +1938,7 @@ Supabase Dashboard에서도 최소 8자 설정 완료.
 
 # 40. Supabase 보안 상태
 
-`supabase-security.sql`
+`database/supabase-security.sql`
 
 현재 적용된 핵심:
 
@@ -2599,7 +2601,7 @@ supabase/
 현재 Supabase 관련 tracked 파일은 루트:
 
 ```text id="13q7sw"
-supabase-security.sql
+database/supabase-security.sql
 ```
 
 이 핵심이다.
@@ -2714,9 +2716,9 @@ PRD v3에서 이미 보류 상태.
 
 ---
 
-# 67. 디자인 문서 `DESIGN2.md`
+# 67. 디자인 문서 `docs/design/DESIGN2.md`
 
-`DESIGN2.md`는 과거 초기 디자인 시스템 문서다.
+`docs/design/DESIGN2.md`는 과거 초기 디자인 시스템 문서다.
 
 내용:
 
@@ -2740,7 +2742,7 @@ Gowun Batang 계열 디자인
 ### 이유
 후속 디자인 실험에서 신문 콘셉트를 채택하면서 실제 UI가 크게 변경됨.
 
-`DESIGN2.md`를 현재 디자인 spec으로 간주하면 안 된다.
+`docs/design/DESIGN2.md`를 현재 디자인 spec으로 간주하면 안 된다.
 
 참고용 과거 문서다.
 
@@ -3465,7 +3467,7 @@ clean
 9. favorite pairs에 production namespace 없음.
 10. `data.js` 상단 주석 일부 오래됨.
 11. `SECURITY.md` 계정 기능 설명 오래됨.
-12. `DESIGN2.md`는 실제 디자인과 다름.
+12. `docs/design/DESIGN2.md`는 실제 디자인과 다름.
 13. `reviewer.md` 일부 좌석 QA 조건 오래됨.
 14. `date-rollover.test.cjs`가 settlement externalization 이전 구조 일부 가정.
 15. `.gitignore`에 사라진 `ref/drawing.jpg` rule 남음.

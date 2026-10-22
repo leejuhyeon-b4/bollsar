@@ -1,0 +1,10 @@
+# Targeted finish assets — 2026-10-06
+
+- `kinky-official-wordmark.png`: original transparent artwork from the [official Kinky Boots website](https://www.kinkybootsmusical.com/), [source PNG](https://images.squarespace-cdn.com/content/v1/67796a63abef6d1638bdd90f/ba457dce-707b-46c6-bd5e-77470573a431/Kinky-Boots-Logo-v1.png). Used only as an alpha mask, preserving the existing watermark box, rotation and color/opacity.
+- `price-simon-box-vivid.png`: existing native SVG composition; editable SVGs are retained in `tests/fixtures/kinky/` at the repository root. Color matrix applied exclusively to the blank box layer; the original gold logo image and both image bounds remain identical. No filter is applied to the composed image in CSS.
+- `../shared/record-paper-no-lower-curves.svg` / `.png`: shared by both tabs; existing native SVG with only the two lower curved paths removed. All texture, stain, color and remaining path definitions are unchanged.
+- `red-glitter-fine.png`: built-in Imagegen output. Original retained at `C:/Users/User/.codex/generated_images/01a110c1-352f-7083-a0ae-443c5741fa47/exec-54f7d7bf-166f-45e6-9dfa-3b51a2f4a2e2.png`.
+
+Final generation prompt:
+
+> Use case: photorealistic-natural. Generate a seamless square texture swatch of genuine densely packed fine RED GLITTER powder for clipping inside small bold website lettering. Macro photograph, flat evenly covered surface, edge to edge glitter, NO objects NO text NO border NO vignette. Bright saturated true scarlet stage red with deep red interstices; absolutely no pink, magenta, purple, wine or burgundy overall cast. Very densely packed irregular tiny angular reflective aluminum glitter flakes dyed red, varied facets and specular reflections, occasional tiny warm white glints, much more red than white. Fine flake size so there are hundreds of irregular flakes across the width, not round dots, not evenly spaced spots, not sequins, not polka dots. Rich vivid RED at thumbnail size, photoreal metallic granular sparkle. Uniform lighting and spatial density suitable as a repeatable texture; no broad gradients or large flare stars.

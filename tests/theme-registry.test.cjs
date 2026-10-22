@@ -36,13 +36,20 @@ const sw =
   );
 const loader = fs.readFileSync(path.join(root, 'production-loader.js'), 'utf8');
 
+for (const asset of sw.matchAll(/'\.\/([^']+)'/g)) {
+  assert.ok(fs.existsSync(path.join(root, asset[1])), `cached path must exist: ${asset[1]}`);
+}
+
 for (const [theme, production, background] of [
   ['elisabeth-2026-6th-lucheni', 'elisabeth-2026-6th', 'settlement-export-background.png'],
   ['kinky-boots-2025-2026-7th-lola', 'kinky-boots-2025-2026-7th', 'kinky-resume-paper-v3.png']
 ]) {
+  assert.ok(fs.existsSync(path.join(root, `themes/${theme}/scheduletab/view.js`)));
+  assert.equal(fs.existsSync(path.join(root, `themes/${theme}/schedule`)), false);
+  assert.equal(fs.existsSync(path.join(root, `themes/${theme}/assets/schedule`)), false);
   assert.ok(registry.includes(`id: '${theme}'`));
   assert.ok(registry.includes(`productionId: '${production}'`));
-  assert.ok(registry.includes(`themes/${theme}/schedule/view.js`));
+  assert.ok(registry.includes(`themes/${theme}/scheduletab/view.js`));
   assert.ok(registry.includes(`themes/${theme}/settlement/export.css`));
   assert.ok(registry.includes(`themes/${theme}/assets/settlement/${background}`));
 }
@@ -100,7 +107,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v87';"
+    "const CACHE_VERSION = 'v88';"
   )
 );
 

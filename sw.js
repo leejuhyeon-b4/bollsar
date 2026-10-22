@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v87';
+const CACHE_VERSION = 'v88';
 const CACHE_PREFIX = 'bollsar-';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 const LEGACY_CACHE_PREFIXES = ['hongcal-', 'aebaeryeok-'];
@@ -20,7 +20,7 @@ const APP_SHELL = [
   './theme-registry.js',
   './production-loader.js',
   './schedule-app.js',
-  './themes/elisabeth-2026-6th-lucheni/schedule/view.js',
+  './themes/elisabeth-2026-6th-lucheni/scheduletab/view.js',
   './pwa-install.js',
   './themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
   './themes/elisabeth-2026-6th-lucheni/settlement/export.css',
@@ -45,12 +45,12 @@ const APP_SHELL = [
   './themes/elisabeth-2026-6th-lucheni/fonts/plexmono-600.woff2',
   './themes/elisabeth-2026-6th-lucheni/fonts/unifraktur-400.woff2',
   './themes/elisabeth-2026-6th-lucheni/assets/settlement/settlement-export-background.png',
-  './themes/elisabeth-2026-6th-lucheni/assets/schedule/calendar-photo.jpg',
-  './themes/elisabeth-2026-6th-lucheni/assets/schedule/lead-photo.jpg',
+  './productions/elisabeth-2026-6th/cast/강홍석.jpg',
+  './themes/elisabeth-2026-6th-lucheni/assets/scheduletab/lead-photo.jpg',
   './assets/common/icon-192.png',
   './assets/common/icon-512.png',
   './assets/common/apple-touch-icon.png',
-  './themes/elisabeth-2026-6th-lucheni/assets/schedule/universe-show-calendar-photo.jpg',
+  './themes/elisabeth-2026-6th-lucheni/assets/scheduletab/universe-show-calendar-photo.jpg',
 ];
 
 self.addEventListener('install', event => {

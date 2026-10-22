@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1400" viewBox="0 0 1100 1400">
+ <filter id="fiber"><feTurbulence type="fractalNoise" baseFrequency=".48" numOctaves="3" seed="18" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+ <filter id="cloud"><feTurbulence type="fractalNoise" baseFrequency=".009" numOctaves="4" seed="42" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+ <filter id="age"><feTurbulence baseFrequency=".028" numOctaves="3" seed="5" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="36"/><feGaussianBlur stdDeviation="5"/></filter>
+ <radialGradient id="stain"><stop stop-color="#aa7b42" stop-opacity=".17"/><stop offset="1" stop-color="#aa7b42" stop-opacity="0"/></radialGradient>
+ <rect width="1100" height="1400" fill="#fffaf0"/>
+ <rect width="1100" height="1400" filter="url(#cloud)" opacity=".13"/>
+ <rect width="1100" height="1400" filter="url(#fiber)" opacity=".10"/>
+ <g filter="url(#age)"><ellipse cx="30" cy="140" rx="180" ry="220" fill="url(#stain)"/><ellipse cx="1090" cy="770" rx="130" ry="310" fill="url(#stain)"/><ellipse cx="1000" cy="1370" rx="320" ry="150" fill="url(#stain)"/></g>
+</svg>

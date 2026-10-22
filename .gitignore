@@ -8,3 +8,13 @@ node_modules/
 artifacts/
 *.before-*
 _patch_*.py
+
+# Local build/review output; editable originals belong in sources/.
+/tmp/
+/output/
+*.blend[0-9]
+
+# Local credentials; a documented example may be committed.
+.env
+.env.*
+!.env.example

@@ -53,13 +53,6 @@ function connect() {
   if (!next || next === frame) return;
   resize.disconnect();
   frame = next;
-  if (!frame.querySelector('.kb-lola-fallback')) {
-    const image = document.createElement('img');
-    image.className = 'kb-lola-fallback';
-    image.src = 'themes/kinky-boots-2025-2026-7th-lola/assets/schedule/hero-boot-54d0.png';
-    image.alt = '킨키부츠 무대 의상 이미지';
-    frame.prepend(image);
-  }
   if (failed) {
     frame.dataset.lolaFailed = '';
     return;

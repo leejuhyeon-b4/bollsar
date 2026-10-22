@@ -214,9 +214,9 @@
     id: 'elisabeth-2026-6th-lucheni',
 
     assets: Object.freeze({
-      calendarPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/schedule/calendar-photo.jpg',
-      specialCalendarPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/schedule/universe-show-calendar-photo.jpg',
-      leadPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/schedule/lead-photo.jpg'
+      calendarPhoto: 'productions/elisabeth-2026-6th/cast/강홍석.jpg',
+      specialCalendarPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/scheduletab/universe-show-calendar-photo.jpg',
+      leadPhoto: 'themes/elisabeth-2026-6th-lucheni/assets/scheduletab/lead-photo.jpg'
     }),
 
     render: Object.freeze({
