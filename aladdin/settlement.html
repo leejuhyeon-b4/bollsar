@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'none'; img-src 'self' data: blob:; font-src 'self'; worker-src 'none'">
+  <base href="/">
+  <title>지니 · 알라딘 초연 · 정산판 준비</title>
+  <link rel="icon" href="assets/common/icon-192.png">
+  <link rel="stylesheet" href="themes/aladdin-2024-2025-1st-genie/shared/base.css">
+</head>
+<body>
+  <div class="np-shell">
+    <header class="np-mast" id="mast">
+      <button id="loginBtn" type="button" disabled hidden>로그인</button>
+      <h1 class="np-wordmark">지니 · 알라딘 초연</h1>
+      <p>강홍석 지니 · 서울·부산</p>
+      <p id="todayStamp"></p>
+    </header>
+    <nav class="np-nav" aria-label="주 메뉴">
+      <a href="aladdin/index.html">스케줄</a>
+      <span aria-current="page">정산판</span>
+    </nav>
+    <main class="np-main" id="wrap"></main>
+    <footer class="np-foot">디자인과 공연 자료를 준비하고 있습니다. 로그인·원격 저장은 아직 사용하지 않습니다.</footer>
+  </div>
+  <dialog id="mapOverview" class="map-overview">
+    <button type="button" class="js-map-zoom-out" aria-label="축소">−</button>
+    <span class="map-overview-zoom" aria-live="polite">100%</span>
+    <button type="button" class="js-map-zoom-in" aria-label="확대">＋</button>
+    <button type="button" class="js-map-overview-close">닫기</button>
+    <div class="map-overview-stage"><div class="map-overview-content"></div></div>
+  </dialog>
+  <dialog id="savePreview">
+    <img id="savePreviewImage" alt="정산판 PNG 미리보기">
+    <button type="button" class="js-save-later">닫기</button>
+    <button type="button" class="js-save-confirm">저장</button>
+  </dialog>
+  <script src="seat-lines.js"></script>
+  <script src="production-loader.js" data-page="settlement" data-production="aladdin-2024-2025-1st"></script>
+</body>
+</html>

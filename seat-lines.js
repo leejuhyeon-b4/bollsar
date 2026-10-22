@@ -298,10 +298,10 @@
 
       /*
        * Settlement tab = 0.5px.
-       * Expanded map = 1px.
+       * Expanded map and inline PNG export = 1px.
        */
       const width =
-        root.closest('.map-overview')
+        root.closest('.map-overview, [data-seat-export]')
           ? 1
           : 0.5;
 

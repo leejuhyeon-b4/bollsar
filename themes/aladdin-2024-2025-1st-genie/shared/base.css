@@ -1,0 +1,23 @@
+/* Temporary neutral shell; no final Aladdin palette, typography or artwork. */
+:root { --ink:#222; --accent:#333; --body:system-ui,sans-serif; --paper:#fff; }
+* { box-sizing:border-box; }
+body { margin:0; background:#fff; color:var(--ink); font:16px/1.6 var(--body); }
+.np-shell { width:min(960px,100%); margin:auto; padding:24px; }
+.np-mast { position:relative; padding:46px 0 12px; }
+.np-wordmark { margin:0; font-size:28px; }
+.np-mast p { margin:4px 0; }
+.np-nav { display:flex; gap:24px; padding:14px 0; border-block:1px solid #ddd; }
+a { color:inherit; }
+.np-nav [aria-current] { font-weight:700; }
+button { font:inherit; padding:8px 14px; border:1px solid #999; background:white; color:inherit; cursor:pointer; }
+button[aria-selected=true] { background:#eee; }
+button:focus-visible,a:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+.np-main { padding-top:24px; }
+.np-vt { display:flex; gap:8px; }
+.np-empty { padding:28px 0; }
+.st-head { padding-bottom:16px; border-bottom:1px solid #ddd; }
+.st-title { margin:0; font-size:24px; }
+.st-poster { display:none; }
+.np-foot { margin-top:32px; color:#555; font-size:13px; }
+[hidden] { display:none !important; }
+@media(max-width:600px) { .np-shell { padding:16px; } .np-wordmark { font-size:24px; } }

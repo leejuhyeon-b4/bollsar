@@ -125,7 +125,7 @@ const authStorage = {
 
 let SB = null;
 try {
-  if (typeof supabase !== 'undefined' && supabase.createClient) {
+  if (!WORK.preparing && typeof supabase !== 'undefined' && supabase.createClient) {
     SB = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storage: authStorage }
     });
@@ -204,6 +204,7 @@ const recordsStorageKey = user =>
 
 function migratedRecordsStorageKey (user = AUTH_USER) {
   const currentKey = recordsStorageKey(user);
+  if (ACTIVE_PRODUCTION_ID !== 'elisabeth-2026-6th') return currentKey;
 
   migrateStorageValue(
     localStorage,
@@ -336,6 +337,7 @@ const ANALYTICS_PARAM_ALLOWLIST = new Set([
   'has_seat', 'had_existing'
 ]);
 function track (name, params) {
+  if (WORK.preparing) return;
   try {
     if (typeof gtag !== 'function') return;
     const safe = {};
@@ -644,6 +646,11 @@ function downloadAccountData () {
 
 function mountAuth (onAuth) {
   const btn = document.getElementById('loginBtn');
+  if (WORK.preparing) {
+    if (btn) btn.disabled = true;
+    onAuth(false);
+    return;
+  }
 
   /* 로그인 버튼 핸들러부터 건다 — 아래에서 뭐가 터져도 버튼은 항상 반응하게 */
   if (btn) btn.addEventListener('click', async () => {

@@ -37,6 +37,16 @@
         'themes/kinky-boots-2025-2026-7th-lola/settlement/export.css',
       settlementExportBackground:
         'themes/kinky-boots-2025-2026-7th-lola/assets/settlement/kinky-resume-paper-v3.png'
+    }),
+    Object.freeze({
+      id: 'aladdin-2024-2025-1st-genie',
+      productionId: 'aladdin-2024-2025-1st',
+      shortLabel: '지니 · 알라딘 초연 (준비 중)',
+      fullLabel: '지니 · 알라딘 초연 (준비 중)',
+      scheduleView: 'themes/aladdin-2024-2025-1st-genie/scheduletab/view.js',
+      fonts: 'themes/elisabeth-2026-6th-lucheni/fonts/fonts.css',
+      settlementExportStylesheet: null,
+      settlementExportBackground: null
     })
   ]);
 

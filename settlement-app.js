@@ -238,6 +238,7 @@ function render () {
   $('#loginBtn').textContent = loggedIn ? '로그아웃' : '로그인';
   $('#wrap').innerHTML = headHTML() + bodyHTML();
   bind();
+  window.BollsarSettlementTheme?.bind(render);
 
   requestAnimationFrame(() => {
     const scroller = $('.seatmap-scroll');
@@ -269,6 +270,7 @@ function headHTML () {
 }
 
 function bodyHTML () {
+  if (window.BollsarSettlementTheme) return window.BollsarSettlementTheme.bodyHTML({ records:myRecords(), performances:settlementPerformances(), seatMapHTML, paletteHTML });
   const list  = myRecords();
   const numer = list.length;
 
@@ -675,18 +677,23 @@ async function previewSettlementImage (button) {
   button.disabled = true;
   button.textContent = '미리보기 만드는 중…';
   try {
-    const frame = await settlementExportFrame();
-    const target = frame.contentWindow;
     const performances = settlementPerformances();
     const records = myRecords();
-    const pairs = favoritePairs.slice(0, FAVORITE_MAX).map(fix => ({
-      names:ROLES.filter(role => fix[role.id]).map(role => actorName(fix[role.id])).slice(0, 4),
-      watched:recordsMatchingFix(records, fix).length,
-      total:performances.filter(perf => Object.entries(fix).every(([role, actor]) => perf.cast[role] === actor)).length
-    }));
-    target.setSettlementPreview({ visitColors:{ ...visitColors }, records, performances, includeTour });
-    target.setPairCombinations(pairs);
-    const blob = await target.exportSettlementPng();
+    let blob;
+    if (window.BollsarSettlementTheme?.exportPng) {
+      blob = await window.BollsarSettlementTheme.exportPng({ records, performances, seatMapHTML });
+    } else {
+      const frame = await settlementExportFrame();
+      const target = frame.contentWindow;
+      const pairs = favoritePairs.slice(0, FAVORITE_MAX).map(fix => ({
+        names:ROLES.filter(role => fix[role.id]).map(role => actorName(fix[role.id])).slice(0, 4),
+        watched:recordsMatchingFix(records, fix).length,
+        total:performances.filter(perf => Object.entries(fix).every(([role, actor]) => perf.cast[role] === actor)).length
+      }));
+      target.setSettlementPreview({ visitColors:{ ...visitColors }, records, performances, includeTour });
+      target.setPairCombinations(pairs);
+      blob = await target.exportSettlementPng();
+    }
     const url = URL.createObjectURL(blob);
     clearSettlementPreview();
     pendingSettlementImage = { blob, url };
@@ -731,7 +738,7 @@ function bind () {
   const overview = $('#mapOverview');
   const overviewOpen = $('.js-map-overview');
   if (overviewOpen) overviewOpen.addEventListener('click', () => {
-    overview.querySelector('.map-overview-content').innerHTML = seatMapHTML(myRecords());
+    overview.querySelector('.map-overview-content').innerHTML = seatMapHTML(window.BollsarSettlementTheme?.mapRecords(myRecords()) ?? myRecords());
     overview.showModal();
     requestAnimationFrame(() => setMapOverviewZoom(1, true));
   });

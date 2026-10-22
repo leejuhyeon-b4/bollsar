@@ -1,0 +1,29 @@
+/* Neutral functional preview; final artwork is undecided. Seat edges use the shared SVG renderer. */
+.aladdin-venues { max-width:420px; margin:24px 0; }
+.aladdin-venue-labels { display:flex; justify-content:space-between; }
+.aladdin-venue-switch { width:100%; margin:12px 0; accent-color:#333; cursor:ew-resize; }
+.aladdin-venues p,.aladdin-preparing { color:#555; font-size:13px; }
+.aladdin-board { padding-block:16px; }
+.aladdin-other-count { border-bottom:1px solid #ccc; padding-bottom:16px; }
+.seatmap-scroll { overflow-x:auto; }
+.seatmaps { width:max-content; margin-inline:auto; }
+.st-floor { margin:18px 0; }
+.stage-bar { text-align:center; margin:12px 0; }
+.seatmap { position:relative; display:flex; flex-direction:column; width:max-content; --seat:11px; --seat-h:12px; --aisle:4px; }
+.seatrow { display:grid; height:var(--seat-h); width:max-content; gap:0; }
+.seat { grid-row:1; display:block; width:var(--seat); height:var(--seat-h); min-width:var(--seat); min-height:var(--seat-h); border:0; --stroke:.5px; font:7px/1.4 system-ui; text-align:center; }
+.rl { grid-row:1; font:7px/1.4 system-ui; text-align:center; align-self:center; }
+.map-overview { max-width:95vw; max-height:95vh; overflow:auto; }
+.map-overview-stage { max-width:90vw; max-height:75vh; overflow:auto; }
+.map-overview .seatmap { --seat:15px; --seat-h:15px; --aisle:8px; }
+.map-overview .seat { --stroke:1px; }
+.map-overview .map-overview-content { transform-origin:top left; }
+.lv-slots { display:flex; flex-wrap:wrap; gap:12px; margin:24px 0; }
+.swatch { display:inline-block; width:20px; height:20px; }
+.aladdin-export { position:fixed; left:-20000px; top:0; width:900px; padding:32px; background:white; }
+.aladdin-export .seatmap-scroll { overflow:visible; }
+.aladdin-export .seatmap { --seat:15px; --seat-h:15px; --aisle:8px; }
+.aladdin-export .seat { --stroke:1px; }
+.aladdin-export .map-hint { display:none; }
+#savePreview { width:min(600px,95vw); max-height:95vh; overflow:auto; }
+#savePreviewImage { display:block; max-width:100%; max-height:75vh; margin:auto; }

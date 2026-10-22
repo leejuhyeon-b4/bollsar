@@ -409,7 +409,7 @@ test(
      */
     assert.match(
       seatLines,
-      /root\.closest\('\.map-overview'\)\s*\?\s*1\s*:\s*0\.5/
+      /root\.closest\('\.map-overview, \[data-seat-export\]'\)\s*\?\s*1\s*:\s*0\.5/
     );
 
     assert.match(
