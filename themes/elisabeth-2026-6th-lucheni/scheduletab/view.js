@@ -18,13 +18,13 @@
     displayTitle = WORK.title,
     displayVenue = WORK.venue || ''
   }) {
-    const leadKick = special ? '다가오는 어트랙션 - 킹키부츠 퍼레이드' : '다가오는 회차';
+    const leadKick = special ? (p.category ? `다가오는 ${p.category}` : '다가오는 어트랙션 - 킹키부츠 퍼레이드') : '다가오는 회차';
     const leadTitle = special ? displayTitle : `뮤지컬 &lsquo;${displayTitle}&rsquo;${role ? ` ${role} 역` : ''}`;
     const leadVenueText = displayVenue ? ' · ' + displayVenue : '';
-    const leadAlt = special ? `${ACTORS[HONG].name} 킹키부츠 퍼레이드` : `${ACTORS[HONG].name} — ${role || '루케니'} 무대컷`;
+    const leadAlt = special ? `${ACTORS[HONG].name}${p.category ? '' : ' 킹키부츠 퍼레이드'}` : `${ACTORS[HONG].name} — ${role || '루케니'} 무대컷`;
     const leadCaption = special ? ACTORS[HONG].name : `Luigi Lucheni · ${ACTORS[HONG].name}`;
 
-    return `<section class="np-lead">
+    return `<section class="np-lead"${p.hidePhoto ? ' style="grid-template-columns:minmax(0,1fr)"' : ''}>
       <div class="np-lead-text">
         <div class="np-lead-kick">${leadKick}</div>
         <h2 class="np-lead-ttl">${leadTitle}</h2>
@@ -34,12 +34,12 @@
           <span>${p.m}월 ${p.d}일 ${dowShort(p)} · ${p.t}${leadVenueText}</span>
         </div>
       </div>
-      <figure class="np-lead-fig">
+      ${p.hidePhoto ? '' : `<figure class="np-lead-fig">
         <div class="np-cut">
           <img src="${LEAD_PHOTO}" alt="${leadAlt}" loading="lazy">
         </div>
         <figcaption>${leadCaption}</figcaption>
-      </figure>
+      </figure>`}
     </section>`;
   }
 
@@ -50,17 +50,18 @@
     displayTitle = WORK.title,
     displayVenue = WORK.venue || ''
   }) {
-    const entryCategory = special ? '어트랙션' : '뮤지컬 회차';
+    const entryCategory = special ? (p.category || '어트랙션') : '뮤지컬 회차';
     const entryTitle = `${displayTitle}${!special && role ? ` — ${role} 역` : ''}`;
     const entryVenue = displayVenue || '극장 미정 · 공식 공지 예정';
 
-    return `<button type="button" class="np-entry${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}">
+    return `<button type="button" class="np-entry${went ? ' went' : ''}${extra ? ' ' + extra : ''}" data-key="${key}"${p.hidePhoto ? ' style="grid-template-columns:44px minmax(0,1fr)"' : ''}>
       <div class="lc"><div class="big">${p.d}</div><div class="sm">${p.m}월 ${dowShort(p)}</div></div>
-      <img class="np-entry-photo" src="${PHOTO}" alt="" loading="lazy">
+      ${p.hidePhoto ? '' : `<img class="np-entry-photo" src="${PHOTO}" alt="" loading="lazy">`}
       <div>
         <div class="tags"><em class="cat">${entryCategory}</em>${badges}</div>
         <span class="ttl">${entryTitle}</span>
-        <span class="place">${entryVenue}</span>
+        ${p.hidePhoto ? `<span class="place">${p.castLabel}</span>` : ''}
+        <span class="place">${p.hidePhoto ? p.t + ' · ' : ''}${entryVenue}</span>
       </div>
     </button>`;
   }
@@ -68,6 +69,7 @@
     pad = false,
     cls,
     day,
+    items = [],
     times = [],
     eventText = '',
     eventCount = 0,
@@ -78,11 +80,12 @@
       return `<div class="np-cell pad"></div>`;
     }
 
+    const hidePhoto = items.length > 0 && items.every(p => p.hidePhoto);
     const inner = times.length
-      ? `<img class="np-cell-photo" src="${PHOTO}" alt="${actorName}" loading="lazy">
+      ? `${hidePhoto ? '' : `<img class="np-cell-photo" src="${PHOTO}" alt="${actorName}" loading="lazy">`}
          <span class="np-cell-t">${times.join('·')}</span>
          ${eventCount
-           ? `<span class="np-cell-ev">${eventText}${eventCount > 1 ? ' +' + (eventCount - 1) : ''}</span>`
+           ? `<span class="np-cell-ev"${hidePhoto ? ' style="white-space:normal;overflow-wrap:anywhere"' : ''}>${eventText}${eventCount > 1 ? ' +' + (eventCount - 1) : ''}</span>`
            : ''}`
       : '';
 
@@ -184,13 +187,13 @@
     workTitle,
     venue
   }) {
-    const sheetAction = p.special && p.detailUrl
-      ? `<div class="np-check">
+    const sheetAction = p.special
+      ? (p.detailUrl ? `<div class="np-check">
           <a class="np-btn solid"
              href="${p.detailUrl}"
              target="_blank"
              rel="noopener noreferrer">전체 캐스트 &amp; 상세정보</a>
-        </div>`
+        </div>` : '')
       : check;
     return `
     <div class="np-sheet-head">
@@ -198,13 +201,13 @@
       <button type="button" class="np-x js-close" aria-label="닫기">✕</button>
     </div>
     <h3 class="np-sheet-ttl">${p.m}월 ${p.d}일 ${dowLabel}요일의 지면</h3>
-    <div class="np-sheet-kicker">${kicker}</div>
+    <div class="np-sheet-kicker">${p.category ? `<em class="cat">${p.category}</em>` : kicker}</div>
     <p class="np-sheet-show">${workTitle}${role ? ` <span>— ${role} 역</span>` : ''}</p>
     <p class="np-sheet-sub">${p.t} 시작${venue ? ' · ' + venue : ''}</p>
     ${dayNav}
     <div class="np-hr"></div>
     <table class="np-cast">
-      <caption>${p.special ? '킹키부츠 퍼레이드' : '이 회차 캐스팅'}</caption>
+      <caption>${p.special ? (p.category || '킹키부츠 퍼레이드') : '이 회차 캐스팅'}</caption>
       <tbody>${rows}</tbody>
     </table>
     ${evHTML}${p.notice ? `<p class="np-sheet-sub">${p.notice}</p>` : ""}${hist}${sheetAction}`;

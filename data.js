@@ -349,6 +349,18 @@ function track (name, params) {
 /* One-off/special schedules kept separate from production PERFS. */
 const SPECIAL_EVENTS = Object.freeze([
   Object.freeze({
+    y:2026, m:11, d:19, t:'22:00',
+    special:true,
+    displayWithProductionId:'elisabeth-2026-6th',
+    category:'방송 / 드라마',
+    hidePhoto:true,
+    title:'KBS 드라마스페셜 2026 《사운드:트랙》 — 연극이 끝난 후',
+    venue:'KBS 2TV',
+    cast:{},
+    castLabel:'강홍석(기봉석 역) · 표예진 · 이기택',
+    events:[{ label:'연극이 끝난 후', verified:true }]
+  }),
+  Object.freeze({
     y:2026, m:11, d:28, t:'16:00',
     special:true,
     displayWithProductionId:'elisabeth-2026-6th',

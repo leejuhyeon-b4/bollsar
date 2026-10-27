@@ -182,6 +182,7 @@ function calendarHTML () {
     cells += SCHEDULE_VIEW.calendarCellHTML({
       cls,
       day,
+      items: dItems,
       times: dItems.map(p => p.t),
       eventText,
       eventCount: dEvents.length - (dEvents.some(e => e.label === '막공') && dEvents.some(e => e.label === '무대인사') ? 1 : 0),
