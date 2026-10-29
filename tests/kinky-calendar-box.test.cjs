@@ -89,6 +89,7 @@ test('real calendar renderer maps Monday first across month boundaries and leap 
  const weekdays=app.match(/const WD = [^;]+;/)[0];
  const offset=app.match(/const wcol = [^;]+;/)[0];
  const state={ym:{y:2025,m:12},SCHEDULE_VIEW:{...render,calendarCellHTML:args=>args.pad?'PAD,':`${args.day},`,calendarFrameHTML:args=>args},monthPerfs:()=>[],firstDow:(y,m)=>new Date(y,m-1,1).getDay(),daysIn:(y,m)=>new Date(y,m,0).getDate(),TODAY:{},loggedIn:false,PERFS:[],leadHTML:()=>'',MONTH_EN:Array(12).fill('month'),ACTORS:{hong:{name:'강홍석'}},HONG:'hong',idx:({y,m})=>y*12+m,RANGE:{min:{y:2025,m:12},max:{y:2026,m:3}},PHOTO:'',SPECIAL_CALENDAR_PHOTO:''};
+ state.rangeMaxIndex=state.idx(state.RANGE.max);
  vm.createContext(state);vm.runInContext(`${weekdays}${offset}${calendar}`,state);
  let result=state.calendarHTML();assert(result.cells.startsWith('1,2,3,4,5,6,7,'));assert.match(result.dow,/월<\/div>.*화<\/div>.*일<\/div>/);
  state.ym={y:2026,m:3};result=state.calendarHTML();assert(result.cells.startsWith('PAD,PAD,PAD,PAD,PAD,PAD,1,'));

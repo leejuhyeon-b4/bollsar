@@ -21,7 +21,7 @@ function fixture () {
   return { context, run:source => vm.runInContext(source, context) };
 }
 
-test('the drama and unchanged universe show appear only with Elisabeth', () => {
+test('the drama, Christmas concert and unchanged universe show appear only with Elisabeth', () => {
   const { run } = fixture();
   const drama = plain(run("perfFromKey('2026|11|19|22:00')"));
   assert.deepEqual(drama, {
@@ -37,12 +37,62 @@ test('the drama and unchanged universe show appear only with Elisabeth', () => {
     castLabel:'강홍석 & 킹키부츠 엔젤 외', detailUrl:'https://m.ticketlink.co.kr/product/65916',
     events:[{ label:'우주최강쇼', verified:true }]
   });
-  assert.equal(run('hongPerfs().filter(p => p.special).length'), 2);
+  assert.deepEqual(plain(run("perfFromKey('2026|12|27|17:00')")), {
+    y:2026, m:12, d:27, t:'17:00', special:true, displayWithProductionId:'elisabeth-2026-6th',
+    category:'콘서트', hidePhoto:true, title:'헐리우드 인 크리스마스 2026', venue:'롯데콘서트홀', cast:{},
+    castLabel:'강홍석 · 민경아', detailUrl:'https://nol.yanolja.com/ticket/products/26015528',
+    events:[{ label:'헐리우드 인 크리스마스 2026', verified:true }]
+  });
+  assert.equal(run('hongPerfs().filter(p => p.special).length'), 3);
   for (const production of ['kinky-boots-2025-2026-7th', 'aladdin-2024-2025-1st']) {
     run(`WORK.id = '${production}'`);
     assert.equal(run('specialEventsForActiveProduction().length'), 0);
     assert.equal(run('hongPerfs().some(p => p.special)'), false);
     assert.equal(run("perfFromKey('2026|11|19|22:00')"), undefined);
+    assert.equal(run("perfFromKey('2026|12|27|17:00')"), undefined);
+  }
+});
+
+test('Christmas concert has no images or save controls and links to the verified 2026 NOL product', () => {
+  const { run } = fixture();
+  run("var concert = perfFromKey('2026|12|27|17:00')");
+  for (const loggedIn of [false, true]) {
+    run(`loggedIn = ${loggedIn}`);
+    const sheet = run('sheetHTML(concert)');
+    for (const text of ['헐리우드 인 크리스마스 2026', '17:00', '롯데콘서트홀', '강홍석 · 민경아', '콘서트']) assert.ok(sheet.includes(text), text);
+    assert.match(sheet, /href="https:\/\/nol.yanolja.com\/ticket\/products\/26015528"/);
+    assert.match(sheet, /target="_blank"\s+rel="noopener noreferrer"/);
+    assert.doesNotMatch(sheet, /<img|js-check|js-seat|js-tour-save|이 회차 담기|undefined|킹키부츠 퍼레이드/);
+  }
+  const props = "{p:concert,special:true,displayTitle:concert.title,displayVenue:concert.venue,WORK,ACTORS,HONG,dowShort,PHOTO:'fallback.jpg',LEAD_PHOTO:'fallback.jpg',badges:'',deck:concert.castLabel}";
+  for (const method of ['entryHTML', 'leadHTML']) {
+    const html = run(`SCHEDULE_VIEW.${method}(${props})`);
+    assert.match(html, /헐리우드 인 크리스마스 2026/);
+    assert.doesNotMatch(html, /<img|<figure|fallback.jpg/);
+  }
+});
+
+test('calendar navigation reaches the December special without extending production or settlement dates', () => {
+  for (const production of ['elisabeth-2026-6th', 'kinky-boots-2025-2026-7th', 'aladdin-2024-2025-1st']) {
+    const { context, run } = fixture();
+    run(`WORK.id = '${production}'`);
+    vm.runInContext(schedule.slice(schedule.indexOf('const todayMonthIndex ='), schedule.indexOf('let showPast =')), context);
+    run("var sheetKey = null, gridFrom = ''; var closeSheet = () => {}, render = () => {}; ym = {y:2026,m:11}");
+    vm.runInContext(schedule.slice(schedule.indexOf('function moveMonth ('), schedule.indexOf('function bind', schedule.indexOf('function moveMonth ('))), context);
+    run('moveMonth(1)');
+    assert.equal(run('ym.m'), production === 'elisabeth-2026-6th' ? 12 : 11);
+    run('moveMonth(1)');
+    assert.equal(run('ym.y'), 2026);
+    assert.equal(run('RANGE.max.m'), 11);
+    if (production !== 'elisabeth-2026-6th') continue;
+    run("var monthPerfs = () => hongPerfs().filter(p => p.y === ym.y && p.m === ym.m); var wcol = d => (d + 6) % 7; var WD = ['월','화','수','목','금','토','일']; var MONTH_EN = Array(12).fill('December'); var PHOTO = 'fallback.jpg', SPECIAL_CALENDAR_PHOTO = 'universe.jpg'; var leadHTML = () => '';");
+    vm.runInContext(schedule.slice(schedule.indexOf('function calendarHTML ('), schedule.indexOf('function listHTML (')), context);
+    const calendar = run('calendarHTML()');
+    const cell = calendar.match(/<div class="[^"]*np-cell[^"]*" data-day="27">([\s\S]*?)<\/div>/)[1];
+    assert.match(cell, /17:00/);
+    assert.match(cell, /헐리우드 인 크리스마스 2026/);
+    assert.doesNotMatch(cell, /<img|fallback.jpg|universe.jpg/);
+    assert.match(calendar, /aria-label="다음 달" disabled/);
   }
 });
 

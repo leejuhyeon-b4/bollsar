@@ -25,7 +25,7 @@ const dowShort = p => WD_NAME[new Date(p.y, p.m - 1, p.d).getDay()];
 let view = 'calendar';                 // 'calendar' | 'list' — 달력형이 이 탭의 중심
 const todayMonthIndex = TODAY.y * 12 + TODAY.m;
 const rangeMinIndex = RANGE.min.y * 12 + RANGE.min.m;
-const rangeMaxIndex = RANGE.max.y * 12 + RANGE.max.m;
+const rangeMaxIndex = Math.max(idx(RANGE.max), ...specialEventsForActiveProduction().map(idx));
 
 let ym =
   todayMonthIndex >= rangeMinIndex &&
@@ -202,7 +202,7 @@ function calendarHTML () {
     actorName: ACTORS[HONG].name,
     count: list.length,
     canPrev: idx(ym) > idx(RANGE.min),
-    canNext: idx(ym) < idx(RANGE.max),
+    canNext: idx(ym) < rangeMaxIndex,
     dow,
     cells
   });
@@ -1595,7 +1595,7 @@ function moveMonth (step) {
   const n = { y:ym.y, m:ym.m + step };
   if (n.m > 12) { n.m = 1; n.y++; }
   if (n.m < 1)  { n.m = 12; n.y--; }
-  if (idx(n) < idx(RANGE.min) || idx(n) > idx(RANGE.max)) return;
+  if (idx(n) < idx(RANGE.min) || idx(n) > rangeMaxIndex) return;
   ym = n;
   sheetKey = null;
   closeSheet();

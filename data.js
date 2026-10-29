@@ -370,6 +370,19 @@ const SPECIAL_EVENTS = Object.freeze([
     castLabel:'강홍석 & 킹키부츠 엔젤 외',
     detailUrl:'https://m.ticketlink.co.kr/product/65916',
     events:[{ label:'우주최강쇼', verified:true }]
+  }),
+  Object.freeze({
+    y:2026, m:12, d:27, t:'17:00',
+    special:true,
+    displayWithProductionId:'elisabeth-2026-6th',
+    category:'콘서트',
+    hidePhoto:true,
+    title:'헐리우드 인 크리스마스 2026',
+    venue:'롯데콘서트홀',
+    cast:{},
+    castLabel:'강홍석 · 민경아',
+    detailUrl:'https://nol.yanolja.com/ticket/products/26015528',
+    events:[{ label:'헐리우드 인 크리스마스 2026', verified:true }]
   })
 ]);
 
