@@ -107,7 +107,7 @@ assert.ok(
 
 assert.ok(
   sw.includes(
-    "const CACHE_VERSION = 'v90';"
+    "const CACHE_VERSION = 'v91';"
   )
 );
 
